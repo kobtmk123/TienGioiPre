@@ -1,0 +1,50 @@
+# Tên của quy trình làm việc (workflow) sẽ hiển thị trên tab Actions của GitHub
+name: Build TienGioiPre Plugin
+
+# Định nghĩa các sự kiện sẽ kích hoạt quy trình này
+on:
+  # Chạy khi có code mới được đẩy lên (push)
+  push:
+    branches: [ "main", "master" ] # Thay đổi tên nhánh chính của bạn nếu cần
+  # Chạy khi có một Pull Request được tạo hoặc cập nhật
+  pull_request:
+    branches: [ "main", "master" ]
+
+# Định nghĩa các công việc (jobs) sẽ được thực hiện
+jobs:
+  build:
+    # Sử dụng một máy ảo Ubuntu mới nhất để chạy công việc
+    runs-on: ubuntu-latest
+
+    # Các bước (steps) sẽ được thực hiện tuần tự
+    steps:
+      # Bước 1: Lấy mã nguồn từ kho GitHub của bạn về máy ảo
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Bước 2: Thiết lập môi trường Java Development Kit (JDK)
+      # Chúng ta dùng phiên bản 17, phù hợp cho các phiên bản Minecraft hiện đại
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven
+
+      # Bước 3: Build dự án bằng Maven
+      # Đây chính là lệnh bạn chạy trên máy tính của mình, nhưng giờ robot sẽ làm
+      # -B: Chế độ Batch (không yêu cầu nhập liệu)
+      # package: Mục tiêu là đóng gói thành file .jar
+      - name: Build with Maven
+        run: mvn -B package --file pom.xml
+
+      # Bước 4: Tải lên file .jar đã build xong như một "Artifact"
+      # Điều này cho phép bạn tải nó về sau khi quy trình hoàn tất
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          # Tên của artifact sẽ hiển thị trên trang download
+          name: TienGioiPre-Plugin
+          # Đường dẫn đến file cần tải lên. 
+          # Maven sẽ tạo file jar trong thư mục target/
+          path: target/TienGioiPre-*.jar
