@@ -1,18 +1,19 @@
 package com.yourname.tiengioipre.core;
 
 import com.yourname.tiengioipre.TienGioiPre;
-import org.bukkit.attribute.Attribute;
-import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
-
-import java.util.*;
+// ... các import khác ...
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class RealmManager {
     private final TienGioiPre plugin;
-    private final Map<String, Realm> realms = new HashMap<>();
+    // Lưu trữ theo cấu trúc mới
+    private final Map<String, RealmData> realmsData = new HashMap<>();
+    private List<String> realmProgression;
+    private List<String> tierProgression;
 
     public RealmManager(TienGioiPre plugin) {
         this.plugin = plugin;
@@ -20,110 +21,85 @@ public class RealmManager {
     }
 
     public void loadRealms() {
-        realms.clear();
+        realmsData.clear();
         ConfigurationSection realmsSection = plugin.getConfig().getConfigurationSection("realms");
         if (realmsSection == null) return;
 
         for (String realmId : realmsSection.getKeys(false)) {
-            ConfigurationSection section = realmsSection.getConfigurationSection(realmId);
-            if (section == null) continue;
-
-            String displayName = section.getString("display-name", "Unknown Realm");
-            String nextRealmId = section.getString("next-realm", "none");
-            double maxLinhKhi = section.getDouble("max-linh-khi", 100);
-            double linhKhiGain = section.getDouble("linh-khi-gain-per-tick", 1) * 20; // Chuyển từ tick sang giây
-            double lightningDamage = section.getDouble("breakthrough.lightning-damage", 0);
-
-            // Load Stats
-            Map<String, Double> statBonuses = new HashMap<>();
-            ConfigurationSection statsSection = section.getConfigurationSection("stats");
-            if (statsSection != null) {
-                statBonuses.put("max-health-bonus", statsSection.getDouble("max-health-bonus", 0));
-                statBonuses.put("attack-damage-bonus", statsSection.getDouble("attack-damage-bonus", 0));
-                statBonuses.put("walk-speed-bonus", statsSection.getDouble("walk-speed-bonus", 0));
-            }
-
-            // Load Potion Effects
-            List<PotionEffect> potionEffects = new ArrayList<>();
-            List<String> effectStrings = section.getStringList("stats.potion-effects");
-            for (String effectString : effectStrings) {
-                String[] parts = effectString.split(":");
-                PotionEffectType type = PotionEffectType.getByName(parts[0].toUpperCase());
-                int amplifier = Integer.parseInt(parts[1]);
-                if (type != null) {
-                    potionEffects.add(new PotionEffect(type, Integer.MAX_VALUE, amplifier, true, false));
+            ConfigurationSection realmConfig = realmsSection.getConfigurationSection(realmId);
+            String realmDisplayName = realmConfig.getString("display-name", "Tu Vi Lỗi");
+            
+            Map<String, TierData> tiers = new HashMap<>();
+            ConfigurationSection tiersSection = realmConfig.getConfigurationSection("tiers");
+            if (tiersSection != null) {
+                for (String tierId : tiersSection.getKeys(false)) {
+                    ConfigurationSection tierConfig = tiersSection.getConfigurationSection(tierId);
+                    // Tạo đối tượng TierData và thêm vào map
+                    // (Bạn cần tạo class TierData tương tự RealmData)
+                    TierData tier = new TierData(/* ... đọc dữ liệu từ tierConfig ... */);
+                    tiers.put(tierId, tier);
                 }
             }
-
-            Realm realm = new Realm(realmId, displayName, nextRealmId, maxLinhKhi, linhKhiGain, lightningDamage, statBonuses, potionEffects);
-            realms.put(realmId, realm);
+            realmsData.put(realmId, new RealmData(realmId, realmDisplayName, tiers));
         }
-        plugin.getLogger().info("Đã tải " + realms.size() + " cảnh giới.");
-    }
 
-    public Realm getRealm(String realmId) {
-        return realms.get(realmId);
+        // Tải "bản đồ" đột phá
+        this.realmProgression = plugin.getConfig().getStringList("progression.realms-order");
+        this.tierProgression = plugin.getConfig().getStringList("progression.tiers-order");
+        
+        plugin.getLogger().info("Đã tải " + realmsData.size() + " Tu Vi.");
     }
     
+    // Hàm lấy dữ liệu của một bậc cụ thể
+    public TierData getTierData(String realmId, String tierId) {
+        RealmData realm = realmsData.get(realmId);
+        if (realm == null) return null;
+        return realm.tiers().get(tierId);
+    }
+    
+    // Hàm lấy tên hiển thị của Tu Vi
     public String getRealmDisplayName(String realmId) {
-        Realm realm = getRealm(realmId);
-        return realm != null ? realm.displayName() : "Không rõ";
+        RealmData realm = realmsData.get(realmId);
+        return realm != null ? realm.displayName() : "Không Rõ";
     }
 
-    public double getMaxLinhKhi(String realmId) {
-        Realm realm = getRealm(realmId);
-        return realm != null ? realm.maxLinhKhi() : 100;
+    // Hàm lấy tên hiển thị của Bậc
+    public String getTierDisplayName(String realmId, String tierId) {
+        TierData tier = getTierData(realmId, tierId);
+        return tier != null ? tier.displayName() : "Không Rõ";
     }
 
-    public void applyRealmStats(Player player, String realmId) {
-        Realm realm = getRealm(realmId);
-        if (realm == null) return;
-
-        // Xóa các hiệu ứng cũ của plugin trước khi áp dụng cái mới
-        removeRealmStats(player);
-
-        // Áp dụng máu, sát thương, tốc độ
-        realm.statBonuses().forEach((stat, value) -> {
-            if (value == 0) return;
-            Attribute attribute = null;
-            String modifierName = "tiengioi-" + stat;
-            switch (stat) {
-                case "max-health-bonus":
-                    attribute = Attribute.GENERIC_MAX_HEALTH;
-                    break;
-                case "attack-damage-bonus":
-                    attribute = Attribute.GENERIC_ATTACK_DAMAGE;
-                    break;
-                case "walk-speed-bonus":
-                    attribute = Attribute.GENERIC_MOVEMENT_SPEED;
-                    break;
+    /**
+     * Tìm ra Tu Vi và Bậc tiếp theo cho người chơi.
+     * @return một String array [nextRealmId, nextTierId], hoặc null nếu đã max.
+     */
+    public String[] getNextProgression(String currentRealmId, String currentTierId) {
+        int currentTierIndex = tierProgression.indexOf(currentTierId);
+        
+        // Trường hợp 1: Còn bậc để lên trong Tu Vi hiện tại
+        if (currentTierIndex < tierProgression.size() - 1) {
+            String nextTierId = tierProgression.get(currentTierIndex + 1);
+            // Kiểm tra xem Tu Vi hiện tại có bậc đó không
+            if (getTierData(currentRealmId, nextTierId) != null) {
+                return new String[]{currentRealmId, nextTierId};
             }
-            if (attribute != null) {
-                AttributeModifier modifier = new AttributeModifier(UUID.randomUUID(), modifierName, value, AttributeModifier.Operation.ADD_NUMBER);
-                player.getAttribute(attribute).addModifier(modifier);
-            }
-        });
+        }
+        
+        // Trường hợp 2: Đã hết bậc, cần lên Tu Vi mới
+        int currentRealmIndex = realmProgression.indexOf(currentRealmId);
+        if (currentRealmIndex < realmProgression.size() - 1) {
+            String nextRealmId = realmProgression.get(currentRealmIndex + 1);
+            String nextTierId = tierProgression.get(0); // Bắt đầu từ bậc đầu tiên (Sơ Kỳ)
+            return new String[]{nextRealmId, nextTierId};
+        }
 
-        // Áp dụng hiệu ứng thuốc
-        player.addPotionEffects(realm.potionEffects());
+        // Trường hợp 3: Đã max Tu Vi, max Bậc
+        return null;
     }
 
-    public void removeRealmStats(Player player) {
-        // Xóa Attribute Modifiers
-        Arrays.asList(Attribute.GENERIC_MAX_HEALTH, Attribute.GENERIC_ATTACK_DAMAGE, Attribute.GENERIC_MOVEMENT_SPEED)
-              .forEach(attribute -> {
-                  if (player.getAttribute(attribute) != null) {
-                      for (AttributeModifier modifier : player.getAttribute(attribute).getModifiers()) {
-                          if (modifier.getName().startsWith("tiengioi-")) {
-                              player.getAttribute(attribute).removeModifier(modifier);
-                          }
-                      }
-                  }
-              });
-
-        // Xóa Potion Effects từ config
-        realms.values().forEach(realm -> {
-            realm.potionEffects().forEach(effect -> player.removePotionEffect(effect.getType()));
-        });
-    }
+    // Bạn cần tạo các class/record RealmData và TierData để lưu trữ dữ liệu
+    public record RealmData(String id, String displayName, Map<String, TierData> tiers) {}
+    public record TierData(String displayName, double maxLinhKhi, double linhKhiGainPerSecond, double breakthroughLightningDamage /*, ... các stats khác ...*/) {}
+    
+    // ... các hàm apply/remove stats cần được cập nhật để lấy dữ liệu từ TierData ...
 }
