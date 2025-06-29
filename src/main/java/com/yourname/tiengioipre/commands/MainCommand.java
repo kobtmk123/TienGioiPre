@@ -18,7 +18,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class MainCommand implements CommandExecutor, TabCompleter {
 
@@ -84,13 +83,16 @@ public class MainCommand implements CommandExecutor, TabCompleter {
         String itemTier = args[3];
         int amount = 1;
         if(args.length > 4) {
-            try { amount = Integer.parseInt(args[4]); } catch (NumberFormatException e) {
-                sender.sendMessage(format(prefix + "&cSố lượng không hợp lệ.")); return;
+            try { amount = Integer.parseInt(args[4]); }
+            catch (NumberFormatException e) {
+                sender.sendMessage(format(prefix + "&cSố lượng không hợp lệ."));
+                return;
             }
         }
         ItemStack item = plugin.getItemManager().createCultivationItem(itemId, itemTier);
         if(item == null) {
-            sender.sendMessage(format(prefix + "&cID hoặc cấp độ vật phẩm không tồn tại.")); return;
+            sender.sendMessage(format(prefix + "&cID hoặc cấp độ vật phẩm không tồn tại."));
+            return;
         }
         item.setAmount(amount);
         target.getInventory().addItem(item);
@@ -123,7 +125,10 @@ public class MainCommand implements CommandExecutor, TabCompleter {
         data.setRealmId(realmId);
         data.setTierId(tierId);
         data.setLinhKhi(0);
-        plugin.getRealmManager().applyRealmStats(target, realmId, tierId);
+        
+        // ĐÃ SỬA LỖI: Gọi đúng hàm applyAllStats
+        plugin.getRealmManager().applyAllStats(target);
+
         String realmName = plugin.getRealmManager().getRealmDisplayName(realmId);
         String tierName = plugin.getRealmManager().getTierDisplayName(realmId, tierId);
         sender.sendMessage(format(prefix + "&aĐã đặt cảnh giới của " + target.getName() + " thành " + realmName + " " + tierName));
@@ -141,12 +146,15 @@ public class MainCommand implements CommandExecutor, TabCompleter {
             return;
         }
         double amount;
-        try { amount = Double.parseDouble(args[2]); } catch (NumberFormatException e) {
-            sender.sendMessage(format(prefix + "&cSố lượng linh khí không hợp lệ.")); return;
+        try { amount = Double.parseDouble(args[2]); }
+        catch (NumberFormatException e) {
+            sender.sendMessage(format(prefix + "&cSố lượng linh khí không hợp lệ."));
+            return;
         }
         PlayerData data = plugin.getPlayerDataManager().getPlayerData(target);
         if (data == null) {
-             sender.sendMessage(format(prefix + "&cKhông tìm thấy dữ liệu của người chơi.")); return;
+             sender.sendMessage(format(prefix + "&cKhông tìm thấy dữ liệu của người chơi."));
+             return;
         }
         data.setLinhKhi(amount);
         sender.sendMessage(format(prefix + "&aĐã đặt linh khí của " + target.getName() + " thành &e" + String.format("%,.0f", amount)));
@@ -171,8 +179,10 @@ public class MainCommand implements CommandExecutor, TabCompleter {
         if (args.length == 1) {
             return filter(Arrays.asList("reload", "give", "setrealm", "setlinhkhi"), args[0]);
         }
-        if (args.length == 2 && Arrays.asList("give", "setrealm", "setlinhkhi").contains(args[0].toLowerCase())) {
-            return null;
+        if (args.length == 2) {
+            if (Arrays.asList("give", "setrealm", "setlinhkhi").contains(args[0].toLowerCase())) {
+                return null;
+            }
         }
         if (args[0].equalsIgnoreCase("setrealm")) {
             if (args.length == 3) {
@@ -188,7 +198,8 @@ public class MainCommand implements CommandExecutor, TabCompleter {
         }
         if (args[0].equalsIgnoreCase("give")) {
             if (args.length == 3) {
-                return filter(plugin.getConfig().getConfigurationSection("items").getKeys(false), args[2]);
+                if(plugin.getConfig().getConfigurationSection("items") != null)
+                    return filter(plugin.getConfig().getConfigurationSection("items").getKeys(false), args[2]);
             }
             if (args.length == 4) {
                 String itemId = args[2];
@@ -201,8 +212,13 @@ public class MainCommand implements CommandExecutor, TabCompleter {
     }
     
     private List<String> filter(Iterable<String> list, String start) {
-        return ((List<String>) list).stream()
-                .filter(s -> s.toLowerCase().startsWith(start.toLowerCase()))
-                .collect(Collectors.toList());
+        List<String> result = new ArrayList<>();
+        if (list == null) return result;
+        list.forEach(s -> {
+            if (s.toLowerCase().startsWith(start.toLowerCase())) {
+                result.add(s);
+            }
+        });
+        return result;
     }
 }
