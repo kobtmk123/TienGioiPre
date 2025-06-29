@@ -33,12 +33,13 @@ public class CultivationManager {
             return;
         }
 
-        ArmorStand as = loc.getWorld().spawn(loc.clone().add(0, -1.7, 0), ArmorStand.class, armorStand -> {
-            armorStand.setVisible(false);
-            armorStand.setGravity(false);
-            armorStand.setInvulnerable(true);
-            armorStand.setMarker(true);
-        });
+        // ĐÃ SỬA LỖI TƯƠNG THÍCH Ở ĐÂY
+        // Cách tạo ArmorStand tương thích với cả Spigot và Paper
+        ArmorStand as = loc.getWorld().spawn(loc.clone().add(0, -1.7, 0), ArmorStand.class);
+        as.setVisible(false);
+        as.setGravity(false);
+        as.setInvulnerable(true);
+        as.setMarker(true);
 
         as.addPassenger(player);
         cultivatingPlayers.put(player.getUniqueId(), as);
@@ -47,41 +48,51 @@ public class CultivationManager {
     public void stopCultivating(Player player) {
         ArmorStand as = cultivatingPlayers.remove(player.getUniqueId());
         if (as != null) {
-            as.getPassengers().forEach(as::removePassenger);
+            // Gỡ người chơi ra khỏi ArmorStand trước khi xóa nó
+            as.getPassengers().forEach(entity -> as.removePassenger(entity));
             as.remove();
         }
     }
 
     public void startCultivationTask() {
         new BukkitRunnable() {
+            int tick = 0;
             @Override
             public void run() {
                 if (cultivatingPlayers.isEmpty()) return;
 
-                for (UUID uuid : cultivatingPlayers.keySet()) {
-                    Player p = plugin.getServer().getPlayer(uuid);
+                tick++;
+
+                // Sử dụng entrySet để duyệt an toàn hơn và có thể xóa trong lúc duyệt
+                cultivatingPlayers.entrySet().removeIf(entry -> {
+                    Player p = plugin.getServer().getPlayer(entry.getKey());
                     if (p == null || !p.isOnline()) {
-                        ArmorStand as = cultivatingPlayers.remove(uuid);
+                        ArmorStand as = entry.getValue();
                         if (as != null) as.remove();
-                        continue;
+                        return true; // Xóa khỏi map
                     }
 
-                    PlayerData data = plugin.getPlayerDataManager().getPlayerData(p);
-                    Realm realm = plugin.getRealmManager().getRealm(data.getRealmId());
-                    if (data == null || realm == null || data.getLinhKhi() >= realm.maxLinhKhi()) {
-                        continue;
+                    // Thêm linh khí mỗi giây (20 ticks)
+                    if (tick % 20 == 0) {
+                        PlayerData data = plugin.getPlayerDataManager().getPlayerData(p);
+                        Realm realm = plugin.getRealmManager().getRealm(data.getRealmId());
+                        if (data != null && realm != null && data.getLinhKhi() < realm.maxLinhKhi()) {
+                            // Tăng 1 lượng tương ứng với mỗi giây
+                            data.addLinhKhi(realm.linhKhiGainPerSecond());
+                        }
                     }
-                    
-                    data.addLinhKhi(realm.linhKhiGainPerSecond() / 20.0);
 
-                    spawnParticleCircle(p.getLocation().add(0, 1, 0));
-                }
+                    // Hiệu ứng hạt mỗi 5 ticks
+                    if (tick % 5 == 0) {
+                         spawnParticleCircle(p.getLocation().add(0, 1, 0));
+                    }
+                    return false; // Giữ lại trong map
+                });
             }
-        }.runTaskTimer(plugin, 0L, 1L); // Chạy mỗi tick để hiệu ứng mượt hơn
+        }.runTaskTimer(plugin, 0L, 1L); // Chạy mỗi tick
     }
 
     private void spawnParticleCircle(Location center) {
-        // Cần thêm logic để chọn particle dựa trên cảnh giới
         Particle particle = Particle.CLOUD;
         for (int i = 0; i < 360; i += 20) {
             double angle = Math.toRadians(i);
@@ -91,12 +102,6 @@ public class CultivationManager {
         }
     }
 
-    /**
-     * Lấy vị trí của ArmorStand mà người chơi đang cưỡi.
-     * Cần thiết để ngăn người chơi di chuyển khi tu luyện.
-     * @param player Người chơi cần kiểm tra.
-     * @return Location của ArmorStand, hoặc null nếu người chơi không tu luyện.
-     */
     public Location getArmorStandLocation(Player player) {
         ArmorStand as = cultivatingPlayers.get(player.getUniqueId());
         return (as != null) ? as.getLocation() : null;
