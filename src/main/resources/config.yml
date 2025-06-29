@@ -1,0 +1,126 @@
+# Cài đặt chung
+settings:
+  # Cảnh giới mặc định cho người chơi mới
+  default-realm: "phannhan_soky_tang1"
+  # Tỷ lệ nhân linh khí nhận được ở khu vực đặc biệt
+  rich-qi-zone-multiplier: 1.5
+
+# Danh sách các cảnh giới
+# Tên cảnh giới theo định dạng: tenchinh_tennho_tang(1-5)
+realms:
+  phannhan_soky_tang1:
+    display-name: "&fPhàm Nhân Sơ Kỳ - Tầng 1"
+    next-realm: "phannhan_soky_tang2"
+    max-linh-khi: 100
+    linh-khi-gain-per-tick: 1
+    breakthrough:
+      lightning-damage: 0.0
+    stats: {}
+  phannhan_soky_tang2:
+    display-name: "&fPhàm Nhân Sơ Kỳ - Tầng 2"
+    next-realm: "phannhan_soky_tang3"
+    max-linh-khi: 120
+    linh-khi-gain-per-tick: 1
+    breakthrough:
+      lightning-damage: 0.0
+    stats: {}
+  # ... Cấu hình tất cả 5 tầng của Sơ Kỳ ...
+  # ... Cấu hình các cảnh giới nhỏ khác (Trung, Hậu, Đỉnh, Mãn) ...
+  # Ví dụ cảnh giới Trúc Cơ
+  trucco_soky_tang1:
+    display-name: "&aTrúc Cơ Sơ Kỳ - Tầng 1"
+    next-realm: "trucco_soky_tang2"
+    max-linh-khi: 500
+    linh-khi-gain-per-tick: 5
+    breakthrough:
+      lightning-damage: 2.0 # Sát thương 1 trái tim
+    stats:
+      max-health-bonus: 2.0 # Thêm 1 trái tim
+      walk-speed-bonus: 0.01 # Tăng tốc độ đi bộ
+      attack-damage-bonus: 0.5 # Tăng 0.5 sát thương
+      potion-effects:
+        - "SPEED:0" # Hiệu ứng Tốc Độ I
+  # ... Các cảnh giới khác ...
+  dokiep_man_tang5:
+    display-name: "&4&lĐộ Kiếp Viên Mãn - Tầng 5"
+    next-realm: "none" # Cảnh giới cuối cùng
+    max-linh-khi: 1000000
+    linh-khi-gain-per-tick: 500
+    breakthrough:
+      lightning-damage: 20.0
+    stats:
+      max-health-bonus: 20.0
+      walk-speed-bonus: 0.1
+      attack-damage-bonus: 15.0
+      potion-effects:
+        - "SPEED:2"
+        - "STRENGTH:2"
+        - "REGENERATION:1"
+
+# Vật phẩm tu luyện
+items:
+  cuonlinhkhi:
+    ha:
+      display-name: "&aCuộn Linh Khí [Hạ Phẩm]"
+      lore:
+        - "&7Một cuộn giấy chứa đựng linh khí."
+        - "&f&lChuột phải&7 để hấp thụ &a30&7 linh khí."
+      material: "PAPER"
+      enchanted: true
+      linh-khi-amount: 30
+    trung:
+      display-name: "&bCuộn Linh Khí [Trung Phẩm]"
+      lore:
+        - "&7Một cuộn giấy chứa đựng linh khí."
+        - "&f&lChuột phải&7 để hấp thụ &b75&7 linh khí."
+      material: "PAPER"
+      enchanted: true
+      linh-khi-amount: 75
+    thuong:
+      display-name: "&dCuộn Linh Khí [Thượng Phẩm]"
+      lore:
+        - "&7Một cuộn giấy chứa đựng linh khí."
+        - "&f&lChuột phải&7 để hấp thụ &d200&7 linh khí."
+      material: "PAPER"
+      enchanted: true
+      linh-khi-amount: 200
+    tuyet:
+      display-name: "&c&lCuộn Linh Khí [Tuyệt Phẩm]"
+      lore:
+        - "&7Một cuộn giấy chứa đựng linh khí."
+        - "&f&lChuột phải&7 để hấp thụ &c&l400&7 linh khí."
+      material: "PAPER"
+      enchanted: true
+      linh-khi-amount: 400
+
+# Cửa hàng tu tiên
+shop:
+  title: "&8Cửa Hàng Tu Tiên"
+  size: 27 # 9, 18, 27, 36, 45, 54
+  items:
+    cuon_linh_khi_ha:
+      slot: 10
+      item-id: "cuonlinhkhi"
+      item-tier: "ha"
+      price: 1000
+      # Lore sẽ được thêm vào lore gốc của vật phẩm
+      extra-lore:
+        - ""
+        - "&eGiá: &f1000 Xu"
+        - "&aChuột trái để mua 1, chuột phải để mua 64."
+    cuon_linh_khi_trung:
+      slot: 12
+      item-id: "cuonlinhkhi"
+      item-tier: "trung"
+      price: 2500
+      extra-lore:
+        - ""
+        - "&eGiá: &f2500 Xu"
+        - "&aChuột trái để mua 1, chuột phải để mua 64."
+    # ... Thêm các vật phẩm khác ...
+
+# Các khu vực linh khí dồi dào (sử dụng tên region của WorldGuard)
+# Yêu cầu plugin WorldGuard
+rich-qi-zones:
+  - "linh_khi_son_mach_1"
+  - "than_ma_dong"

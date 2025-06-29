@@ -1,0 +1,41 @@
+name: TienGioiPre
+version: '${project.version}'
+main: com.yourname.tiengioipre.TienGioiPre
+api-version: '1.20'
+author: YourName
+description: Hệ thống tu tiên cảnh giới cho server Minecraft.
+softdepend: [PlaceholderAPI, Vault]
+
+commands:
+  tuluyen:
+    description: Bắt đầu hoặc kết thúc trạng thái tu luyện.
+    usage: /tuluyen
+    permission: tiengioipre.user.tuluyen
+  dotpha:
+    description: Tiến hành đột phá cảnh giới.
+    usage: /dotpha
+    permission: tiengioipre.user.dotpha
+  shoptiengioi:
+    description: Mở cửa hàng tu tiên.
+    usage: /shoptiengioi
+    aliases: [stg]
+    permission: tiengioipre.user.shop
+  tiengioi:
+    description: Lệnh chính của plugin TienGioiPre.
+    usage: /tiengioi <args>
+    aliases: [tth, tgp]
+    permission: tiengioipre.admin
+
+permissions:
+  tiengioipre.admin:
+    description: Quyền admin cho plugin.
+    default: op
+  tiengioipre.user.tuluyen:
+    description: Quyền sử dụng lệnh /tuluyen.
+    default: true
+  tiengioipre.user.dotpha:
+    description: Quyền sử dụng lệnh /dotpha.
+    default: true
+  tiengioipre.user.shop:
+    description: Quyền sử dụng lệnh /shoptiengioi.
+    default: true

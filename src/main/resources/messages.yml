@@ -1,0 +1,33 @@
+prefix: "&8[&bTienGioi&8] &r"
+
+# Lệnh
+command:
+  no-permission: "%prefix%&cBạn không có quyền để thực hiện lệnh này."
+  player-not-found: "%prefix%&cKhông tìm thấy người chơi %player%."
+  reload: "%prefix%&aĐã tải lại cấu hình thành công."
+
+# Tu luyện
+tuluyen:
+  start: "%prefix%&aBạn đã bắt đầu trạng thái tu luyện. Nhấn &eSHIFT&a để thoát."
+  stop: "%prefix%&cBạn đã dừng tu luyện."
+  already-cultivating: "%prefix%&cBạn đang trong trạng thái tu luyện rồi."
+  cannot-move: "%prefix%&cBạn không thể di chuyển khi đang tu luyện."
+
+# Đột phá
+dotpha:
+  not-enough-linh-khi: "%prefix%&cBạn chưa đủ linh khí để đột phá! Cần &e%required%&c, bạn đang có &e%current%&c."
+  success: "%prefix%&b&lChúc mừng! &fBạn đã đột phá thành công lên cảnh giới %realm%&f!"
+  fail-death: "%prefix%&c&lĐỘ KIẾP THẤT BẠI! &7Bạn đã không thể chống lại thiên kiếp và đã bỏ mạng."
+  max-realm: "%prefix%&eBạn đã đạt tới cảnh giới cao nhất, không thể đột phá thêm."
+
+# Vật phẩm
+item:
+  give-success: "%prefix%&aĐã trao &f%amount% x %item_name%&a cho người chơi &f%player%&a."
+  receive-item: "%prefix%&aBạn đã nhận được &f%amount% x %item_name%&a."
+  use-linh-khi-scroll: "%prefix%&aBạn đã hấp thụ &f%amount%&a linh khí."
+
+# Shop
+shop:
+  not-enough-money: "%prefix%&cBạn không đủ tiền để mua vật phẩm này."
+  buy-success: "%prefix%&aBạn đã mua thành công &f%amount% x %item_name%&a với giá &e%price% Xu&a."
+  inventory-full: "%prefix%&cTúi đồ của bạn đã đầy."
