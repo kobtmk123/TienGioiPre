@@ -7,7 +7,7 @@ import org.bukkit.Particle;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.util.Vector;
+import org.bukkit.scheduler.BukkitTask; // Import BukkitTask
 
 import java.util.HashMap;
 import java.util.Map;
@@ -16,6 +16,7 @@ import java.util.UUID;
 public class CultivationManager {
     private final TienGioiPre plugin;
     private final Map<UUID, ArmorStand> cultivatingPlayers = new HashMap<>();
+    private BukkitTask cultivationTask; // Lưu trữ task để kiểm tra
 
     public CultivationManager(TienGioiPre plugin) {
         this.plugin = plugin;
@@ -45,6 +46,7 @@ public class CultivationManager {
         as.addPassenger(player);
         cultivatingPlayers.put(player.getUniqueId(), as);
         
+        System.out.println("[TienGioi-Debug] Player " + player.getName() + " started cultivating. Map size: " + cultivatingPlayers.size());
         player.sendMessage("§aBạn đã bắt đầu trạng thái tu luyện. Nhấn SHIFT để thoát.");
     }
 
@@ -56,32 +58,40 @@ public class CultivationManager {
             }
             as.remove();
         }
+        System.out.println("[TienGioi-Debug] Player " + player.getName() + " stopped cultivating. Map size: " + cultivatingPlayers.size());
         player.sendMessage("§cBạn đã dừng tu luyện.");
     }
 
     public void startCultivationTask() {
-        new BukkitRunnable() {
+        // Hủy task cũ nếu có để tránh chạy nhiều task cùng lúc
+        if (cultivationTask != null && !cultivationTask.isCancelled()) {
+            cultivationTask.cancel();
+        }
+
+        cultivationTask = new BukkitRunnable() {
             int tickCounter = 0;
 
             @Override
             public void run() {
-                // DEBUG: Kiểm tra xem task có chạy không
-                if (tickCounter % 100 == 0) { // In ra console mỗi 5 giây
-                    System.out.println("[TienGioi-Debug] Cultivation Task is running. Players cultivating: " + cultivatingPlayers.size());
+                // DEBUG: In ra console mỗi 5 giây để xác nhận task đang chạy
+                if (tickCounter % 100 == 0) {
+                    System.out.println("[TienGioi-Debug] Cultivation Task is running... Players in map: " + cultivatingPlayers.size());
                 }
                 
                 if (cultivatingPlayers.isEmpty()) {
-                    tickCounter = 0; // Reset counter khi không có ai tu luyện
+                    tickCounter = 0;
                     return;
                 }
                 tickCounter++;
 
-                cultivatingPlayers.entrySet().removeIf(entry -> {
-                    Player p = plugin.getServer().getPlayer(entry.getKey());
-                    if (p == null || !p.isOnline() || !isCultivating(p)) {
-                        ArmorStand as = entry.getValue();
-                        if (as != null) as.remove();
-                        return true;
+                // Sử dụng new HashMap để tránh ConcurrentModificationException khi duyệt và xóa
+                for (UUID uuid : new HashMap<>(cultivatingPlayers).keySet()) {
+                    Player p = plugin.getServer().getPlayer(uuid);
+                    if (p == null || !p.isOnline()) {
+                        // Xóa người chơi đã thoát
+                        ArmorStand as = cultivatingPlayers.remove(uuid);
+                        if(as != null) as.remove();
+                        continue;
                     }
 
                     // CỘNG LINH KHÍ MỖI GIÂY (20 ticks)
@@ -91,8 +101,7 @@ public class CultivationManager {
                         if (data != null && tier != null && data.getLinhKhi() < tier.maxLinhKhi()) {
                             double amountToAdd = tier.linhKhiGainPerSecond();
                             data.addLinhKhi(amountToAdd);
-                            // DEBUG: In ra console khi cộng linh khí
-                            System.out.println("[TienGioi-Debug] Added " + amountToAdd + " Linh Khi to " + p.getName());
+                            System.out.println("[TienGioi-Debug] Added " + amountToAdd + " Linh Khi to " + p.getName() + ". Total: " + data.getLinhKhi());
                         }
                     }
 
@@ -100,23 +109,15 @@ public class CultivationManager {
                     if (tickCounter % 10 == 0) {
                         spawnParticleCircle(p);
                     }
-                    return false;
-                });
+                }
             }
         }.runTaskTimer(plugin, 0L, 1L);
+        System.out.println("[TienGioi-Debug] Cultivation Task has been started!");
     }
 
     private void spawnParticleCircle(Player player) {
         Location center = player.getLocation().add(0, 1, 0);
         Particle particle = Particle.CLOUD;
-
-        PlayerData data = plugin.getPlayerDataManager().getPlayerData(player);
-        if (data != null) {
-            String realmId = data.getRealmId();
-            if (realmId.equals("hopthe") || realmId.equals("daithua")) {
-                particle = Particle.FLAME;
-            }
-        }
         
         for (int i = 0; i < 360; i += 30) {
             double angle = Math.toRadians(i);
