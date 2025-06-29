@@ -1,93 +1,183 @@
-# Cài đặt chung
+# ============================================================ #
+#                  CONFIG PLUGIN TIENGIOIPRE                   #
+#                 Tác giả: YourName & Gemini                   #
+# ============================================================ #
+
+# Thêm một phiên bản cho config để sau này có thể tự động cập nhật
+config-version: 1.0
+
+# ============================================
+#                  CÀI ĐẶT CHUNG
+# ============================================
 settings:
   # Cảnh giới mặc định cho người chơi mới
   default-realm-id: "phannhan"
   default-tier-id: "soky"
 
-# Định nghĩa các Tu Vi và Bậc bên trong
+# ============================================
+#        ĐỊNH NGHĨA CÁC TU VI VÀ BẬC
+# ============================================
 realms:
   phannhan:
-    display-name: "Phàm Nhân"
+    display-name: "&fPhàm Nhân"
     tiers:
       soky:
-        display-name: "Sơ Kỳ"
+        display-name: "&7Sơ Kỳ"
         max-linh-khi: 100
-        linh-khi-gain-per-second: 1 # Linh khí nhận mỗi giây khi tu luyện
+        linh-khi-gain-per-second: 1
         breakthrough:
           lightning-damage: 0
         stats: {}
-      # Phàm Nhân chỉ có 1 bậc, ko có bậc tiếp theo
   luyenkhi:
-    display-name: "Luyện Khí"
+    display-name: "&aLuyện Khí"
     tiers:
       soky:
-        display-name: "Sơ Kỳ"
-        max-linh-khi: 200
+        display-name: "&a_Sơ Kỳ"
+        max-linh-khi: 500
         linh-khi-gain-per-second: 2
-        breakthrough:
-          lightning-damage: 0.5
-        stats: {}
-      trungky:
-        display-name: "Trung Kỳ"
-        max-linh-khi: 400
-        linh-khi-gain-per-second: 3
         breakthrough:
           lightning-damage: 1.0
         stats: {}
-      hauky:
-        display-name: "Hậu Kỳ"
-        max-linh-khi: 600
-        linh-khi-gain-per-second: 4
-        breakthrough:
-          lightning-damage: 1.5
-        stats: {}
-      dinhphong:
-        display-name: "Đỉnh Phong"
-        max-linh-khi: 800
-        linh-khi-gain-per-second: 5
+      trungky:
+        display-name: "&a_Trung Kỳ"
+        max-linh-khi: 1000
+        linh-khi-gain-per-second: 3
         breakthrough:
           lightning-damage: 2.0
         stats: {}
-      vienman:
-        display-name: "Viên Mãn"
-        max-linh-khi: 1000
-        linh-khi-gain-per-second: 6
+      hauky:
+        display-name: "&a_Hậu Kỳ"
+        max-linh-khi: 1500
+        linh-khi-gain-per-second: 4
         breakthrough:
           lightning-damage: 3.0
         stats: {}
-  trucco:
-    display-name: "Trúc Cơ"
-    tiers:
-      soky:
-        display-name: "Sơ Kỳ"
+      dinhphong:
+        display-name: "&a_Đỉnh Phong"
         max-linh-khi: 2000
-        linh-khi-gain-per-second: 10
+        linh-khi-gain-per-second: 5
+        breakthrough:
+          lightning-damage: 4.0
+        stats: {}
+      vienman:
+        display-name: "&a_Viên Mãn"
+        max-linh-khi: 2500
+        linh-khi-gain-per-second: 6
         breakthrough:
           lightning-damage: 5.0
+        stats: {}
+  trucco:
+    display-name: "&bTrúc Cơ"
+    tiers:
+      soky:
+        display-name: "&b_Sơ Kỳ"
+        max-linh-khi: 5000
+        linh-khi-gain-per-second: 10
+        breakthrough:
+          lightning-damage: 6.0
         stats:
-          max-health-bonus: 2.0 # Thêm 1 trái tim
+          max-health-bonus: 2.0 # +1 trái tim
           attack-damage-bonus: 1.0
-      # ... cấu hình các bậc khác cho Trúc Cơ ...
-  # ... cấu hình các Tu Vi khác (Kết Đan, Nguyên Anh, v.v.) ...
+      # ... cấu hình các bậc và tu vi khác ở đây ...
 
-# Thứ tự đột phá của các Tu Vi và Bậc
-# Đây là "bản đồ" để plugin biết cảnh giới tiếp theo là gì
+# ============================================
+#              THỨ TỰ ĐỘT PHÁ
+# ============================================
 progression:
-  # Tu Vi
   realms-order:
     - "phannhan"
     - "luyenkhi"
     - "trucco"
-    - "ketdan"
-    - "nguyenanh"
-    - "hoathan"
-    - "luyenhu"
-    - "hopthe"
-    - "daithua"
-  # Bậc (Thứ tự này áp dụng cho tất cả các Tu Vi)
+    # - "ketdan" ...
   tiers-order:
     - "soky"
     - "trungky"
     - "hauky"
     - "dinhphong"
     - "vienman"
+
+# ============================================
+#            VẬT PHẨM TU LUYỆN
+# ============================================
+items:
+  cuonlinhkhi:
+    ha:
+      display-name: "&aCuộn Linh Khí [Hạ Phẩm]"
+      lore:
+        - "&7Một cuộn giấy chứa đựng linh khí."
+        - ""
+        - "&f&lChuột phải&7 để hấp thụ &a30&7 linh khí."
+      material: "PAPER"
+      enchanted: true
+      linh-khi-amount: 30
+    trung:
+      display-name: "&bCuộn Linh Khí [Trung Phẩm]"
+      lore:
+        - "&7Một cuộn giấy chứa đựng linh khí."
+        - ""
+        - "&f&lChuột phải&7 để hấp thụ &b75&7 linh khí."
+      material: "PAPER"
+      enchanted: true
+      linh-khi-amount: 75
+    # ...
+
+# ============================================
+#              CỬA HÀNG TU TIÊN
+# ============================================
+shop:
+  title: "&8Cửa Hàng Tu Tiên"
+  size: 27
+  items:
+    cuon_linh_khi_ha:
+      slot: 10
+      item-id: "cuonlinhkhi"
+      item-tier: "ha"
+      price: 1000
+      extra-lore:
+        - ""
+        - "&eGiá: &f%price% Xu"
+        - "&aChuột trái để mua x1"
+        - "&aChuột phải để mua x64"
+    cuon_linh_khi_trung:
+      slot: 12
+      item-id: "cuonlinhkhi"
+      item-tier: "trung"
+      price: 2500
+      extra-lore:
+        - ""
+        - "&eGiá: &f%price% Xu"
+        - "&aChuột trái để mua x1"
+        - "&aChuột phải để mua x64"
+    # ...
+
+# ============================================
+#            CON ĐƯỜNG TU LUYỆN
+# ============================================
+paths:
+  settings:
+    first-choice-only: true
+    default-path: "none"
+    path-selection-message:
+      - "&6&lChọn Con Đường Tu Luyện Của Bạn! (Chỉ được chọn 1 lần)"
+      - "&e- &a/kiemtu &7- Trở thành Kiếm Tu, bậc thầy vũ khí."
+      - "&e- &c/matu &7- Dấn thân vào Ma Đạo, sức mạnh thuần túy."
+      - "&e- &b/phattu &7- Theo gót Phật Tổ, thân thể vững vàng."
+  kiemtu:
+    display-name: "&aKiếm Tu"
+    description: "&7Bậc thầy vũ khí, sát thương vô song."
+    stats:
+      weapon-damage-bonus: 2.5
+      hand-damage-bonus: 1.0
+  matu:
+    display-name: "&cMa Tu"
+    description: "&7Sức mạnh hắc ám, không từ thủ đoạn."
+    stats:
+      weapon-damage-bonus: 1.5
+      hand-damage-bonus: 2.0
+  phattu:
+    display-name: "&bPhật Tu"
+    description: "&7Từ bi bác ái, kim thân bất hoại."
+    stats:
+      max-health-bonus: 4.0
+      walk-speed-bonus: 0.02
+      weapon-damage-modifier: -0.5
