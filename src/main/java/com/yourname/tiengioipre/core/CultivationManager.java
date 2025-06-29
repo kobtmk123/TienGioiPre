@@ -10,6 +10,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
 import java.util.HashMap;
+import java.util.Iterator; // Import Iterator
 import java.util.Map;
 import java.util.UUID;
 
@@ -69,28 +70,35 @@ public class CultivationManager {
                 tickCounter++;
                 if (cultivatingPlayers.isEmpty()) return;
 
-                // === SỬA LỖI VÒNG LẶP Ở ĐÂY ===
-                // Duyệt qua một bản sao của entrySet để tránh lỗi và đảm bảo logic chạy đúng
-                for (Map.Entry<UUID, ArmorStand> entry : new HashMap<>(cultivatingPlayers).entrySet()) {
+                // === SỬA LỖI VÒNG LẶP BẰNG ITERATOR ===
+                // Đây là cách an toàn và hiệu quả nhất để duyệt và xóa phần tử khỏi Map
+                Iterator<Map.Entry<UUID, ArmorStand>> iterator = cultivatingPlayers.entrySet().iterator();
+                while (iterator.hasNext()) {
+                    Map.Entry<UUID, ArmorStand> entry = iterator.next();
                     Player p = plugin.getServer().getPlayer(entry.getKey());
+
                     if (p == null || !p.isOnline()) {
-                        ArmorStand as = cultivatingPlayers.remove(entry.getKey());
-                        if(as != null) as.remove();
+                        ArmorStand as = entry.getValue();
+                        if (as != null) as.remove();
+                        iterator.remove(); // Xóa an toàn bằng iterator
                         continue;
                     }
 
-                    if (tickCounter % 20 == 0) { // Cộng linh khí mỗi giây
+                    // Cộng linh khí mỗi giây (20 ticks)
+                    if (tickCounter % 20 == 0) {
                         PlayerData data = plugin.getPlayerDataManager().getPlayerData(p);
+                        if (data == null) continue; // Bỏ qua nếu dữ liệu chưa tải xong
+                        
                         RealmManager.TierData tier = plugin.getRealmManager().getTierData(data.getRealmId(), data.getTierId());
-                        if (data != null && tier != null && data.getLinhKhi() < tier.maxLinhKhi()) {
+                        if (tier != null && data.getLinhKhi() < tier.maxLinhKhi()) {
                             double amountToAdd = tier.linhKhiGainPerSecond();
                             data.addLinhKhi(amountToAdd);
-                            // Dùng logger của plugin thay vì System.out
-                            plugin.getLogger().info("[Debug] Added " + amountToAdd + " Linh Khi to " + p.getName() + ". Total: " + data.getLinhKhi());
+                            // plugin.getLogger().info("[Debug] Added " + amountToAdd + " Linh Khi to " + p.getName());
                         }
                     }
 
-                    if (tickCounter % 10 == 0) { // Tạo hiệu ứng
+                    // Tạo hiệu ứng mỗi 10 ticks
+                    if (tickCounter % 10 == 0) {
                         spawnParticleCircle(p);
                     }
                 }
@@ -103,9 +111,6 @@ public class CultivationManager {
         Location center = player.getLocation().add(0, 1, 0);
         Particle particle = Particle.CLOUD;
         
-        // (Optional) Đổi particle theo cảnh giới
-        // ...
-
         for (int i = 0; i < 360; i += 30) {
             double angle = Math.toRadians(i);
             double x = 1.0 * Math.cos(angle);
