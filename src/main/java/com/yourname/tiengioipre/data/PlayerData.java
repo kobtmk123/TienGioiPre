@@ -4,10 +4,11 @@ import java.util.UUID;
 
 public class PlayerData {
     private final UUID uuid;
-    private String realmId; // Tu Vi
-    private String tierId;  // Bậc
+    private String realmId;
+    private String tierId;
     private double linhKhi;
 
+    // HÀM KHỞI TẠO VỚI 4 THAM SỐ
     public PlayerData(UUID uuid, String realmId, String tierId, double linhKhi) {
         this.uuid = uuid;
         this.realmId = realmId;
@@ -15,20 +16,12 @@ public class PlayerData {
         this.linhKhi = linhKhi;
     }
 
-    // ... các getter/setter cho realmId và linhKhi ...
-
-    public String getTierId() {
-        return tierId;
-    }
-
-    public void setTierId(String tierId) {
-        this.tierId = tierId;
-    }
-
+    public UUID getUuid() { return uuid; }
     public String getRealmId() { return realmId; }
     public void setRealmId(String realmId) { this.realmId = realmId; }
+    public String getTierId() { return tierId; }
+    public void setTierId(String tierId) { this.tierId = tierId; }
     public double getLinhKhi() { return linhKhi; }
     public void setLinhKhi(double linhKhi) { this.linhKhi = linhKhi; }
     public void addLinhKhi(double amount) { this.linhKhi += amount; }
-    public UUID getUuid() { return uuid; }
 }

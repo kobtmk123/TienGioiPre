@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class MainCommand implements CommandExecutor, TabCompleter {
 
@@ -48,7 +49,7 @@ public class MainCommand implements CommandExecutor, TabCompleter {
                 handleGive(sender, args, label);
                 break;
             case "setrealm":
-                handleSetRealm(sender, args, label); // Sẽ được cập nhật
+                handleSetRealm(sender, args, label);
                 break;
             case "setlinhkhi":
                 handleSetLinhKhi(sender, args, label);
@@ -60,12 +61,9 @@ public class MainCommand implements CommandExecutor, TabCompleter {
         return true;
     }
 
-    // --- CÁC HÀM XỬ LÝ LỆNH ---
-
     private void handleReload(CommandSender sender) {
         plugin.reloadConfig();
         plugin.getRealmManager().loadRealms();
-        // Cần tải lại dữ liệu của người chơi đang online để áp dụng thay đổi
         for (Player player : Bukkit.getOnlinePlayers()) {
             plugin.getPlayerDataManager().loadPlayerData(player);
         }
@@ -82,23 +80,17 @@ public class MainCommand implements CommandExecutor, TabCompleter {
             sender.sendMessage(format(prefix + "&cKhông tìm thấy người chơi " + args[1]));
             return;
         }
-        
         String itemId = args[2];
         String itemTier = args[3];
         int amount = 1;
         if(args.length > 4) {
-            try {
-                amount = Integer.parseInt(args[4]);
-            } catch (NumberFormatException e) {
-                sender.sendMessage(format(prefix + "&cSố lượng không hợp lệ."));
-                return;
+            try { amount = Integer.parseInt(args[4]); } catch (NumberFormatException e) {
+                sender.sendMessage(format(prefix + "&cSố lượng không hợp lệ.")); return;
             }
         }
-        
         ItemStack item = plugin.getItemManager().createCultivationItem(itemId, itemTier);
         if(item == null) {
-            sender.sendMessage(format(prefix + "&cID hoặc cấp độ vật phẩm không tồn tại."));
-            return;
+            sender.sendMessage(format(prefix + "&cID hoặc cấp độ vật phẩm không tồn tại.")); return;
         }
         item.setAmount(amount);
         target.getInventory().addItem(item);
@@ -106,7 +98,6 @@ public class MainCommand implements CommandExecutor, TabCompleter {
         target.sendMessage(format(prefix + "&aBạn đã nhận được vật phẩm."));
     }
 
-    // --- LỆNH SETREALM ĐÃ ĐƯỢC CẬP NHẬT ---
     private void handleSetRealm(CommandSender sender, String[] args, String label) {
         if (args.length < 4) {
             sender.sendMessage(format(prefix + "&cUsage: /" + label + " setrealm <player> <tuvi_id> <bac_id>"));
@@ -119,27 +110,22 @@ public class MainCommand implements CommandExecutor, TabCompleter {
         }
         String realmId = args[2];
         String tierId = args[3];
-
         RealmManager.TierData tierData = plugin.getRealmManager().getTierData(realmId, tierId);
         if(tierData == null) {
             sender.sendMessage(format(prefix + "&cTu Vi ID hoặc Bậc ID không tồn tại trong config.yml."));
             return;
         }
-        
         PlayerData data = plugin.getPlayerDataManager().getPlayerData(target);
         if (data == null) {
              sender.sendMessage(format(prefix + "&cKhông tìm thấy dữ liệu của người chơi."));
              return;
         }
-
         data.setRealmId(realmId);
         data.setTierId(tierId);
-        data.setLinhKhi(0); // Reset linh khí về 0 khi set cảnh giới mới
+        data.setLinhKhi(0);
         plugin.getRealmManager().applyRealmStats(target, realmId, tierId);
-
         String realmName = plugin.getRealmManager().getRealmDisplayName(realmId);
         String tierName = plugin.getRealmManager().getTierDisplayName(realmId, tierId);
-
         sender.sendMessage(format(prefix + "&aĐã đặt cảnh giới của " + target.getName() + " thành " + realmName + " " + tierName));
         target.sendMessage(format(prefix + "&aCảnh giới của bạn đã được admin thay đổi."));
     }
@@ -154,19 +140,13 @@ public class MainCommand implements CommandExecutor, TabCompleter {
             sender.sendMessage(format(prefix + "&cKhông tìm thấy người chơi " + args[1]));
             return;
         }
-        
         double amount;
-        try {
-            amount = Double.parseDouble(args[2]);
-        } catch (NumberFormatException e) {
-            sender.sendMessage(format(prefix + "&cSố lượng linh khí không hợp lệ."));
-            return;
+        try { amount = Double.parseDouble(args[2]); } catch (NumberFormatException e) {
+            sender.sendMessage(format(prefix + "&cSố lượng linh khí không hợp lệ.")); return;
         }
-
         PlayerData data = plugin.getPlayerDataManager().getPlayerData(target);
         if (data == null) {
-             sender.sendMessage(format(prefix + "&cKhông tìm thấy dữ liệu của người chơi."));
-             return;
+             sender.sendMessage(format(prefix + "&cKhông tìm thấy dữ liệu của người chơi.")); return;
         }
         data.setLinhKhi(amount);
         sender.sendMessage(format(prefix + "&aĐã đặt linh khí của " + target.getName() + " thành &e" + String.format("%,.0f", amount)));
@@ -185,59 +165,44 @@ public class MainCommand implements CommandExecutor, TabCompleter {
         return ChatColor.translateAlternateColorCodes('&', message);
     }
 
-    // --- TABCOMPLETE ĐÃ ĐƯỢC CẬP NHẬT ---
     @Nullable
     @Override
     public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
         if (args.length == 1) {
             return filter(Arrays.asList("reload", "give", "setrealm", "setlinhkhi"), args[0]);
         }
-        
-        if (args.length == 2) {
-            // Gợi ý tên người chơi cho tất cả các lệnh cần thiết
-            if (Arrays.asList("give", "setrealm", "setlinhkhi").contains(args[0].toLowerCase())) {
-                return null;
-            }
+        if (args.length == 2 && Arrays.asList("give", "setrealm", "setlinhkhi").contains(args[0].toLowerCase())) {
+            return null;
         }
-        
         if (args[0].equalsIgnoreCase("setrealm")) {
             if (args.length == 3) {
-                // Gợi ý Tu Vi ID
-                return filter(plugin.getConfig().getConfigurationSection("realms").getKeys(false), args[2]);
+                return filter(plugin.getRealmManager().getRealmsDataMap().keySet(), args[2]);
             }
             if (args.length == 4) {
-                // Gợi ý Bậc ID dựa trên Tu Vi đã chọn
                 String realmId = args[2];
-                if (plugin.getConfig().contains("realms." + realmId + ".tiers")) {
-                    return filter(plugin.getConfig().getConfigurationSection("realms." + realmId + ".tiers").getKeys(false), args[3]);
+                RealmManager.RealmData realmData = plugin.getRealmManager().getRealmsDataMap().get(realmId);
+                if (realmData != null) {
+                    return filter(realmData.tiers().keySet(), args[3]);
                 }
             }
         }
-
         if (args[0].equalsIgnoreCase("give")) {
             if (args.length == 3) {
-                // Gợi ý item ID
                 return filter(plugin.getConfig().getConfigurationSection("items").getKeys(false), args[2]);
             }
             if (args.length == 4) {
-                // Gợi ý item tier
                 String itemId = args[2];
                 if(plugin.getConfig().contains("items." + itemId)) {
                     return filter(plugin.getConfig().getConfigurationSection("items." + itemId).getKeys(false), args[3]);
                 }
             }
         }
-        
         return Collections.emptyList();
     }
     
     private List<String> filter(Iterable<String> list, String start) {
-        List<String> result = new ArrayList<>();
-        list.forEach(s -> {
-            if (s.toLowerCase().startsWith(start.toLowerCase())) {
-                result.add(s);
-            }
-        });
-        return result;
+        return ((List<String>) list).stream()
+                .filter(s -> s.toLowerCase().startsWith(start.toLowerCase()))
+                .collect(Collectors.toList());
     }
 }

@@ -3,6 +3,8 @@ package com.yourname.tiengioipre.listeners;
 import com.yourname.tiengioipre.TienGioiPre;
 import com.yourname.tiengioipre.core.ItemManager;
 import com.yourname.tiengioipre.data.PlayerData;
+import org.bukkit.ChatColor;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
@@ -15,9 +17,11 @@ import org.bukkit.persistence.PersistentDataType;
 public class PlayerInteractListener implements Listener {
 
     private final TienGioiPre plugin;
+    private final ItemManager itemManager;
 
     public PlayerInteractListener(TienGioiPre plugin) {
         this.plugin = plugin;
+        this.itemManager = plugin.getItemManager();
     }
 
     @EventHandler
@@ -33,7 +37,6 @@ public class PlayerInteractListener implements Listener {
 
         ItemMeta meta = item.getItemMeta();
         PersistentDataContainer container = meta.getPersistentDataContainer();
-        ItemManager itemManager = new ItemManager(plugin); // Nên lấy instance từ main class
 
         if (container.has(itemManager.ITEM_ID_KEY, PersistentDataType.STRING)) {
             String itemId = container.get(itemManager.ITEM_ID_KEY, PersistentDataType.STRING);
@@ -43,10 +46,11 @@ public class PlayerInteractListener implements Listener {
                 String tier = container.get(itemManager.ITEM_TIER_KEY, PersistentDataType.STRING);
                 double linhKhiAmount = plugin.getConfig().getDouble("items.cuonlinhkhi." + tier + ".linh-khi-amount", 0);
 
-                PlayerData data = plugin.getPlayerDataManager().getPlayerData(event.getPlayer());
+                Player player = event.getPlayer();
+                PlayerData data = plugin.getPlayerDataManager().getPlayerData(player);
                 if (data != null) {
                     data.addLinhKhi(linhKhiAmount);
-                    event.getPlayer().sendMessage("§aBạn đã hấp thụ §f" + linhKhiAmount + "§a linh khí.");
+                    player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&8[&bTienGioi&8] &aBạn đã hấp thụ &f" + String.format("%,.0f", linhKhiAmount) + "&a linh khí."));
                     item.setAmount(item.getAmount() - 1);
                 }
             }

@@ -7,6 +7,7 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataContainer;
@@ -21,7 +22,7 @@ public class ShopListener implements Listener {
 
     public ShopListener(TienGioiPre plugin) {
         this.plugin = plugin;
-        this.shopTitle = ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("shop.title", "&8Shop"));
+        this.shopTitle = ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("shop.title", "&8Shop Tu Luyện"));
     }
 
     @EventHandler
@@ -32,6 +33,10 @@ public class ShopListener implements Listener {
 
         event.setCancelled(true);
 
+        if (!(event.getWhoClicked() instanceof Player)) {
+            return;
+        }
+        
         Player player = (Player) event.getWhoClicked();
         ItemStack clickedItem = event.getCurrentItem();
 
@@ -47,7 +52,7 @@ public class ShopListener implements Listener {
         }
         
         double pricePerItem = container.get(priceKey, PersistentDataType.DOUBLE);
-        int amountToBuy = event.getClick().isLeftClick() ? 1 : 64;
+        int amountToBuy = event.getClick() == ClickType.RIGHT ? 64 : 1;
         double totalPrice = pricePerItem * amountToBuy;
 
         if (TienGioiPre.getEconomy() == null) {
@@ -57,9 +62,8 @@ public class ShopListener implements Listener {
 
         EconomyResponse r = TienGioiPre.getEconomy().withdrawPlayer(player, totalPrice);
         if (r.transactionSuccess()) {
-            player.sendMessage("§aBạn đã mua vật phẩm thành công với giá " + totalPrice + " Xu.");
+            player.sendMessage("§aBạn đã mua vật phẩm thành công với giá " + String.format("%,.0f", totalPrice) + " Xu.");
             ItemStack itemToGive = clickedItem.clone();
-            // Xóa các tag của shop khỏi vật phẩm trước khi đưa cho người chơi
             itemToGive.editMeta(meta -> meta.getPersistentDataContainer().remove(priceKey));
             itemToGive.setAmount(amountToBuy);
             
@@ -70,7 +74,7 @@ public class ShopListener implements Listener {
             }
             
         } else {
-            player.sendMessage("§cBạn không đủ tiền! Cần " + totalPrice + " Xu.");
+            player.sendMessage("§cBạn không đủ tiền! Cần " + String.format("%,.0f", totalPrice) + " Xu.");
         }
     }
 }

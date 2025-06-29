@@ -33,51 +33,53 @@ public class PlayerDataManager {
     public void loadPlayerData(Player player) {
         UUID uuid = player.getUniqueId();
         File playerFile = new File(dataFolder, uuid.toString() + ".yml");
+        
+        // SỬA LỖI Ở ĐÂY: Gọi hàm khởi tạo với đúng 4 tham số
         if (!playerFile.exists()) {
-            // Người chơi mới
-            String defaultRealm = plugin.getConfig().getString("settings.default-realm", "phannhan_soky_tang1");
-            PlayerData newPlayerData = new PlayerData(uuid, defaultRealm, 0);
+            String defaultRealm = plugin.getConfig().getString("settings.default-realm-id", "phannhan");
+            String defaultTier = plugin.getConfig().getString("settings.default-tier-id", "soky");
+            PlayerData newPlayerData = new PlayerData(uuid, defaultRealm, defaultTier, 0);
             playerDataMap.put(uuid, newPlayerData);
-            savePlayerData(player); // Lưu file lần đầu
+            savePlayerData(newPlayerData); 
         } else {
-            // Người chơi cũ
-            FileConfiguration playerDataConfig = YamlConfiguration.loadConfiguration(playerFile);
-            String realmId = playerDataConfig.getString("realm");
-            double linhKhi = playerDataConfig.getDouble("linh-khi");
-            playerDataMap.put(uuid, new PlayerData(uuid, realmId, linhKhi));
+            FileConfiguration config = YamlConfiguration.loadConfiguration(playerFile);
+            String realmId = config.getString("realm-id");
+            String tierId = config.getString("tier-id");
+            double linhKhi = config.getDouble("linh-khi");
+            playerDataMap.put(uuid, new PlayerData(uuid, realmId, tierId, linhKhi));
         }
-        // TODO: Áp dụng stats cho người chơi
+        
+        PlayerData data = getPlayerData(player);
+        if (data != null && data.getRealmId() != null && data.getTierId() != null) {
+             plugin.getRealmManager().applyRealmStats(player, data.getRealmId(), data.getTierId());
+        }
     }
 
-    public void savePlayerData(Player player) {
-        UUID uuid = player.getUniqueId();
-        PlayerData data = playerDataMap.get(uuid);
+    public void savePlayerData(PlayerData data) {
         if (data == null) return;
-
-        File playerFile = new File(dataFolder, uuid.toString() + ".yml");
-        FileConfiguration playerDataConfig = YamlConfiguration.loadConfiguration(playerFile);
+        File playerFile = new File(dataFolder, data.getUuid().toString() + ".yml");
+        FileConfiguration config = new YamlConfiguration();
         
-        playerDataConfig.set("realm", data.getRealmId());
-        playerDataConfig.set("linh-khi", data.getLinhKhi());
+        config.set("realm-id", data.getRealmId());
+        config.set("tier-id", data.getTierId());
+        config.set("linh-khi", data.getLinhKhi());
 
         try {
-            playerDataConfig.save(playerFile);
+            config.save(playerFile);
         } catch (IOException e) {
+            plugin.getLogger().severe("Khong the luu du lieu cho nguoi choi " + data.getUuid());
             e.printStackTrace();
         }
     }
-
+    
     public void unloadPlayerData(Player player) {
-        savePlayerData(player);
-        playerDataMap.remove(player.getUniqueId());
+        PlayerData data = playerDataMap.remove(player.getUniqueId());
+        if (data != null) {
+            savePlayerData(data);
+        }
     }
     
     public void saveAllPlayerData() {
-        playerDataMap.keySet().forEach(uuid -> {
-            Player player = plugin.getServer().getPlayer(uuid);
-            if (player != null && player.isOnline()) {
-                savePlayerData(player);
-            }
-        });
+        playerDataMap.values().forEach(this::savePlayerData);
     }
 }

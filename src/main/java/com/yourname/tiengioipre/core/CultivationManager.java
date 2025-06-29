@@ -26,21 +26,17 @@ public class CultivationManager {
 
     public void startCultivating(Player player) {
         if (isCultivating(player)) return;
-
         Location loc = player.getLocation();
         if (!loc.clone().subtract(0, 1, 0).getBlock().getType().isSolid()) {
             player.sendMessage("§cBạn cần đứng trên mặt đất vững chắc để tu luyện!");
             return;
         }
 
-        // ĐÃ SỬA LỖI TƯƠNG THÍCH Ở ĐÂY
-        // Cách tạo ArmorStand tương thích với cả Spigot và Paper
         ArmorStand as = loc.getWorld().spawn(loc.clone().add(0, -1.7, 0), ArmorStand.class);
         as.setVisible(false);
         as.setGravity(false);
         as.setInvulnerable(true);
         as.setMarker(true);
-
         as.addPassenger(player);
         cultivatingPlayers.put(player.getUniqueId(), as);
     }
@@ -48,48 +44,34 @@ public class CultivationManager {
     public void stopCultivating(Player player) {
         ArmorStand as = cultivatingPlayers.remove(player.getUniqueId());
         if (as != null) {
-            // Gỡ người chơi ra khỏi ArmorStand trước khi xóa nó
-            as.getPassengers().forEach(entity -> as.removePassenger(entity));
+            as.getPassengers().forEach(as::removePassenger);
             as.remove();
         }
     }
 
     public void startCultivationTask() {
         new BukkitRunnable() {
-            int tick = 0;
             @Override
             public void run() {
                 if (cultivatingPlayers.isEmpty()) return;
-
-                tick++;
-
-                // Sử dụng entrySet để duyệt an toàn hơn và có thể xóa trong lúc duyệt
                 cultivatingPlayers.entrySet().removeIf(entry -> {
                     Player p = plugin.getServer().getPlayer(entry.getKey());
                     if (p == null || !p.isOnline()) {
-                        ArmorStand as = entry.getValue();
-                        if (as != null) as.remove();
-                        return true; // Xóa khỏi map
+                        if (entry.getValue() != null) entry.getValue().remove();
+                        return true;
                     }
 
-                    // Thêm linh khí mỗi giây (20 ticks)
-                    if (tick % 20 == 0) {
-                        PlayerData data = plugin.getPlayerDataManager().getPlayerData(p);
-                        Realm realm = plugin.getRealmManager().getRealm(data.getRealmId());
-                        if (data != null && realm != null && data.getLinhKhi() < realm.maxLinhKhi()) {
-                            // Tăng 1 lượng tương ứng với mỗi giây
-                            data.addLinhKhi(realm.linhKhiGainPerSecond());
-                        }
-                    }
+                    PlayerData data = plugin.getPlayerDataManager().getPlayerData(p);
+                    RealmManager.TierData tier = plugin.getRealmManager().getTierData(data.getRealmId(), data.getTierId());
 
-                    // Hiệu ứng hạt mỗi 5 ticks
-                    if (tick % 5 == 0) {
-                         spawnParticleCircle(p.getLocation().add(0, 1, 0));
+                    if (data != null && tier != null && data.getLinhKhi() < tier.maxLinhKhi()) {
+                        data.addLinhKhi(tier.linhKhiGainPerSecond() / 20.0);
                     }
-                    return false; // Giữ lại trong map
+                    spawnParticleCircle(p.getLocation().add(0, 1, 0));
+                    return false;
                 });
             }
-        }.runTaskTimer(plugin, 0L, 1L); // Chạy mỗi tick
+        }.runTaskTimerAsynchronously(plugin, 0L, 1L);
     }
 
     private void spawnParticleCircle(Location center) {

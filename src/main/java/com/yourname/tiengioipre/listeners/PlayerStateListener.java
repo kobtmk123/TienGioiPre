@@ -19,7 +19,6 @@ public class PlayerStateListener implements Listener {
     @EventHandler
     public void onPlayerToggleSneak(PlayerToggleSneakEvent event) {
         Player player = event.getPlayer();
-        // Kiểm tra isSneaking() để đảm bảo người chơi đang bắt đầu ngồi xuống (SHIFT)
         if (event.isSneaking() && plugin.getCultivationManager().isCultivating(player)) {
             plugin.getCultivationManager().stopCultivating(player);
         }
@@ -31,14 +30,11 @@ public class PlayerStateListener implements Listener {
         if (plugin.getCultivationManager().isCultivating(player)) {
             Location from = event.getFrom();
             Location to = event.getTo();
-            // Chỉ hủy nếu người chơi di chuyển vị trí (không phải chỉ xoay đầu)
-            if (from.getX() != to.getX() || from.getY() != to.getY() || from.getZ() != to.getZ()) {
-                 player.sendMessage("§cBạn không thể di chuyển khi đang tu luyện!");
-                 // Dịch chuyển người chơi về vị trí cũ để tránh bị đẩy đi
-                 Location standLocation = plugin.getCultivationManager().getArmorStandLocation(player);
-                 if(standLocation != null){
-                     player.teleport(standLocation.clone().add(0, -2, 0)); // Teleport về mặt đất dưới armor stand
-                 }
+            if (from.getX() != to.getX() || from.getZ() != to.getZ()) { // Chỉ quan tâm di chuyển X, Z
+                 // Teleport người chơi về vị trí cũ để không bị "trôi"
+                 from.setPitch(to.getPitch());
+                 from.setYaw(to.getYaw());
+                 event.setTo(from);
             }
         }
     }

@@ -1,7 +1,6 @@
 package com.yourname.tiengioipre.listeners;
 
 import com.yourname.tiengioipre.TienGioiPre;
-import com.yourname.tiengioipre.data.PlayerData;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -19,23 +18,21 @@ public class PlayerConnectionListener implements Listener {
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
+        // Phương thức loadPlayerData đã bao gồm cả việc áp dụng stats,
+        // vì vậy chúng ta chỉ cần gọi một dòng này.
         plugin.getPlayerDataManager().loadPlayerData(player);
-        PlayerData data = plugin.getPlayerDataManager().getPlayerData(player);
-        if (data != null) {
-            plugin.getRealmManager().applyRealmStats(player, data.getRealmId());
-        }
     }
 
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event) {
         Player player = event.getPlayer();
-        
-        // Dừng tu luyện nếu người chơi thoát
+        // Dừng tu luyện nếu người chơi thoát giữa chừng
         if (plugin.getCultivationManager().isCultivating(player)) {
             plugin.getCultivationManager().stopCultivating(player);
         }
-        
+        // Xóa các hiệu ứng stats để tránh lỗi
         plugin.getRealmManager().removeRealmStats(player);
+        // Lưu và dọn dẹp dữ liệu của người chơi
         plugin.getPlayerDataManager().unloadPlayerData(player);
     }
 }
