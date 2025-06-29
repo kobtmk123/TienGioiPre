@@ -1,10 +1,11 @@
 package com.yourname.tiengioipre.core;
 
-// ... import
+import com.yourname.tiengioipre.TienGioiPre; // <-- DÒNG QUAN TRỌNG ĐÃ ĐƯỢC THÊM
 import com.yourname.tiengioipre.data.PlayerData;
-import org.bukkit.entity.Player;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Player;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
@@ -12,7 +13,7 @@ import java.util.Map;
 import java.util.UUID;
 
 public class PlayerDataManager {
-    // ...
+
     private final TienGioiPre plugin;
     private final Map<UUID, PlayerData> playerDataMap = new HashMap<>();
     private final File dataFolder;
@@ -72,13 +73,14 @@ public class PlayerDataManager {
         }
     }
     
-    // ... các hàm khác giữ nguyên ...
     public void unloadPlayerData(Player player) {
+        plugin.getRealmManager().removeRealmStats(player);
         PlayerData data = playerDataMap.remove(player.getUniqueId());
         if (data != null) {
             savePlayerData(data);
         }
     }
+    
     public void saveAllPlayerData() {
         playerDataMap.values().forEach(this::savePlayerData);
     }
