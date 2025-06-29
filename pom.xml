@@ -23,8 +23,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.8.1</version>
                 <configuration>
-                    <source>${java.version}</source>
-                    <target>${java.version}</target>
+                    <source>17</source> <!-- Sử dụng Java 17 để tương thích với Actions -->
+                    <target>17</target>
                 </configuration>
             </plugin>
             <plugin>
@@ -60,7 +60,8 @@
         </repository>
         <repository>
             <id>placeholderapi</id>
-            <url>http://repo.extendedclip.com/content/repositories/placeholderapi/</url>
+            <!-- ĐÃ SỬA LỖI Ở ĐÂY: http -> https -->
+            <url>https://repo.extendedclip.com/content/repositories/placeholderapi/</url>
         </repository>
         <repository>
             <id>jitpack.io</id>
