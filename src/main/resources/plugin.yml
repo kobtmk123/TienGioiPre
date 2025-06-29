@@ -4,9 +4,17 @@ main: com.yourname.tiengioipre.TienGioiPre
 api-version: '1.20'
 author: YourName
 description: Hệ thống tu tiên cảnh giới cho server Minecraft.
-softdepend: [PlaceholderAPI, Vault]
+softdepend: [PlaceholderAPI, Vault, WorldGuard] # Thêm WorldGuard nếu bạn muốn có khu vực linh khí dồi dào
 
 commands:
+  # Lệnh quản trị chính
+  tiengioi:
+    description: Lệnh chính của plugin TienGioiPre.
+    usage: /tiengioi <args>
+    aliases: [tth, tgp]
+    permission: tiengioipre.admin
+
+  # Lệnh tu luyện cơ bản cho người chơi
   tuluyen:
     description: Bắt đầu hoặc kết thúc trạng thái tu luyện.
     usage: /tuluyen
@@ -20,16 +28,31 @@ commands:
     usage: /shoptiengioi
     aliases: [stg]
     permission: tiengioipre.user.shop
-  tiengioi:
-    description: Lệnh chính của plugin TienGioiPre.
-    usage: /tiengioi <args>
-    aliases: [tth, tgp]
-    permission: tiengioipre.admin
+
+  # ============================================
+  # LỆNH MỚI CHO TÍNH NĂNG "CON ĐƯỜNG TU LUYỆN"
+  # ============================================
+  conduongtuluyen:
+    description: Hiển thị hoặc thiết lập con đường tu luyện.
+    usage: /conduongtuluyen [set <player> <path>]
+    aliases: [cdtl]
+    permission: tiengioipre.user.path
+  kiemtu:
+    description: Chọn con đường Kiếm Tu.
+    permission: tiengioipre.user.path.select
+  matu:
+    description: Chọn con đường Ma Tu.
+    permission: tiengioipre.user.path.select
+  phattu:
+    description: Chọn con đường Phật Tu.
+    permission: tiengioipre.user.path.select
 
 permissions:
   tiengioipre.admin:
-    description: Quyền admin cho plugin.
+    description: Quyền quản trị cao nhất cho plugin TienGioiPre.
     default: op
+  
+  # Quyền cơ bản cho người chơi
   tiengioipre.user.tuluyen:
     description: Quyền sử dụng lệnh /tuluyen.
     default: true
@@ -38,4 +61,14 @@ permissions:
     default: true
   tiengioipre.user.shop:
     description: Quyền sử dụng lệnh /shoptiengioi.
+    default: true
+  
+  # ============================================
+  # QUYỀN MỚI CHO TÍNH NĂNG "CON ĐƯỜNG TU LUYỆN"
+  # ============================================
+  tiengioipre.user.path:
+    description: Quyền xem các con đường tu luyện.
+    default: true
+  tiengioipre.user.path.select:
+    description: Quyền chọn một con đường tu luyện (/kiemtu, /matu, /phattu).
     default: true

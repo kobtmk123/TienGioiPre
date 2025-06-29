@@ -17,6 +17,9 @@ import java.util.List;
 
 public class ShopGUI {
     private final TienGioiPre plugin;
+    public static final NamespacedKey SHOP_ITEM_TAG = new NamespacedKey(TienGioiPre.getInstance(), "shop_item_tag");
+    public static final NamespacedKey SHOP_PRICE_TAG = new NamespacedKey(TienGioiPre.getInstance(), "shop_price_tag");
+
 
     public ShopGUI(TienGioiPre plugin) {
         this.plugin = plugin;
@@ -45,7 +48,10 @@ public class ShopGUI {
             double price = shopItemConfig.getDouble("price", 0);
 
             ItemStack displayItem = itemManager.createCultivationItem(itemId, itemTier);
-            if (displayItem == null) continue;
+            if (displayItem == null) {
+                plugin.getLogger().warning("Khong the tao vat pham cho shop: " + itemId + ":" + itemTier);
+                continue;
+            }
 
             ItemMeta meta = displayItem.getItemMeta();
             if (meta != null) {
@@ -56,9 +62,14 @@ public class ShopGUI {
                 }
                 meta.setLore(lore);
                 
-                // Lưu các thông tin cần thiết vào item để listener có thể đọc
-                meta.getPersistentDataContainer().set(new NamespacedKey(plugin, "shop_item"), PersistentDataType.BYTE, (byte) 1);
-                meta.getPersistentDataContainer().set(new NamespacedKey(plugin, "shop_price"), PersistentDataType.DOUBLE, price);
+                // Gắn dữ liệu ẩn vào item để Listener nhận biết
+                // Đây là bước quan trọng nhất
+                meta.getPersistentDataContainer().set(SHOP_ITEM_TAG, PersistentDataType.BYTE, (byte) 1);
+                meta.getPersistentDataContainer().set(SHOP_PRICE_TAG, PersistentDataType.DOUBLE, price);
+                
+                // Gắn cả ID gốc để Listener có thể tạo lại item sau khi mua
+                meta.getPersistentDataContainer().set(itemManager.ITEM_ID_KEY, PersistentDataType.STRING, itemId);
+                meta.getPersistentDataContainer().set(itemManager.ITEM_TIER_KEY, PersistentDataType.STRING, itemTier);
                 
                 displayItem.setItemMeta(meta);
             }
