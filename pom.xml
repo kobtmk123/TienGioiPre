@@ -12,7 +12,7 @@
     <name>TienGioiPre</name>
 
     <properties>
-        <java.version>1.8</java.version>
+        <java.version>17</java.version> <!-- Đảm bảo Java 17 -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
@@ -23,8 +23,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.8.1</version>
                 <configuration>
-                    <source>17</source> <!-- Sử dụng Java 17 để tương thích với Actions -->
-                    <target>17</target>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
                 </configuration>
             </plugin>
             <plugin>
@@ -58,11 +58,7 @@
             <id>sonatype</id>
             <url>https://oss.sonatype.org/content/groups/public/</url>
         </repository>
-        <repository>
-            <id>placeholderapi</id>
-            <!-- ĐÃ SỬA LỖI Ở ĐÂY: http -> https -->
-            <url>https://repo.extendedclip.com/content/repositories/placeholderapi/</url>
-        </repository>
+        <!-- JitPack sẽ xử lý cả PlaceholderAPI và VaultAPI -->
         <repository>
             <id>jitpack.io</id>
             <url>https://jitpack.io</url>
@@ -76,12 +72,15 @@
             <version>1.20.4-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
+        
+        <!-- ĐÃ SỬA LỖI Ở ĐÂY: Sử dụng cách khai báo mới từ JitPack -->
         <dependency>
-            <groupId>me.clip</groupId>
-            <artifactId>placeholderapi</artifactId>
-            <version>2.11.3</version>
+            <groupId>com.github.PlaceholderAPI</groupId>
+            <artifactId>PlaceholderAPI</artifactId>
+            <version>2.11.5</version>
             <scope>provided</scope>
         </dependency>
+        
         <dependency>
             <groupId>com.github.MilkBowl</groupId>
             <artifactId>VaultAPI</artifactId>
