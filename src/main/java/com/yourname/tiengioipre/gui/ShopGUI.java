@@ -4,27 +4,24 @@ import com.yourname.tiengioipre.TienGioiPre;
 import com.yourname.tiengioipre.core.ItemManager;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
-import org.bukkit.NamespacedKey; // <-- ĐÃ THÊM DÒNG NÀY
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class ShopGUI {
-    // ... nội dung còn lại của class giữ nguyên ...
-    // (Tôi sẽ dán toàn bộ file để chắc chắn)
-
     private final TienGioiPre plugin;
     private final ItemManager itemManager;
 
     public ShopGUI(TienGioiPre plugin) {
         this.plugin = plugin;
-        this.itemManager = plugin.getItemManager(); 
+        this.itemManager = plugin.getItemManager();
     }
 
     public void open(Player player) {
@@ -55,6 +52,7 @@ public class ShopGUI {
                 List<String> lore = meta.hasLore() ? new ArrayList<>(meta.getLore()) : new ArrayList<>();
                 List<String> extraLore = shopItemSection.getStringList("extra-lore");
                 for (String line : extraLore) {
+                    // Sử dụng String.format để định dạng số tiền cho đẹp hơn (ví dụ: 1,000)
                     lore.add(ChatColor.translateAlternateColorCodes('&', line.replace("%price%", String.format("%,.0f", price))));
                 }
                 meta.setLore(lore);
@@ -63,10 +61,10 @@ public class ShopGUI {
                 
                 item.setItemMeta(meta);
             }
-
             shopInv.setItem(slot, item);
         }
 
-        player.openInventory(player);
+        // ĐÃ SỬA LỖI Ở ĐÂY
+        player.openInventory(shopInv);
     }
 }
