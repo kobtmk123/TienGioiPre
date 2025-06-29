@@ -10,17 +10,21 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
+import org.bukkit.NamespacedKey; // <-- ĐÃ THÊM DÒNG NÀY
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class ShopGUI {
+    // ... nội dung còn lại của class giữ nguyên ...
+    // (Tôi sẽ dán toàn bộ file để chắc chắn)
+
     private final TienGioiPre plugin;
     private final ItemManager itemManager;
 
     public ShopGUI(TienGioiPre plugin) {
         this.plugin = plugin;
-        this.itemManager = new ItemManager(plugin); // Hoặc lấy instance từ main class
+        this.itemManager = plugin.getItemManager(); 
     }
 
     public void open(Player player) {
@@ -51,11 +55,10 @@ public class ShopGUI {
                 List<String> lore = meta.hasLore() ? new ArrayList<>(meta.getLore()) : new ArrayList<>();
                 List<String> extraLore = shopItemSection.getStringList("extra-lore");
                 for (String line : extraLore) {
-                    lore.add(ChatColor.translateAlternateColorCodes('&', line.replace("%price%", String.valueOf(price))));
+                    lore.add(ChatColor.translateAlternateColorCodes('&', line.replace("%price%", String.format("%,.0f", price))));
                 }
                 meta.setLore(lore);
                 
-                // Lưu giá vào item để ShopListener có thể đọc
                 meta.getPersistentDataContainer().set(new NamespacedKey(plugin, "shop_price"), PersistentDataType.DOUBLE, price);
                 
                 item.setItemMeta(meta);
@@ -64,6 +67,6 @@ public class ShopGUI {
             shopInv.setItem(slot, item);
         }
 
-        player.openInventory(shopInv);
+        player.openInventory(player);
     }
 }
