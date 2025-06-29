@@ -1,6 +1,6 @@
 # ============================================================ #
 #                  CONFIG PLUGIN TIENGIOIPRE                   #
-#                 Tác giả: YourName & Gemini                   #
+#                 Tác giả: Bố Been Vũ Đại                   #
 # ============================================================ #
 
 # Thêm một phiên bản cho config để sau này có thể tự động cập nhật
@@ -27,7 +27,7 @@ realms:
         linh-khi-gain-per-second: 1
         breakthrough:
           lightning-damage: 0
-        stats: {}
+        stats:
   luyenkhi:
     display-name: "&aLuyện Khí"
     tiers:
@@ -37,44 +37,262 @@ realms:
         linh-khi-gain-per-second: 2
         breakthrough:
           lightning-damage: 1.0
-        stats: {}
+        stats:
       trungky:
         display-name: "&a_Trung Kỳ"
         max-linh-khi: 1000
         linh-khi-gain-per-second: 3
         breakthrough:
           lightning-damage: 2.0
-        stats: {}
+        stats: 
       hauky:
         display-name: "&a_Hậu Kỳ"
         max-linh-khi: 1500
         linh-khi-gain-per-second: 4
         breakthrough:
           lightning-damage: 3.0
-        stats: {}
+        stats:
       dinhphong:
         display-name: "&a_Đỉnh Phong"
         max-linh-khi: 2000
         linh-khi-gain-per-second: 5
         breakthrough:
           lightning-damage: 4.0
-        stats: {}
+        stats:
       vienman:
         display-name: "&a_Viên Mãn"
         max-linh-khi: 2500
         linh-khi-gain-per-second: 6
         breakthrough:
           lightning-damage: 5.0
-        stats: {}
-  trucco:
-    display-name: "&bTrúc Cơ"
+        stats:
+  ketdan:
+    display-name: "&aKết Đan"
     tiers:
       soky:
-        display-name: "&b_Sơ Kỳ"
+        display-name: "&a_Sơ Kỳ"
+        max-linh-khi: 3000
+        linh-khi-gain-per-second: 7
+        breakthrough:
+          lightning-damage: 7.0
+        stats:
+      trungky:
+        display-name: "&a_Trung Kỳ"
+        max-linh-khi: 4000
+        linh-khi-gain-per-second: 7
+        breakthrough:
+          lightning-damage: 7.0
+        stats:
+      hauky:
+        display-name: "&a_Hậu Kỳ"
         max-linh-khi: 5000
+        linh-khi-gain-per-second: 7
+        breakthrough:
+          lightning-damage: 7.0
+        stats:
+      dinhphong:
+        display-name: "&a_Đỉnh Phong"
+        max-linh-khi: 6000
+        linh-khi-gain-per-second: 7
+        breakthrough:
+          lightning-damage: 8.0
+        stats:
+      vienman:
+        display-name: "&a_Viên Mãn"
+        max-linh-khi: 7000
+        linh-khi-gain-per-second: 7
+        breakthrough:
+          lightning-damage: 8.0
+        stats:
+   nguyenanh:
+    display-name: "&aNguyên Anh"
+    tiers:
+      soky:
+        display-name: "&a_Sơ Kỳ"
+        max-linh-khi: 8000
+        linh-khi-gain-per-second: 7
+        breakthrough:
+          lightning-damage: 8.0
+        stats:
+      trungky:
+        display-name: "&a_Trung Kỳ"
+        max-linh-khi: 9000
+        linh-khi-gain-per-second: 7
+        breakthrough:
+          lightning-damage: 8.0
+        stats:
+      hauky:
+        display-name: "&a_Hậu Kỳ"
+        max-linh-khi: 10000
+        linh-khi-gain-per-second: 7
+        breakthrough:
+          lightning-damage: 8.0
+        stats:
+      dinhphong:
+        display-name: "&a_Đỉnh Phong"
+        max-linh-khi: 11000
+        linh-khi-gain-per-second: 87
+        breakthrough:
+          lightning-damage: 8.0
+        stats:
+      vienman:
+        display-name: "&a_Viên Mãn"
+        max-linh-khi: 12000
+        linh-khi-gain-per-second: 7
+        breakthrough:
+          lightning-damage: 8.0
+        stats:
+  hoathan:
+    display-name: "&aHóa Thần"
+    tiers:
+      soky:
+        display-name: "&a_Sơ Kỳ"
+        max-linh-khi: 13000
+        linh-khi-gain-per-second: 7
+        breakthrough:
+          lightning-damage: 8.0
+        stats:
+      trungky:
+        display-name: "&a_Trung Kỳ"
+        max-linh-khi: 14000
+        linh-khi-gain-per-second: 7
+        breakthrough:
+          lightning-damage: 8.0
+        stats:
+      hauky:
+        display-name: "&a_Hậu Kỳ"
+        max-linh-khi: 15000
+        linh-khi-gain-per-second: 7
+        breakthrough:
+          lightning-damage: 8.0
+        stats:
+      dinhphong:
+        display-name: "&a_Đỉnh Phong"
+        max-linh-khi: 16000
+        linh-khi-gain-per-second: 7
+        breakthrough:
+          lightning-damage: 8.0
+        stats:
+      vienman:
+        display-name: "&a_Viên Mãn"
+        max-linh-khi: 17000
+        linh-khi-gain-per-second: 7
+        breakthrough:
+          lightning-damage: 8.0
+        stats:
+  luyenhu:
+    display-name: "&aLuyện Hư"
+    tiers:
+      soky:
+        display-name: "&a_Sơ Kỳ"
+        max-linh-khi: 18000
+        linh-khi-gain-per-second: 7
+        breakthrough:
+          lightning-damage: 9.0
+        stats:
+      trungky:
+        display-name: "&a_Trung Kỳ"
+        max-linh-khi: 19000
+        linh-khi-gain-per-second: 7
+        breakthrough:
+          lightning-damage: 9.0
+        stats:
+      hauky:
+        display-name: "&a_Hậu Kỳ"
+        max-linh-khi: 20000
+        linh-khi-gain-per-second: 7
+        breakthrough:
+          lightning-damage: 9.0
+        stats:
+      dinhphong:
+        display-name: "&a_Đỉnh Phong"
+        max-linh-khi: 21000
+        linh-khi-gain-per-second: 7
+        breakthrough:
+          lightning-damage: 9.0
+        stats:
+      vienman:
+        display-name: "&a_Viên Mãn"
+        max-linh-khi: 22000
+        linh-khi-gain-per-second: 7
+        breakthrough:
+          lightning-damage: 8.0
+        stats:
+  hopthe:
+    display-name: "&aHợp Thể"
+    tiers:
+      soky:
+        display-name: "&a_Sơ Kỳ"
+        max-linh-khi: 23000
+        linh-khi-gain-per-second: 7
+        breakthrough:
+          lightning-damage: 9.0
+        stats:
+      trungky:
+        display-name: "&a_Trung Kỳ"
+        max-linh-khi: 24000
+        linh-khi-gain-per-second: 7
+        breakthrough:
+          lightning-damage: 9.0
+        stats:
+      hauky:
+        display-name: "&a_Hậu Kỳ"
+        max-linh-khi: 25000
+        linh-khi-gain-per-second: 7
+        breakthrough:
+          lightning-damage: 9.0
+        stats:
+      dinhphong:
+        display-name: "&a_Đỉnh Phong"
+        max-linh-khi: 26000
+        linh-khi-gain-per-second: 7
+        breakthrough:
+          lightning-damage: 9.0
+        stats:
+      vienman:
+        display-name: "&a_Viên Mãn"
+        max-linh-khi: 27000
+        linh-khi-gain-per-second: 7
+        breakthrough:
+          lightning-damage: 10.0
+        stats:
+  daithua:
+    display-name: "&aĐại Thừa"
+    tiers:
+      soky:
+        display-name: "&a_Sơ Kỳ"
+        max-linh-khi: 27000
+        linh-khi-gain-per-second: 9
+        breakthrough:
+          lightning-damage: 11.0
+        stats:
+      trungky:
+        display-name: "&a_Trung Kỳ"
+        max-linh-khi: 27500
         linh-khi-gain-per-second: 10
         breakthrough:
-          lightning-damage: 6.0
+          lightning-damage: 11.0
+        stats:
+      hauky:
+        display-name: "&a_Hậu Kỳ"
+        max-linh-khi: 28000
+        linh-khi-gain-per-second: 9
+        breakthrough:
+          lightning-damage: 12.0
+        stats:
+      dinhphong:
+        display-name: "&a_Đỉnh Phong"
+        max-linh-khi: 29000
+        linh-khi-gain-per-second: 9
+        breakthrough:
+          lightning-damage: 13.000
+        stats:
+      vienman:
+        display-name: "&a_Viên Mãn"
+        max-linh-khi: 30000
+        linh-khi-gain-per-second: 9
+        breakthrough:
+          lightning-damage: 14.0
         stats:
           max-health-bonus: 2.0 # +1 trái tim
           attack-damage-bonus: 1.0
@@ -88,6 +306,12 @@ progression:
     - "phannhan"
     - "luyenkhi"
     - "trucco"
+    - "ketdan"
+    - "nguyenanh"
+    - "hoathan"
+    - "luyenhu"
+    - "hopthe"
+    - "daithua"
     # - "ketdan" ...
   tiers-order:
     - "soky"
@@ -119,6 +343,24 @@ items:
       material: "PAPER"
       enchanted: true
       linh-khi-amount: 75
+  thuong:
+      display-name: "&bCuộn Linh Khí [Thượng Phẩm]"
+      lore:
+        - "&7Một cuộn giấy chứa đựng linh khí."
+        - ""
+        - "&f&lChuột phải&7 để hấp thụ &b75&7 linh khí."
+      material: "PAPER"
+      enchanted: true
+      linh-khi-amount: 200
+  tuyet:
+      display-name: "&bCuộn Linh Khí [Tuyệt Phẩm]"
+      lore:
+        - "&7Một cuộn giấy chứa đựng linh khí."
+        - ""
+        - "&f&lChuột phải&7 để hấp thụ &b75&7 linh khí."
+      material: "PAPER"
+      enchanted: true
+      linh-khi-amount: 400
     # ...
 
 # ============================================
@@ -148,6 +390,26 @@ shop:
         - "&eGiá: &f%price% Xu"
         - "&aChuột trái để mua x1"
         - "&aChuột phải để mua x64"
+    cuon_linh_khi_thuong:
+      slot: 14
+      item-id: "cuonlinhkhi"
+      item-tier: "thuong"
+      price: 3000
+      extra-lore:
+        - ""
+        - "&eGiá: &f%price% Xu"
+        - "&aChuột trái để mua x1"
+        - "&aChuột phải để mua x64"
+    cuon_linh_khi_tuyet:
+      slot: 16
+      item-id: "cuonlinhkhi"
+      item-tier: "tuyet"
+      price: 4000
+      extra-lore:
+        - ""
+        - "&eGiá: &f%price% Xu"
+        - "&aChuột trái để mua x1"
+        - "&aChuột phải để mua x64"  
     # ...
 
 # ============================================

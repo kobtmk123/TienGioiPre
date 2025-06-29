@@ -26,7 +26,10 @@ public class CultivationManager {
     }
 
     public void startCultivating(Player player) {
-        if (isCultivating(player)) return;
+        if (isCultivating(player)) {
+            player.sendMessage("§cBạn đã đang trong trạng thái tu luyện rồi.");
+            return;
+        }
 
         Location loc = player.getLocation();
         if (!loc.clone().subtract(0, 1, 0).getBlock().getType().isSolid()) {
@@ -34,15 +37,11 @@ public class CultivationManager {
             return;
         }
 
-        // SỬA LỖI LÚN XUỐNG ĐẤT
-        // Tạo ArmorStand ngay tại vị trí của người chơi
         ArmorStand as = loc.getWorld().spawn(loc, ArmorStand.class);
         as.setVisible(false);
         as.setGravity(false);
         as.setInvulnerable(true);
-        // Không setMarker(true) để có thể đặt người chơi lên
         
-        // Đặt người chơi làm hành khách
         as.addPassenger(player);
         cultivatingPlayers.put(player.getUniqueId(), as);
         
@@ -52,7 +51,6 @@ public class CultivationManager {
     public void stopCultivating(Player player) {
         ArmorStand as = cultivatingPlayers.remove(player.getUniqueId());
         if (as != null) {
-            // Đảm bảo người chơi không bị kẹt
             if (!as.getPassengers().isEmpty()) {
                 as.eject();
             }
@@ -62,14 +60,20 @@ public class CultivationManager {
     }
 
     public void startCultivationTask() {
-        // SỬA LỖI KHÔNG NHẬN LINH KHÍ
-        // Chạy task trên luồng chính của server để đảm bảo an toàn khi thay đổi dữ liệu
         new BukkitRunnable() {
             int tickCounter = 0;
 
             @Override
             public void run() {
-                if (cultivatingPlayers.isEmpty()) return;
+                // DEBUG: Kiểm tra xem task có chạy không
+                if (tickCounter % 100 == 0) { // In ra console mỗi 5 giây
+                    System.out.println("[TienGioi-Debug] Cultivation Task is running. Players cultivating: " + cultivatingPlayers.size());
+                }
+                
+                if (cultivatingPlayers.isEmpty()) {
+                    tickCounter = 0; // Reset counter khi không có ai tu luyện
+                    return;
+                }
                 tickCounter++;
 
                 cultivatingPlayers.entrySet().removeIf(entry -> {
@@ -77,7 +81,7 @@ public class CultivationManager {
                     if (p == null || !p.isOnline() || !isCultivating(p)) {
                         ArmorStand as = entry.getValue();
                         if (as != null) as.remove();
-                        return true; // Xóa khỏi map
+                        return true;
                     }
 
                     // CỘNG LINH KHÍ MỖI GIÂY (20 ticks)
@@ -85,11 +89,14 @@ public class CultivationManager {
                         PlayerData data = plugin.getPlayerDataManager().getPlayerData(p);
                         RealmManager.TierData tier = plugin.getRealmManager().getTierData(data.getRealmId(), data.getTierId());
                         if (data != null && tier != null && data.getLinhKhi() < tier.maxLinhKhi()) {
-                            data.addLinhKhi(tier.linhKhiGainPerSecond());
+                            double amountToAdd = tier.linhKhiGainPerSecond();
+                            data.addLinhKhi(amountToAdd);
+                            // DEBUG: In ra console khi cộng linh khí
+                            System.out.println("[TienGioi-Debug] Added " + amountToAdd + " Linh Khi to " + p.getName());
                         }
                     }
 
-                    // TẠO HIỆU ỨNG MỖI 10 TICKS (Mỏng hơn)
+                    // TẠO HIỆU ỨNG MỖI 10 TICKS
                     if (tickCounter % 10 == 0) {
                         spawnParticleCircle(p);
                     }
@@ -99,22 +106,19 @@ public class CultivationManager {
         }.runTaskTimer(plugin, 0L, 1L);
     }
 
-    // SỬA LẠI HIỆU ỨNG HẠT
     private void spawnParticleCircle(Player player) {
-        Location center = player.getLocation().add(0, 1, 0); // Vòng tròn ở ngang ngực
-        Particle particle = Particle.CLOUD; // Mặc định là khói trắng
+        Location center = player.getLocation().add(0, 1, 0);
+        Particle particle = Particle.CLOUD;
 
-        // Tùy chọn: Đổi particle cho cảnh giới cao
         PlayerData data = plugin.getPlayerDataManager().getPlayerData(player);
         if (data != null) {
             String realmId = data.getRealmId();
             if (realmId.equals("hopthe") || realmId.equals("daithua")) {
-                particle = Particle.FLAME; // Đổi thành lửa
+                particle = Particle.FLAME;
             }
         }
         
-        // Vòng tròn mỏng hơn, bán kính 1 block
-        for (int i = 0; i < 360; i += 30) { // Tăng bước nhảy để hạt thưa hơn
+        for (int i = 0; i < 360; i += 30) {
             double angle = Math.toRadians(i);
             double x = 1.0 * Math.cos(angle);
             double z = 1.0 * Math.sin(angle);
