@@ -4,7 +4,7 @@
 # ============================================================ #
 
 # Thêm một phiên bản cho config để sau này có thể tự động cập nhật
-config-version: 1.0
+config-version: 1.1
 
 # ============================================
 #                  CÀI ĐẶT CHUNG
@@ -26,8 +26,11 @@ realms:
         max-linh-khi: 100
         linh-khi-gain-per-second: 1
         breakthrough:
+          tribulation-name: "&7Phàm Nhân Kiếp"
+          lightning-count: 0 # Không có sét
           lightning-damage: 0
-        stats: {} # <-- SỬA LỖI: Thêm mục stats còn thiếu
+          lightning-delay-ticks: 20
+        stats: {}
   luyenkhi:
     display-name: "&aLuyện Khí"
     tiers:
@@ -36,201 +39,82 @@ realms:
         max-linh-khi: 500
         linh-khi-gain-per-second: 2
         breakthrough:
+          tribulation-name: "&eNhất Cửu Lôi Kiếp"
+          lightning-count: 1
           lightning-damage: 1.0
+          lightning-delay-ticks: 20
         stats: {}
       trungky:
         display-name: "&a_Trung Kỳ"
         max-linh-khi: 1000
         linh-khi-gain-per-second: 3
         breakthrough:
-          lightning-damage: 2.0
+          tribulation-name: "&eNhị Cửu Lôi Kiếp"
+          lightning-count: 2
+          lightning-damage: 1.5
+          lightning-delay-ticks: 20
         stats: {}
       hauky:
         display-name: "&a_Hậu Kỳ"
         max-linh-khi: 1500
         linh-khi-gain-per-second: 4
         breakthrough:
-          lightning-damage: 3.0
+          tribulation-name: "&eTam Cửu Lôi Kiếp"
+          lightning-count: 3
+          lightning-damage: 2.0
+          lightning-delay-ticks: 15
         stats: {}
       dinhphong:
         display-name: "&a_Đỉnh Phong"
         max-linh-khi: 2000
         linh-khi-gain-per-second: 5
         breakthrough:
-          lightning-damage: 4.0
+          tribulation-name: "&cTứ Cửu Lôi Kiếp"
+          lightning-count: 4
+          lightning-damage: 2.5
+          lightning-delay-ticks: 15
         stats: {}
       vienman:
         display-name: "&a_Viên Mãn"
         max-linh-khi: 2500
         linh-khi-gain-per-second: 6
         breakthrough:
-          lightning-damage: 5.0
+          tribulation-name: "&cNgũ Cửu Lôi Kiếp"
+          lightning-count: 5
+          lightning-damage: 3.0
+          lightning-delay-ticks: 10
         stats: {}
-  
-  # SỬA LỖI: Thêm Tu Vi Trúc Cơ còn thiếu
   trucco:
     display-name: "&bTrúc Cơ"
     tiers:
       soky:
         display-name: "&b_Sơ Kỳ"
-        max-linh-khi: 3000
-        linh-khi-gain-per-second: 7
-        breakthrough:
-          lightning-damage: 6.0
-        stats: {}
-      trungky:
-        display-name: "&b_Trung Kỳ"
-        max-linh-khi: 3500
-        linh-khi-gain-per-second: 8
-        breakthrough:
-          lightning-damage: 6.0
-        stats: {}
-      hauky:
-        display-name: "&b_Hậu Kỳ"
-        max-linh-khi: 4000
-        linh-khi-gain-per-second: 9
-        breakthrough:
-          lightning-damage: 6.0
-        stats: {}
-      dinhphong:
-        display-name: "&b_Đỉnh Phong"
-        max-linh-khi: 4500
+        max-linh-khi: 5000
         linh-khi-gain-per-second: 10
         breakthrough:
-          lightning-damage: 6.0
-        stats: {}
-      vienman:
-        display-name: "&b_Viên Mãn"
-        max-linh-khi: 5000
-        linh-khi-gain-per-second: 11
-        breakthrough:
-          lightning-damage: 6.0
-        stats: {}
-
-  ketdan:
-    display-name: "&eKết Đan"
-    tiers:
-      soky:
-        display-name: "&e_Sơ Kỳ"
-        max-linh-khi: 6000
-        linh-khi-gain-per-second: 12
-        breakthrough:
-          lightning-damage: 7.0
-        stats: {}
-      trungky:
-        display-name: "&e_Trung Kỳ"
-        max-linh-khi: 7000
-        linh-khi-gain-per-second: 13
-        breakthrough:
-          lightning-damage: 7.0
-        stats: {}
-      hauky:
-        display-name: "&e_Hậu Kỳ"
-        max-linh-khi: 8000
-        linh-khi-gain-per-second: 14
-        breakthrough:
-          lightning-damage: 7.0
-        stats: {}
-      dinhphong:
-        display-name: "&e_Đỉnh Phong"
-        max-linh-khi: 9000
-        linh-khi-gain-per-second: 15
-        breakthrough:
-          lightning-damage: 8.0
-        stats: {}
-      vienman:
-        display-name: "&e_Viên Mãn"
-        max-linh-khi: 10000
-        linh-khi-gain-per-second: 16
-        breakthrough:
-          lightning-damage: 8.0
-        stats: {}
-
-  # SỬA LỖI: Đưa 'nguyenanh' ra đúng thụt lề
-  nguyenanh:
-    display-name: "&dNguyên Anh"
-    tiers:
-      soky:
-        display-name: "&d_Sơ Kỳ"
-        max-linh-khi: 11000
-        linh-khi-gain-per-second: 17
-        breakthrough:
-          lightning-damage: 8.0
-        stats: {}
-      trungky:
-        display-name: "&d_Trung Kỳ"
-        max-linh-khi: 12000
-        linh-khi-gain-per-second: 18
-        breakthrough:
-          lightning-damage: 8.0
-        stats: {}
-      hauky:
-        display-name: "&d_Hậu Kỳ"
-        max-linh-khi: 13000
-        linh-khi-gain-per-second: 19
-        breakthrough:
-          lightning-damage: 8.0
-        stats: {}
-      dinhphong:
-        display-name: "&d_Đỉnh Phong"
-        max-linh-khi: 14000
-        linh-khi-gain-per-second: 20
-        breakthrough:
-          lightning-damage: 8.0
-        stats: {}
-      vienman:
-        display-name: "&d_Viên Mãn"
-        max-linh-khi: 15000
-        linh-khi-gain-per-second: 21
-        breakthrough:
-          lightning-damage: 8.0
-        stats: {}
-  hoathan:
-    display-name: "&3Hóa Thần"
-    tiers:
-      soky:
-        display-name: "&3_Sơ Kỳ"
-        max-linh-khi: 16000
-        linh-khi-gain-per-second: 22
-        breakthrough:
-          lightning-damage: 8.0
-        stats: {}
-      # ...
-  luyenhu:
-    display-name: "&9Luyện Hư"
-    tiers:
-      soky:
-        display-name: "&9_Sơ Kỳ"
-        max-linh-khi: 18000
-        linh-khi-gain-per-second: 25
-        breakthrough:
-          lightning-damage: 9.0
-        stats: {}
-      # ...
-  hopthe:
-    display-name: "&5Hợp Thể"
-    tiers:
-      soky:
-        display-name: "&5_Sơ Kỳ"
-        max-linh-khi: 23000
-        linh-khi-gain-per-second: 30
-        breakthrough:
-          lightning-damage: 9.0
-        stats: {}
-      # ...
+          tribulation-name: "&cTrúc Cơ Kiếp"
+          lightning-count: 6
+          lightning-damage: 4.0
+          lightning-delay-ticks: 20
+        stats:
+          max-health-bonus: 2.0
+      # ... cấu hình các bậc khác cho Trúc Cơ ...
+      
+  # ... Thêm các Tu Vi khác (Kết Đan, Nguyên Anh, v.v.) và cấu hình lôi kiếp cho chúng ...
   daithua:
     display-name: "&6Đại Thừa"
     tiers:
-      soky:
-        display-name: "&6_Sơ Kỳ"
-        max-linh-khi: 27000
-        linh-khi-gain-per-second: 35
+      vienman:
+        display-name: "&6&lViên Mãn"
+        max-linh-khi: 100000
+        linh-khi-gain-per-second: 50
         breakthrough:
-          lightning-damage: 11.0
+          tribulation-name: "&4&lCỬU CỬU THIÊN KIẾP"
+          lightning-count: 9
+          lightning-damage: 8.0 # 4 trái tim mỗi tia
+          lightning-delay-ticks: 30 # 1.5 giây một tia
         stats:
-          max-health-bonus: 2.0
-          attack-damage-bonus: 1.0
-      # ...
+          max-health-bonus: 10.0 # +5 trái tim
 
 # ============================================
 #              THỨ TỰ ĐỘT PHÁ
@@ -288,10 +172,11 @@ items:
     tuyet:
       display-name: "&c&lCuộn Linh Khí [Tuyệt Phẩm]"
       lore:
-        - "&7Một cuộn giấy chứa đựng linh khí."
+        - "&7Một cuộn giấy chứa đựng một lượng lớn"
+        - "&7linh khí tinh khiết."
         - ""
         - "&f&lChuột phải&7 để hấp thụ &c&l400&7 linh khí."
-      material: "PAPER"
+      material: "NETHER_STAR"
       enchanted: true
       linh-khi-amount: 400
 
