@@ -17,8 +17,9 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 
-import java.util.ArrayList; // <-- IMPORT ĐÃ ĐƯỢC THÊM
-import java.util.List;      // <-- IMPORT ĐÃ ĐƯỢC THÊM
+import java.util.ArrayList;
+import java.util.Arrays;      // <-- IMPORT ĐÃ ĐƯỢC THÊM
+import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
@@ -34,56 +35,50 @@ public class AnvilRefineListener implements Listener {
     @EventHandler
     public void onPrepareAnvil(PrepareAnvilEvent event) {
         AnvilInventory inv = event.getInventory();
+        if (!(event.getView().getPlayer() instanceof Player)) return;
+
         Player player = (Player) event.getView().getPlayer();
         PlayerData data = plugin.getPlayerDataManager().getPlayerData(player);
 
         if (data == null || !"luyenkhisu".equals(data.getCultivationPath())) {
-            return; // Chỉ Luyện Khí Sư mới dùng được
+            return;
         }
 
         ItemStack itemToUpgrade = inv.getItem(0);
-        ItemStack catalyst = inv.getItem(1); // Phôi
+        ItemStack catalyst = inv.getItem(1);
 
         if (itemToUpgrade == null || catalyst == null || !catalyst.hasItemMeta()) return;
 
         ItemMeta catalystMeta = catalyst.getItemMeta();
+        if (catalystMeta == null) return;
+        
         String catalystId = catalystMeta.getPersistentDataContainer().get(plugin.getItemManager().ITEM_ID_KEY, PersistentDataType.STRING);
 
         if (catalystId == null || !catalystId.startsWith("phoi_")) {
-            return; // Không phải phôi
+            return;
         }
 
-        // Kiểm tra xem item có phù hợp với phôi không
         String requiredType = plugin.getConfig().getString("refining.catalysts." + catalystId);
         if (!isItemTypeMatch(itemToUpgrade.getType(), requiredType)) {
             return;
         }
 
-        // Logic tính toán tỷ lệ và chọn ra tier
         String chosenTierId = getRandomTier(catalystId);
         if (chosenTierId == null) return;
 
-        // Tạo item kết quả
         ItemStack resultItem = createRefinedItem(itemToUpgrade, chosenTierId);
         if (resultItem == null) return;
         
         event.setResult(resultItem);
-        // Dùng Bukkit.getScheduler().runTask để set repair cost, tránh lỗi
-        plugin.getServer().getScheduler().runTask(plugin, () -> {
-            inv.setRepairCost(5); // Set giá 5 kinh nghiệm
-        });
+        plugin.getServer().getScheduler().runTask(plugin, () -> inv.setRepairCost(5));
     }
 
     private String getRandomTier(String catalystId) {
         ConfigurationSection chanceSection = plugin.getConfig().getConfigurationSection("refining.chances." + catalystId);
         if (chanceSection == null) return null;
 
-        int totalWeight = 0;
-        for (String key : chanceSection.getKeys(false)) {
-            totalWeight += chanceSection.getInt(key);
-        }
-
-        if (totalWeight == 0) return null;
+        int totalWeight = chanceSection.getKeys(false).stream().mapToInt(chanceSection::getInt).sum();
+        if (totalWeight <= 0) return null;
 
         int randomNum = random.nextInt(totalWeight);
         int currentWeight = 0;
@@ -104,11 +99,10 @@ public class AnvilRefineListener implements Listener {
         ConfigurationSection tierConfig = plugin.getConfig().getConfigurationSection("refining.tiers." + tierId);
         if (tierConfig == null) return null;
 
-        // Set tên mới
         String tierDisplayName = format(tierConfig.getString("display-name", ""));
-        meta.setDisplayName(tierDisplayName + " " + getCleanItemName(originalItem));
+        String tierColor = format(tierConfig.getString("color", "&f"));
+        meta.setDisplayName(tierDisplayName + " " + tierColor + getCleanItemName(originalItem));
 
-        // Random chỉ số và thêm vào lore
         List<String> newLore = new ArrayList<>();
         double damageBonus = getRandomInRange(tierConfig.getString("damage-range"));
         double healthBonus = getRandomInRange(tierConfig.getString("health-range"));
@@ -118,11 +112,9 @@ public class AnvilRefineListener implements Listener {
         
         meta.setLore(newLore);
         
-        // Thêm hiệu ứng enchant
         meta.addEnchant(Enchantment.LUCK, 1, true);
         meta.addItemFlags(ItemFlag.HIDE_ENCHANTS, ItemFlag.HIDE_ATTRIBUTES);
         
-        // Lưu trữ NBT để biết đây là đồ đã rèn
         meta.getPersistentDataContainer().set(new NamespacedKey(plugin, "refined_tier"), PersistentDataType.STRING, tierId);
 
         newItem.setItemMeta(meta);
@@ -137,13 +129,11 @@ public class AnvilRefineListener implements Listener {
         boolean isWeapon = matName.contains("sword") || matName.contains("axe") || matName.contains("bow") || matName.contains("crossbow") || matName.contains("trident");
         boolean isTool = matName.contains("pickaxe") || matName.contains("shovel") || matName.contains("hoe") || matName.contains("shears") || matName.contains("flint_and_steel");
 
-        if (requiredType.equals("armor_weapon")) {
-            return isArmor || isWeapon;
+        switch (requiredType) {
+            case "armor_weapon": return isArmor || isWeapon;
+            case "tool": return isTool;
+            default: return false;
         }
-        if (requiredType.equals("tool")) {
-            return isTool;
-        }
-        return false;
     }
     
     private double getRandomInRange(String range) {
@@ -159,13 +149,10 @@ public class AnvilRefineListener implements Listener {
     }
     
     private String getCleanItemName(ItemStack item) {
-        if (item.hasItemMeta() && item.getItemMeta().hasDisplayName()) {
-             // Xóa các mã màu và các ký tự đặc biệt [Hạ], [Trung],...
+        if (item.hasItemMeta() && item.getItemMeta().hasDisplayName() && !item.getItemMeta().getDisplayName().isEmpty()) {
              return ChatColor.stripColor(item.getItemMeta().getDisplayName()).replaceAll("\\[(.*?)\\]", "").trim();
         }
-        // Chuyển tên Material thành tên thông thường
-        String name = item.getType().name().replace('_', ' ').toLowerCase();
-        return capitalize(name);
+        return capitalize(item.getType().name().replace('_', ' ').toLowerCase());
     }
     
     private String capitalize(String str) {
