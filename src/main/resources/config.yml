@@ -1,7 +1,7 @@
 # ============================================================ #
 #                  CONFIG PLUGIN TIENGIOIPRE                   #
-#                 Tác giả: Bố Been Vĩ Đại                   #
-#                        Version: 1.2                          #
+#                 Tác giả: Bố Been Vũ Đại                   #
+#                        Version: 1.3                          #
 # ============================================================ #
 
 # ============================================
@@ -96,41 +96,47 @@ realms:
           lightning-delay-ticks: 20
         stats:
           max-health-bonus: 2.0
+      trungky:
+        display-name: "&b_Trung Kỳ"
+        max-linh-khi: 6000
+        linh-khi-gain-per-second: 12
+        breakthrough:
+          tribulation-name: "&cTrúc Cơ Kiếp"
           lightning-count: 6
-          lightning-damage: 1.0
+          lightning-damage: 4.5
           lightning-delay-ticks: 20
         stats:
           max-health-bonus: 2.0
       hauky:
-        display-name: "&bHậu Kỳ"
+        display-name: "&b_Hậu Kỳ"
         max-linh-khi: 7000
         linh-khi-gain-per-second: 14
         breakthrough:
           tribulation-name: "&cTrúc Cơ Kiếp"
           lightning-count: 7
-          lightning-damage: 1.0
+          lightning-damage: 5.0
           lightning-delay-ticks: 18
         stats:
           max-health-bonus: 2.0
       dinhphong:
-        display-name: "&bĐỉnh Phong"
+        display-name: "&b_Đỉnh Phong"
         max-linh-khi: 8000
         linh-khi-gain-per-second: 16
         breakthrough:
           tribulation-name: "&6Trúc Cơ Kiếp"
           lightning-count: 7
-          lightning-damage: 1.0
+          lightning-damage: 5.5
           lightning-delay-ticks: 18
         stats:
           max-health-bonus: 2.0
       vienman:
-        display-name: "&bViên Mãn"
+        display-name: "&b_Viên Mãn"
         max-linh-khi: 9000
         linh-khi-gain-per-second: 18
         breakthrough:
           tribulation-name: "&6Trúc Cơ Tâm Ma Kiếp"
           lightning-count: 8
-          lightning-damage: 1.0
+          lightning-damage: 6.0
           lightning-delay-ticks: 15
         stats:
           max-health-bonus: 4.0
@@ -138,57 +144,57 @@ realms:
     display-name: "&eKết Đan"
     tiers:
       soky:
-        display-name: "&eSơ Kỳ"
+        display-name: "&e_Sơ Kỳ"
         max-linh-khi: 12000
         linh-khi-gain-per-second: 20
         breakthrough:
           tribulation-name: "&6Kim Đan Kiếp"
           lightning-count: 9
-          lightning-damage: 1.0
+          lightning-damage: 6.0
           lightning-delay-ticks: 20
         stats:
           attack-damage-bonus: 1.0
       trungky:
-        display-name: "&eTrung Kỳ"
+        display-name: "&e_Trung Kỳ"
         max-linh-khi: 15000
         linh-khi-gain-per-second: 22
         breakthrough:
           tribulation-name: "&6Kim Đan Kiếp"
           lightning-count: 9
-          lightning-damage: 1.5
+          lightning-damage: 6.5
           lightning-delay-ticks: 20
         stats:
           attack-damage-bonus: 1.0
       hauky:
-        display-name: "&eHậu Kỳ"
+        display-name: "&e_Hậu Kỳ"
         max-linh-khi: 18000
         linh-khi-gain-per-second: 24
         breakthrough:
           tribulation-name: "&6Kim Đan Kiếp"
           lightning-count: 10
-          lightning-damage: 1.0
+          lightning-damage: 7.0
           lightning-delay-ticks: 18
         stats:
           attack-damage-bonus: 1.0
       dinhphong:
-        display-name: "&eĐỉnh Phong"
+        display-name: "&e_Đỉnh Phong"
         max-linh-khi: 21000
         linh-khi-gain-per-second: 26
         breakthrough:
           tribulation-name: "&6Kim Đan Kiếp"
           lightning-count: 10
-          lightning-damage: 1.5
+          lightning-damage: 7.5
           lightning-delay-ticks: 18
         stats:
           attack-damage-bonus: 1.5
       vienman:
-        display-name: "&eViên Mãn"
+        display-name: "&e_Viên Mãn"
         max-linh-khi: 25000
         linh-khi-gain-per-second: 28
         breakthrough:
           tribulation-name: "&6Kim Đan Phá, Nguyên Anh Xuất"
           lightning-count: 12
-          lightning-damage: 1.0
+          lightning-damage: 8.0
           lightning-delay-ticks: 15
         stats:
           attack-damage-bonus: 1.5
@@ -196,250 +202,250 @@ realms:
     display-name: "&dNguyên Anh"
     tiers:
       soky:
-        display-name: "&dSơ Kỳ"
+        display-name: "&d_Sơ Kỳ"
         max-linh-khi: 30000
         linh-khi-gain-per-second: 30
         breakthrough:
           tribulation-name: "&5Nguyên Anh Tâm Ma Kiếp"
           lightning-count: 12
-          lightning-damage: 1.0
+          lightning-damage: 8.0
           lightning-delay-ticks: 20
         stats:
           max-health-bonus: 6.0
           attack-damage-bonus: 2.0
       trungky:
-        display-name: "&dTrung Kỳ"
+        display-name: "&d_Trung Kỳ"
         max-linh-khi: 35000
         linh-khi-gain-per-second: 32
         breakthrough:
           tribulation-name: "&5Nguyên Anh Tâm Ma Kiếp"
           lightning-count: 12
-          lightning-damage: 1.0
+          lightning-damage: 8.5
           lightning-delay-ticks: 20
         stats:
           max-health-bonus: 6.0
           attack-damage-bonus: 2.0
       hauky:
-        display-name: "&dHậu Kỳ"
+        display-name: "&d_Hậu Kỳ"
         max-linh-khi: 40000
         linh-khi-gain-per-second: 34
         breakthrough:
           tribulation-name: "&5Nguyên Anh Tâm Ma Kiếp"
           lightning-count: 13
-          lightning-damage: 1.0
+          lightning-damage: 9.0
           lightning-delay-ticks: 18
         stats:
           max-health-bonus: 6.0
           attack-damage-bonus: 2.0
       dinhphong:
-        display-name: "&dĐỉnh Phong"
+        display-name: "&d_Đỉnh Phong"
         max-linh-khi: 45000
         linh-khi-gain-per-second: 36
         breakthrough:
           tribulation-name: "&5Nguyên Anh Tâm Ma Kiếp"
           lightning-count: 13
-          lightning-damage: 1.5
+          lightning-damage: 9.5
           lightning-delay-ticks: 18
         stats:
           max-health-bonus: 6.0
           attack-damage-bonus: 2.5
       vienman:
-        display-name: "&dViên Mãn"
+        display-name: "&d_Viên Mãn"
         max-linh-khi: 50000
         linh-khi-gain-per-second: 38
         breakthrough:
           tribulation-name: "&5Nguyên Anh Hóa Thần Kiếp"
           lightning-count: 15
-          lightning-damage: 1.5
+          lightning-damage: 10.0
           lightning-delay-ticks: 15
         stats:
-          max-health-bonus: 6.0
+          max-health-bonus: 8.0
           attack-damage-bonus: 2.5
   hoathan:
     display-name: "&3Hóa Thần"
     tiers:
       soky:
-        display-name: "&3Sơ Kỳ"
+        display-name: "&3_Sơ Kỳ"
         max-linh-khi: 60000
         linh-khi-gain-per-second: 40
         breakthrough:
           tribulation-name: "&3Hóa Thần Chi Kiếp"
           lightning-count: 15
-          lightning-damage: 1.0
+          lightning-damage: 10.0
           lightning-delay-ticks: 15
         stats:
           max-health-bonus: 8.0
           attack-damage-bonus: 3.0
       trungky:
-        display-name: "&3Trung Kỳ"
+        display-name: "&3_Trung Kỳ"
         max-linh-khi: 70000
         linh-khi-gain-per-second: 42
         breakthrough:
           tribulation-name: "&3Hóa Thần Chi Kiếp"
           lightning-count: 15
-          lightning-damage: 1.5
+          lightning-damage: 10.5
           lightning-delay-ticks: 15
         stats:
           max-health-bonus: 8.0
           attack-damage-bonus: 3.0
       hauky:
-        display-name: "&3Hậu Kỳ"
+        display-name: "&3_Hậu Kỳ"
         max-linh-khi: 80000
         linh-khi-gain-per-second: 44
         breakthrough:
           tribulation-name: "&3Hóa Thần Chi Kiếp"
           lightning-count: 16
-          lightning-damage: 1.0
+          lightning-damage: 11.0
           lightning-delay-ticks: 12
         stats:
           max-health-bonus: 8.0
           attack-damage-bonus: 3.0
       dinhphong:
-        display-name: "&3Đỉnh Phong"
+        display-name: "&3_Đỉnh Phong"
         max-linh-khi: 90000
         linh-khi-gain-per-second: 46
         breakthrough:
           tribulation-name: "&3Hóa Thần Chi Kiếp"
           lightning-count: 16
-          lightning-damage: 2.0
+          lightning-damage: 11.5
           lightning-delay-ticks: 12
         stats:
           max-health-bonus: 8.0
           attack-damage-bonus: 3.5
       vienman:
-        display-name: "&3Viên Mãn"
+        display-name: "&3_Viên Mãn"
         max-linh-khi: 100000
         linh-khi-gain-per-second: 48
         breakthrough:
           tribulation-name: "&3Hóa Thần Luyện Hư Kiếp"
           lightning-count: 18
-          lightning-damage: 3.0
+          lightning-damage: 12.0
           lightning-delay-ticks: 10
         stats:
           max-health-bonus: 10.0
-          attack-damage-bonus: 3.5
+          attack-damage-bonus: 3.5 
   luyenhu:
     display-name: "&9Luyện Hư"
     tiers:
       soky:
-        display-name: "&9Sơ Kỳ"
+        display-name: "&9_Sơ Kỳ"
         max-linh-khi: 120000
         linh-khi-gain-per-second: 50
         breakthrough:
           tribulation-name: "&9Hư Không Lôi Kiếp"
           lightning-count: 18
-          lightning-damage: 3.0
+          lightning-damage: 12.0
           lightning-delay-ticks: 15
         stats:
           max-health-bonus: 10.0
           attack-damage-bonus: 4.0
       trungky:
-        display-name: "&9Trung Kỳ"
+        display-name: "&9_Trung Kỳ"
         max-linh-khi: 140000
         linh-khi-gain-per-second: 52
         breakthrough:
           tribulation-name: "&9Hư Không Lôi Kiếp"
-          lightning-count: 18
-          lightning-damage: 3.0
+          lightning-count: 19
+          lightning-damage: 12.5
           lightning-delay-ticks: 15
         stats:
           max-health-bonus: 10.0
           attack-damage-bonus: 4.0
       hauky:
-        display-name: "&9Hậu Kỳ"
+        display-name: "&9_Hậu Kỳ"
         max-linh-khi: 160000
         linh-khi-gain-per-second: 54
         breakthrough:
           tribulation-name: "&9Hư Không Lôi Kiếp"
           lightning-count: 20
-          lightning-damage: 2.0
+          lightning-damage: 13.0
           lightning-delay-ticks: 12
         stats:
           max-health-bonus: 10.0
           attack-damage-bonus: 4.0
       dinhphong:
-        display-name: "&9Đỉnh Phong"
+        display-name: "&9_Đỉnh Phong"
         max-linh-khi: 180000
         linh-khi-gain-per-second: 56
         breakthrough:
           tribulation-name: "&9Hư Không Lôi Kiếp"
-          lightning-count: 20
-          lightning-damage: 2.5
+          lightning-count: 21
+          lightning-damage: 13.5
           lightning-delay-ticks: 12
         stats:
           max-health-bonus: 10.0
           attack-damage-bonus: 4.5
       vienman:
-        display-name: "&9Viên Mãn"
+        display-name: "&9_Viên Mãn"
         max-linh-khi: 200000
         linh-khi-gain-per-second: 58
         breakthrough:
           tribulation-name: "&9Luyện Hư Hợp Thể Kiếp"
-          lightning-count: 27
-          lightning-damage: 2.0
+          lightning-count: 24
+          lightning-damage: 14.0
           lightning-delay-ticks: 10
         stats:
           max-health-bonus: 12.0
-          attack-damage-bonus: 4.5
+          attack-damage-bonus: 4.5 
   hopthe:
     display-name: "&5Hợp Thể"
     tiers:
       soky:
-        display-name: "&5Sơ Kỳ"
+        display-name: "&5_Sơ Kỳ"
         max-linh-khi: 250000
         linh-khi-gain-per-second: 60
         breakthrough:
           tribulation-name: "&5Thiên Địa Pháp Tắc Kiếp"
           lightning-count: 27
-          lightning-damage: 2.0
+          lightning-damage: 15.0
           lightning-delay-ticks: 12
         stats:
           max-health-bonus: 12.0
           attack-damage-bonus: 5.0
       trungky:
-        display-name: "&5Trung Kỳ"
+        display-name: "&5_Trung Kỳ"
         max-linh-khi: 300000
         linh-khi-gain-per-second: 65
         breakthrough:
           tribulation-name: "&5Thiên Địa Pháp Tắc Kiếp"
-          lightning-count: 27
-          lightning-damage: 2.0
+          lightning-count: 28
+          lightning-damage: 15.5
           lightning-delay-ticks: 12
         stats:
           max-health-bonus: 12.0
           attack-damage-bonus: 5.0
       hauky:
-        display-name: "&5Hậu Kỳ"
+        display-name: "&5_Hậu Kỳ"
         max-linh-khi: 350000
         linh-khi-gain-per-second: 70
         breakthrough:
           tribulation-name: "&5Thiên Địa Pháp Tắc Kiếp"
-          lightning-count: 36
-          lightning-damage: 1.0
+          lightning-count: 29
+          lightning-damage: 16.0
           lightning-delay-ticks: 10
         stats:
           max-health-bonus: 12.0
           attack-damage-bonus: 5.0
       dinhphong:
-        display-name: "&5Đỉnh Phong"
+        display-name: "&5_Đỉnh Phong"
         max-linh-khi: 400000
         linh-khi-gain-per-second: 75
         breakthrough:
           tribulation-name: "&5Thiên Địa Pháp Tắc Kiếp"
-          lightning-count: 36
-          lightning-damage: 2.5
+          lightning-count: 30
+          lightning-damage: 16.5
           lightning-delay-ticks: 10
         stats:
           max-health-bonus: 12.0
           attack-damage-bonus: 5.5
       vienman:
-        display-name: "&5Viên Mãn"
-        max-linh-khi: 450000
+        display-name: "&5_Viên Mãn"
+        max-linh-khi: 500000
         linh-khi-gain-per-second: 80
         breakthrough:
           tribulation-name: "&5Hợp Thể Đại Thừa Kiếp"
-          lightning-count: 49
-          lightning-damage: 2.0
+          lightning-count: 36
+          lightning-damage: 18.0
           lightning-delay-ticks: 8
         stats:
           max-health-bonus: 15.0
@@ -448,49 +454,49 @@ realms:
     display-name: "&6Đại Thừa"
     tiers:
       soky:
-        display-name: "&6Sơ Kỳ"
-        max-linh-khi: 500000
+        display-name: "&6_Sơ Kỳ"
+        max-linh-khi: 600000
         linh-khi-gain-per-second: 90
         breakthrough:
           tribulation-name: "&4&lCửu Cửu Quy Nhất Kiếp"
-          lightning-count: 49
-          lightning-damage: 1.5
+          lightning-count: 36
+          lightning-damage: 18.0
           lightning-delay-ticks: 10
         stats:
           max-health-bonus: 15.0
           attack-damage-bonus: 6.0
       trungky:
-        display-name: "&6Trung Kỳ"
-        max-linh-khi: 600000
+        display-name: "&6_Trung Kỳ"
+        max-linh-khi: 700000
         linh-khi-gain-per-second: 100
         breakthrough:
           tribulation-name: "&4&lCửu Cửu Quy Nhất Kiếp"
-          lightning-count: 49
-          lightning-damage: 2.5
+          lightning-count: 38
+          lightning-damage: 18.5
           lightning-delay-ticks: 10
         stats:
           max-health-bonus: 15.0
           attack-damage-bonus: 6.0
       hauky:
-        display-name: "&6Hậu Kỳ"
-        max-linh-khi: 700000
+        display-name: "&6_Hậu Kỳ"
+        max-linh-khi: 800000
         linh-khi-gain-per-second: 110
         breakthrough:
           tribulation-name: "&4&lCửu Cửu Quy Nhất Kiếp"
-          lightning-count: 64
-          lightning-damage: 2.0
+          lightning-count: 40
+          lightning-damage: 19.0
           lightning-delay-ticks: 8
         stats:
           max-health-bonus: 15.0
           attack-damage-bonus: 6.0
       dinhphong:
-        display-name: "&6Đỉnh Phong"
-        max-linh-khi: 850000
+        display-name: "&6_Đỉnh Phong"
+        max-linh-khi: 900000
         linh-khi-gain-per-second: 120
         breakthrough:
           tribulation-name: "&4&lCửu Cửu Quy Nhất Kiếp"
-          lightning-count: 64
-          lightning-damage: 2.5
+          lightning-count: 42
+          lightning-damage: 19.5
           lightning-delay-ticks: 8
         stats:
           max-health-bonus: 15.0
@@ -500,17 +506,16 @@ realms:
         max-linh-khi: 1000000
         linh-khi-gain-per-second: 150
         breakthrough:
-          tribulation-name: "&4&l&k!!&r &4&lPHI THĂNG TIÊN KIẾP &k!!&r"
+          tribulation-name: "&4&lPHI THĂNG TIÊN KIẾP"
           lightning-count: 81
-          lightning-damage: 2.0
+          lightning-damage: 20.0
           lightning-delay-ticks: 5
         stats:
           max-health-bonus: 20.0
-          attack-damage-bonus: 8.0                          
-      # ... (Điền các bậc còn lại cho Trúc Cơ và các Tu Vi khác nếu cần)
+          attack-damage-bonus: 10.0
 
 # ============================================
-#               THỨ TỰ ĐỘT PHÁ
+#              THỨ TỰ ĐỘT PHÁ
 # ============================================
 progression:
   realms-order:
@@ -534,48 +539,43 @@ progression:
 #            VẬT PHẨM PLUGIN
 # ============================================
 items:
-  # Vật phẩm cộng linh khí
   cuonlinhkhi:
     ha:
       display-name: "&aCuộn Linh Khí [Hạ Phẩm]"
       lore:
-        - "&7Một cuộn giấy chứa đựng linh khí."
+        - "&7Hấp thụ để nhận linh khí."
         - ""
-        - "&f&lChuột phải&7 để hấp thụ &a30&7 linh khí."
+        - "&f&lChuột phải&7 để nhận &a30&7 linh khí."
       material: "PAPER"
       enchanted: true
       linh-khi-amount: 30
     trung:
       display-name: "&bCuộn Linh Khí [Trung Phẩm]"
       lore:
-        - "&7Một cuộn giấy chứa đựng linh khí."
+        - "&7Hấp thụ để nhận linh khí."
         - ""
-        - "&f&lChuột phải&7 để hấp thụ &b75&7 linh khí."
+        - "&f&lChuột phải&7 để nhận &b75&7 linh khí."
       material: "PAPER"
       enchanted: true
       linh-khi-amount: 75
     thuong:
       display-name: "&dCuộn Linh Khí [Thượng Phẩm]"
       lore:
-        - "&7Một cuộn giấy chứa đựng linh khí."
+        - "&7Hấp thụ để nhận linh khí."
         - ""
-        - "&f&lChuột phải&7 để hấp thụ &d200&7 linh khí."
+        - "&f&lChuột phải&7 để nhận &d200&7 linh khí."
       material: "PAPER"
       enchanted: true
       linh-khi-amount: 200
     tuyet:
       display-name: "&c&lCuộn Linh Khí [Tuyệt Phẩm]"
       lore:
-        - "&7Một cuộn giấy chứa đựng một lượng lớn"
-        - "&7linh khí tinh khiết."
+        - "&7Hấp thụ để nhận linh khí."
         - ""
-        - "&f&lChuột phải&7 để hấp thụ &c&l400&7 linh khí."
+        - "&f&lChuột phải&7 để nhận &c&l400&7 linh khí."
       material: "NETHER_STAR"
       enchanted: true
-      linh-khi-amount: 400 
-    # ... các tier khác ...
-
-  # Vật phẩm Phôi cho Luyện Khí Sư
+      linh-khi-amount: 400
   phoi_thien_tinh:
     display-name: "&bPhôi Thiên Tinh"
     lore:
@@ -622,8 +622,8 @@ shop:
         - "&eGiá: &f%price% Xu"
         - "&aChuột trái để mua x1"
         - "&aChuột phải để mua x64"
-     cuon_linh_khi_trung:
-      slot: 12
+    cuon_linh_khi_trung:
+      slot: 11
       item-id: "cuonlinhkhi"
       item-tier: "trung"
       price: 2500
@@ -633,7 +633,7 @@ shop:
         - "&aChuột trái để mua x1"
         - "&aChuột phải để mua x64"
     cuon_linh_khi_thuong:
-      slot: 14
+      slot: 12
       item-id: "cuonlinhkhi"
       item-tier: "thuong"
       price: 7000
@@ -643,7 +643,7 @@ shop:
         - "&aChuột trái để mua x1"
         - "&aChuột phải để mua x64"
     cuon_linh_khi_tuyet:
-      slot: 16
+      slot: 13
       item-id: "cuonlinhkhi"
       item-tier: "tuyet"
       price: 15000
@@ -651,11 +651,21 @@ shop:
         - ""
         - "&eGiá: &f%price% Xu"
         - "&aChuột trái để mua x1"
-        - "&aChuột phải để mua x64"  
+        - "&aChuột phải để mua x64"
     phoi_thien_tinh_shop:
-      slot: 12
-      item-id: "phoi_thien_tinh" # ID của vật phẩm
+      slot: 15
+      item-id: "phoi_thien_tinh"
       item-tier: "default" # Tier mặc định cho item không có nhiều tier
+      price: 5000
+      extra-lore:
+        - ""
+        - "&eGiá: &f%price% Xu"
+        - "&aChuột trái để mua x1"
+        - "&aChuột phải để mua x16"
+    phoi_huyet_thach_shop:
+      slot: 16
+      item-id: "phoi_huyet_thach"
+      item-tier: "default"
       price: 5000
       extra-lore:
         - ""
@@ -704,7 +714,6 @@ paths:
 #              HỆ THỐNG LUYỆN KHÍ
 # ============================================
 refining:
-  # Định nghĩa các cấp bậc cho vật phẩm được rèn
   tiers:
     ha:
       display-name: "&7[Hạ]"
@@ -731,8 +740,6 @@ refining:
       color: "&c"
       damage-range: "5.0-7.0"
       health-range: "4.0-6.0"
-
-  # Tỷ lệ ra các cấp bậc khi rèn (tổng mỗi nhóm phải là 100)
   chances:
     phoi_thien_tinh:
       ha: 20
@@ -758,23 +765,17 @@ refining:
       thuong: 15
       cuc: 0
       tuyet: 0
-
-  # Xác định loại phôi dùng cho loại vật phẩm nào
   catalysts:
     phoi_thien_tinh: "armor_weapon"
     phoi_huyet_thach: "armor_weapon"
     phoi_tinh_the: "tool"
     phoi_thep_hoa_phat: "tool"
-
-  # Cấu hình cho việc spawn quặng
   ore-spawning:
-    # Quặng cho phôi Thiên Tinh và Huyết Thạch
     armor_weapon_ore:
       enabled: true
       material: "COPPER_ORE"
       particle: "FLAME"
-      spawn-chance: 0.0002 # Tỷ lệ 1/5000 khối đá/đất sâu
-    # Quặng cho phôi Tinh Thể và Thép Hòa Phát
+      spawn-chance: 0.0002
     tool_ore:
       enabled: true
       material: "IRON_ORE"
