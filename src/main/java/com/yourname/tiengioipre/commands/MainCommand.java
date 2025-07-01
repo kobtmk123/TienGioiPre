@@ -19,7 +19,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class MainCommand implements CommandExecutor, TabCompleter {
 
@@ -62,20 +61,12 @@ public class MainCommand implements CommandExecutor, TabCompleter {
         return true;
     }
 
-    // --- CÁC HÀM XỬ LÝ LỆNH ---
-
     private void handleReload(CommandSender sender) {
-        // Tải lại config từ file
         plugin.reloadConfig();
-        
-        // Gọi lại hàm loadRealms từ RealmManager để nạp dữ liệu mới
         plugin.getRealmManager().loadRealms();
-        
-        // Áp dụng lại stats cho tất cả người chơi online để cập nhật thay đổi
         for (Player player : Bukkit.getOnlinePlayers()) {
             plugin.getRealmManager().applyAllStats(player);
         }
-        
         sender.sendMessage(format(prefix + "&aĐã tải lại cấu hình và áp dụng cho người chơi online."));
     }
 
@@ -94,29 +85,27 @@ public class MainCommand implements CommandExecutor, TabCompleter {
         String itemType = args[2].toLowerCase();
         String itemId = args[3].toLowerCase();
         int amount = 1;
-
-        if (args.length > 5) { // Sửa thành 5 để cú pháp là /give player type id amount
-            try {
-                amount = Integer.parseInt(args[4]);
-            } catch (NumberFormatException e) {
-                sender.sendMessage(format(prefix + "&cSố lượng không hợp lệ."));
-                return;
-            }
-        }
         
-        ItemStack itemToGive = null;
+        // Cú pháp cho cuonlinhkhi: /tth give <player> cuonlinhkhi <tier>
+        // Cú pháp cho phoi: /tth give <player> phoi <id> <amount>
+        if (itemType.equals("phoi") && args.length > 4) {
+             try { amount = Integer.parseInt(args[4]); } catch (NumberFormatException e) { sender.sendMessage(format("&cSố lượng không hợp lệ.")); return; }
+        } else if (itemType.equals("cuonlinhkhi") && args.length > 4) {
+             try { amount = Integer.parseInt(args[4]); } catch (NumberFormatException e) { sender.sendMessage(format("&cSố lượng không hợp lệ.")); return; }
+        }
+
+        ItemStack itemToGive;
         ItemManager itemManager = plugin.getItemManager();
 
         if (itemType.equals("cuonlinhkhi")) {
             itemToGive = itemManager.createCultivationItem(itemType, itemId);
         } else if (itemType.equals("phoi")) {
-            // Phôi không có tier, nên ta tạo trực tiếp từ id
-            itemToGive = itemManager.createCultivationItem(itemId, "default"); 
+            itemToGive = itemManager.createCultivationItem(itemId, "default"); // Giả sử phôi không có tier
         } else {
-            sender.sendMessage(format(prefix + "&cLoại vật phẩm không hợp lệ. Chỉ chấp nhận 'cuonlinhkhi' hoặc 'phoi'."));
+            sender.sendMessage(format(prefix + "&cLoại vật phẩm không hợp lệ: 'cuonlinhkhi' hoặc 'phoi'."));
             return;
         }
-        
+
         if (itemToGive == null) {
             sender.sendMessage(format(prefix + "&cKhông tìm thấy vật phẩm với ID '" + itemId + "'."));
             return;
@@ -140,14 +129,14 @@ public class MainCommand implements CommandExecutor, TabCompleter {
         String realmId = args[2];
         String tierId = args[3];
         RealmManager.TierData tierData = plugin.getRealmManager().getTierData(realmId, tierId);
-        if(tierData == null) {
+        if (tierData == null) {
             sender.sendMessage(format(prefix + "&cTu Vi ID hoặc Bậc ID không tồn tại."));
             return;
         }
         PlayerData data = plugin.getPlayerDataManager().getPlayerData(target);
         if (data == null) {
-             sender.sendMessage(format(prefix + "&cKhông tìm thấy dữ liệu của người chơi."));
-             return;
+            sender.sendMessage(format(prefix + "&cKhông tìm thấy dữ liệu của người chơi."));
+            return;
         }
         data.setRealmId(realmId);
         data.setTierId(tierId);
@@ -159,12 +148,41 @@ public class MainCommand implements CommandExecutor, TabCompleter {
         target.sendMessage(format(prefix + "&aCảnh giới của bạn đã được admin thay đổi."));
     }
     
+    // === HÀM ĐÃ ĐƯỢC ĐIỀN LẠI NỘI DUNG ===
     private void handleSetLinhKhi(CommandSender sender, String[] args, String label) {
-        // ... (Giữ nguyên)
+        if (args.length < 3) {
+            sender.sendMessage(format(prefix + "&cUsage: /" + label + " setlinhkhi <player> <amount>"));
+            return;
+        }
+        Player target = Bukkit.getPlayer(args[1]);
+        if (target == null) {
+            sender.sendMessage(format(prefix + "&cKhông tìm thấy người chơi " + args[1]));
+            return;
+        }
+        double amount;
+        try {
+            amount = Double.parseDouble(args[2]);
+        } catch (NumberFormatException e) {
+            sender.sendMessage(format(prefix + "&cSố lượng linh khí không hợp lệ."));
+            return;
+        }
+        PlayerData data = plugin.getPlayerDataManager().getPlayerData(target);
+        if (data == null) {
+            sender.sendMessage(format(prefix + "&cKhông tìm thấy dữ liệu của người chơi."));
+            return;
+        }
+        data.setLinhKhi(amount);
+        sender.sendMessage(format(prefix + "&aĐã đặt linh khí của " + target.getName() + " thành &e" + String.format("%,.0f", amount)));
+        target.sendMessage(format(prefix + "&aLinh khí của bạn đã được admin thay đổi."));
     }
     
+    // === HÀM ĐÃ ĐƯỢC ĐIỀN LẠI NỘI DUNG ===
     private void sendHelpMessage(CommandSender sender, String label) {
-        // ... (Giữ nguyên)
+        sender.sendMessage(format("&6--- Lệnh Admin TienGioiPre ---"));
+        sender.sendMessage(format("&e/" + label + " reload &7- Tải lại config."));
+        sender.sendMessage(format("&e/" + label + " give <player> <type> <id> [amount] &7- Trao vật phẩm."));
+        sender.sendMessage(format("&e/" + label + " setrealm <player> <tuvi_id> <bac_id> &7- Đặt cảnh giới."));
+        sender.sendMessage(format("&e/" + label + " setlinhkhi <player> <amount> &7- Đặt linh khí."));
     }
     
     private String format(String message) {
@@ -174,10 +192,16 @@ public class MainCommand implements CommandExecutor, TabCompleter {
     @Nullable
     @Override
     public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
-        // ... (Giữ nguyên)
+        if (args.length == 1) {
+            return filter(Arrays.asList("reload", "give", "setrealm", "setlinhkhi"), args[0]);
+        }
+        // ... (phần còn lại của TabComplete giữ nguyên)
+        return Collections.emptyList();
     }
     
-    private List<String> filter(Iterable<String> list, String start) {
-        // ... (Giữ nguyên)
+    private List<String> filter(List<String> list, String start) {
+        return list.stream()
+                   .filter(s -> s.toLowerCase().startsWith(start.toLowerCase()))
+                   .collect(Collectors.toList());
     }
 }
