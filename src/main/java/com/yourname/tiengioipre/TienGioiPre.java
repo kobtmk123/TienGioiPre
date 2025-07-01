@@ -12,17 +12,13 @@ import com.yourname.tiengioipre.core.ItemManager;
 import com.yourname.tiengioipre.core.PlayerDataManager;
 import com.yourname.tiengioipre.core.RealmManager;
 import com.yourname.tiengioipre.gui.ShopGUI;
-import com.yourname.tiengioipre.listeners.PlayerConnectionListener;
-import com.yourname.tiengioipre.listeners.PlayerDamageListener;
-import com.yourname.tiengioipre.listeners.PlayerInteractListener;
-import com.yourname.tiengioipre.listeners.PlayerStateListener;
-import com.yourname.tiengioipre.listeners.ShopListener;
-import com.yourname.tiengioipre.tasks.CultivationTask; // <-- IMPORT TASK MỚI
+import com.yourname.tiengioipre.listeners.*; // Import tất cả listener
+import com.yourname.tiengioipre.tasks.CultivationTask;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitTask; // <-- IMPORT BukkitTask
+import org.bukkit.scheduler.BukkitTask;
 
 public final class TienGioiPre extends JavaPlugin {
 
@@ -61,8 +57,7 @@ public final class TienGioiPre extends JavaPlugin {
         // Tích hợp với các plugin khác
         setupIntegrations();
         
-        // === KHỞI ĐỘNG TASK TU LUYỆN ĐỘC LẬP ===
-        // Task này sẽ chạy mỗi giây (20 ticks) để cộng linh khí và tạo hiệu ứng
+        // Khởi động Task Tu Luyện độc lập
         this.mainTask = new CultivationTask(this).runTaskTimer(this, 0L, 20L);
         getLogger().info("Da khoi dong Task Tu Luyen chinh.");
 
@@ -88,19 +83,23 @@ public final class TienGioiPre extends JavaPlugin {
      * Đăng ký tất cả các lệnh của plugin.
      */
     private void registerCommands() {
+        // Lệnh quản trị
         MainCommand mainCommand = new MainCommand(this);
         getCommand("tiengioi").setExecutor(mainCommand);
         getCommand("tiengioi").setTabCompleter(mainCommand);
 
+        // Lệnh người chơi
         getCommand("tuluyen").setExecutor(new TuLuyenCommand(this));
         getCommand("dotpha").setExecutor(new DotPhaCommand(this));
         getCommand("shoptiengioi").setExecutor(new ShopTienGioiCommand(this));
 
+        // Lệnh cho Con Đường Tu Luyện
         PathCommand pathCommand = new PathCommand(this);
         getCommand("conduongtuluyen").setExecutor(pathCommand);
         getCommand("kiemtu").setExecutor(pathCommand);
         getCommand("matu").setExecutor(pathCommand);
         getCommand("phattu").setExecutor(pathCommand);
+        getCommand("luyenkhisu").setExecutor(pathCommand); // <-- ĐĂNG KÝ LỆNH MỚI
     }
 
     /**
@@ -111,7 +110,11 @@ public final class TienGioiPre extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new PlayerInteractListener(this), this);
         getServer().getPluginManager().registerEvents(new PlayerStateListener(this), this);
         getServer().getPluginManager().registerEvents(new ShopListener(this), this);
+        
+        // Listeners cho các tính năng mới
         getServer().getPluginManager().registerEvents(new PlayerDamageListener(this), this);
+        getServer().getPluginManager().registerEvents(new AnvilRefineListener(this), this); // <-- ĐĂNG KÝ LISTENER MỚI
+        getServer().getPluginManager().registerEvents(new OreSpawnListener(this), this);   // <-- ĐĂNG KÝ LISTENER MỚI
     }
 
     /**
