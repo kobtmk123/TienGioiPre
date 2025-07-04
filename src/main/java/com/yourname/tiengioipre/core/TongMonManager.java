@@ -17,6 +17,8 @@ import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.Set; // <-- IMPORT BỊ THIẾU
+import java.util.HashSet; // <-- IMPORT BỊ THIẾU
 
 /**
  * Quản lý tất cả các hoạt động liên quan đến Tông Môn.
