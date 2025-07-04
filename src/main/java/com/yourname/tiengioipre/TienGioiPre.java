@@ -2,10 +2,10 @@ package com.yourname.tiengioipre;
 
 import com.yourname.tiengioipre.api.PAPIExpansion;
 import com.yourname.tiengioipre.api.TienGioiAPI;
-import com.yourname.tiengioipre.commands.*; // Import tất cả các lệnh
-import com.yourname.tiengioipre.core.*;      // Import tất cả các manager
+import com.yourname.tiengioipre.commands.*;
+import com.yourname.tiengioipre.core.*;
 import com.yourname.tiengioipre.gui.ShopGUI;
-import com.yourname.tiengioipre.listeners.*; // Import tất cả các listener
+import com.yourname.tiengioipre.listeners.*;
 import com.yourname.tiengioipre.tasks.CultivationTask;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
@@ -25,7 +25,7 @@ public final class TienGioiPre extends JavaPlugin {
     private CultivationManager cultivationManager;
     private ItemManager itemManager;
     private ShopGUI shopGUI;
-    private TongMonManager tongMonManager; // <-- MANAGER MỚI
+    private TongMonManager tongMonManager;
     private BukkitTask mainTask; 
 
     @Override
@@ -38,10 +38,11 @@ public final class TienGioiPre extends JavaPlugin {
         saveDefaultConfig();
 
         // Khởi tạo tất cả các trình quản lý THEO ĐÚNG THỨ TỰ
+        // Các manager không phụ thuộc vào nhau có thể đặt trước
         this.itemManager = new ItemManager(this);
         this.shopGUI = new ShopGUI(this);
-        this.tongMonManager = new TongMonManager(this); // <-- KHỞI TẠO MANAGER MỚI
-        this.playerDataManager = new PlayerDataManager(this);
+        this.tongMonManager = new TongMonManager(this);
+        this.playerDataManager = new PlayerDataManager(this); // Phụ thuộc vào TongMonManager để lấy dữ liệu mặc định
         this.realmManager = new RealmManager(this);
         this.cultivationManager = new CultivationManager(this);
 
@@ -62,12 +63,12 @@ public final class TienGioiPre extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        // Hủy task khi plugin tắt
+        // Hủy task khi plugin tắt để tránh lỗi và memory leak
         if (this.mainTask != null && !this.mainTask.isCancelled()) {
             this.mainTask.cancel();
         }
         
-        // Lưu dữ liệu tông môn
+        // Lưu dữ liệu tông môn trước khi lưu dữ liệu người chơi
         if (tongMonManager != null) {
             tongMonManager.saveTongMonData();
         }
@@ -88,12 +89,12 @@ public final class TienGioiPre extends JavaPlugin {
         getCommand("tiengioi").setExecutor(mainCommand);
         getCommand("tiengioi").setTabCompleter(mainCommand);
 
-        // Lệnh người chơi
+        // Lệnh người chơi cơ bản
         getCommand("tuluyen").setExecutor(new TuLuyenCommand(this));
         getCommand("dotpha").setExecutor(new DotPhaCommand(this));
         getCommand("shoptiengioi").setExecutor(new ShopTienGioiCommand(this));
 
-        // Lệnh Con Đường Tu Luyện
+        // Lệnh cho Con Đường Tu Luyện
         PathCommand pathCommand = new PathCommand(this);
         getCommand("conduongtuluyen").setExecutor(pathCommand);
         getCommand("conduongtuluyen").setTabCompleter(pathCommand);
@@ -103,8 +104,9 @@ public final class TienGioiPre extends JavaPlugin {
         getCommand("luyenkhisu").setExecutor(pathCommand);
         
         // Lệnh Tông Môn
-        getCommand("tongmon").setExecutor(new TongMonCommand(this));
-        // Bạn có thể thêm TabCompleter cho TongMonCommand nếu muốn
+        TongMonCommand tongMonCommand = new TongMonCommand(this);
+        getCommand("tongmon").setExecutor(tongMonCommand);
+        getCommand("tongmon").setTabCompleter(tongMonCommand);
     }
 
     /**
@@ -118,7 +120,7 @@ public final class TienGioiPre extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new PlayerDamageListener(this), this);
         getServer().getPluginManager().registerEvents(new AnvilRefineListener(this), this);
         getServer().getPluginManager().registerEvents(new OreSpawnListener(this), this);
-        getServer().getPluginManager().registerEvents(new TongMonListener(this), this); // <-- ĐĂNG KÝ LISTENER MỚI
+        getServer().getPluginManager().registerEvents(new TongMonListener(this), this);
     }
 
     /**
@@ -175,7 +177,6 @@ public final class TienGioiPre extends JavaPlugin {
         return shopGUI;
     }
     
-    // GETTER MỚI CHO TÔNG MÔN MANAGER
     public TongMonManager getTongMonManager() {
         return this.tongMonManager;
     }
