@@ -2,17 +2,10 @@ package com.yourname.tiengioipre;
 
 import com.yourname.tiengioipre.api.PAPIExpansion;
 import com.yourname.tiengioipre.api.TienGioiAPI;
-import com.yourname.tiengioipre.commands.DotPhaCommand;
-import com.yourname.tiengioipre.commands.MainCommand;
-import com.yourname.tiengioipre.commands.PathCommand;
-import com.yourname.tiengioipre.commands.ShopTienGioiCommand;
-import com.yourname.tiengioipre.commands.TuLuyenCommand;
-import com.yourname.tiengioipre.core.CultivationManager;
-import com.yourname.tiengioipre.core.ItemManager;
-import com.yourname.tiengioipre.core.PlayerDataManager;
-import com.yourname.tiengioipre.core.RealmManager;
+import com.yourname.tiengioipre.commands.*; // Import tất cả các lệnh
+import com.yourname.tiengioipre.core.*;      // Import tất cả các manager
 import com.yourname.tiengioipre.gui.ShopGUI;
-import com.yourname.tiengioipre.listeners.*; // Import tất cả listener
+import com.yourname.tiengioipre.listeners.*; // Import tất cả các listener
 import com.yourname.tiengioipre.tasks.CultivationTask;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
@@ -32,7 +25,8 @@ public final class TienGioiPre extends JavaPlugin {
     private CultivationManager cultivationManager;
     private ItemManager itemManager;
     private ShopGUI shopGUI;
-    private BukkitTask mainTask; // Biến để lưu trữ và quản lý task tu luyện
+    private TongMonManager tongMonManager; // <-- MANAGER MỚI
+    private BukkitTask mainTask; 
 
     @Override
     public void onEnable() {
@@ -43,9 +37,10 @@ public final class TienGioiPre extends JavaPlugin {
         // Tải các file cấu hình
         saveDefaultConfig();
 
-        // Khởi tạo tất cả các trình quản lý
+        // Khởi tạo tất cả các trình quản lý THEO ĐÚNG THỨ TỰ
         this.itemManager = new ItemManager(this);
         this.shopGUI = new ShopGUI(this);
+        this.tongMonManager = new TongMonManager(this); // <-- KHỞI TẠO MANAGER MỚI
         this.playerDataManager = new PlayerDataManager(this);
         this.realmManager = new RealmManager(this);
         this.cultivationManager = new CultivationManager(this);
@@ -67,11 +62,16 @@ public final class TienGioiPre extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        // Hủy task khi plugin tắt để tránh lỗi và memory leak
+        // Hủy task khi plugin tắt
         if (this.mainTask != null && !this.mainTask.isCancelled()) {
             this.mainTask.cancel();
         }
         
+        // Lưu dữ liệu tông môn
+        if (tongMonManager != null) {
+            tongMonManager.saveTongMonData();
+        }
+
         // Lưu dữ liệu người chơi
         if (playerDataManager != null) {
             playerDataManager.saveAllPlayerData();
@@ -93,13 +93,18 @@ public final class TienGioiPre extends JavaPlugin {
         getCommand("dotpha").setExecutor(new DotPhaCommand(this));
         getCommand("shoptiengioi").setExecutor(new ShopTienGioiCommand(this));
 
-        // Lệnh cho Con Đường Tu Luyện
+        // Lệnh Con Đường Tu Luyện
         PathCommand pathCommand = new PathCommand(this);
         getCommand("conduongtuluyen").setExecutor(pathCommand);
+        getCommand("conduongtuluyen").setTabCompleter(pathCommand);
         getCommand("kiemtu").setExecutor(pathCommand);
         getCommand("matu").setExecutor(pathCommand);
         getCommand("phattu").setExecutor(pathCommand);
-        getCommand("luyenkhisu").setExecutor(pathCommand); // <-- ĐĂNG KÝ LỆNH MỚI
+        getCommand("luyenkhisu").setExecutor(pathCommand);
+        
+        // Lệnh Tông Môn
+        getCommand("tongmon").setExecutor(new TongMonCommand(this));
+        // Bạn có thể thêm TabCompleter cho TongMonCommand nếu muốn
     }
 
     /**
@@ -110,11 +115,10 @@ public final class TienGioiPre extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new PlayerInteractListener(this), this);
         getServer().getPluginManager().registerEvents(new PlayerStateListener(this), this);
         getServer().getPluginManager().registerEvents(new ShopListener(this), this);
-        
-        // Listeners cho các tính năng mới
         getServer().getPluginManager().registerEvents(new PlayerDamageListener(this), this);
-        getServer().getPluginManager().registerEvents(new AnvilRefineListener(this), this); // <-- ĐĂNG KÝ LISTENER MỚI
-        getServer().getPluginManager().registerEvents(new OreSpawnListener(this), this);   // <-- ĐĂNG KÝ LISTENER MỚI
+        getServer().getPluginManager().registerEvents(new AnvilRefineListener(this), this);
+        getServer().getPluginManager().registerEvents(new OreSpawnListener(this), this);
+        getServer().getPluginManager().registerEvents(new TongMonListener(this), this); // <-- ĐĂNG KÝ LISTENER MỚI
     }
 
     /**
@@ -169,6 +173,11 @@ public final class TienGioiPre extends JavaPlugin {
 
     public ShopGUI getShopGUI() {
         return shopGUI;
+    }
+    
+    // GETTER MỚI CHO TÔNG MÔN MANAGER
+    public TongMonManager getTongMonManager() {
+        return this.tongMonManager;
     }
 
     /**

@@ -15,10 +15,23 @@ tuluyen:
 
 # Đột phá
 dotpha:
+
+  # Tiền tố sẽ được thêm vào đầu mỗi tin nhắn
+
+# Tin nhắn cho lệnh /dotpha
+breakthrough:
+  success-private: "&b&lChúc Mừng! &fBạn đã thành công độ kiếp, tiến vào &b%realm_name% - %tier_name%&f!"
+  success-broadcast: "&6&l[Thông Báo Tiên Giới] &eChúc mừng đạo hữu &f%player_name% &eđã thành công vượt qua thiên kiếp, chính thức đột phá lên cảnh giới &b%realm_name% - %tier_name%&e!"
+  fail-private: "&c&lĐáng Tiếc! &7Lần đột phá này đã thất bại, linh khí hỗn loạn. Hãy thử lại lần sau!"
+  fail-tribulation: "&cĐộ kiếp thất bại, thân tử đạo tiêu!" # Khi chết do lôi kiếp
+  in-progress: "&cBạn đang trong quá trình độ kiếp, không thể thực hiện!"
+  not-enough-mana: "&cBạn chưa đủ linh khí để đột phá! Cần &e%required%&c, bạn đang có &e%current%&c."
+  max-level: "&eBạn đã đạt tới cảnh giới cao nhất, không thể đột phá thêm!"
+  config-error: "&c[Lỗi] Cấu hình đột phá cho cảnh giới này không hợp lệ. Vui lòng báo Admin."
   not-enough-linh-khi: "%prefix%&cBạn chưa đủ linh khí để đột phá! Cần &e%required%&c, bạn đang có &e%current%&c."
   success: "%prefix%&b&lChúc mừng! &fBạn đã đột phá thành công lên cảnh giới %realm%&f!"
   fail-death: "%prefix%&c&lĐỘ KIẾP THẤT BẠI! &7Bạn đã không thể chống lại thiên kiếp và đã bỏ mạng."
-  max-realm: "%prefix%&eBạn đã đạt tới cảnh giới cao nhất, không thể đột phá thêm."
+  max-realm: "%prefix%&eBạn đã đạt tới cảnh giới cao nhất, không thể đột phá thêm." 
 
 # Vật phẩm
 item:

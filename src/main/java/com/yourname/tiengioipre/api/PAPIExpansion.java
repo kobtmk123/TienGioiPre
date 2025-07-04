@@ -28,7 +28,7 @@ public class PAPIExpansion extends PlaceholderExpansion {
 
     @Override
     public @NotNull String getVersion() {
-        return "2.0.0";
+        return "2.1.0"; // Cập nhật phiên bản để phản ánh tính năng mới
     }
 
     @Override
@@ -50,6 +50,7 @@ public class PAPIExpansion extends PlaceholderExpansion {
         RealmManager realmManager = plugin.getRealmManager();
 
         switch (params.toLowerCase()) {
+            // === CÁC PLACEHOLDER VỀ CẢNH GIỚI ===
             case "tuvi":
                 return realmManager.getRealmDisplayName(data.getRealmId());
             case "bac":
@@ -58,13 +59,15 @@ public class PAPIExpansion extends PlaceholderExpansion {
                 String realmName = realmManager.getRealmDisplayName(data.getRealmId());
                 String tierName = realmManager.getTierDisplayName(data.getRealmId(), data.getTierId());
                 return realmName + " " + tierName;
+            
+            // === CÁC PLACEHOLDER VỀ LINH KHÍ ===
             case "linhkhi":
-                return String.format("%,.0f", data.getLinhKhi());
+                return String.format("%.0f", data.getLinhKhi());
             case "linhkhi_max":
                 RealmManager.TierData tierDataMax = realmManager.getTierData(data.getRealmId(), data.getTierId());
                 return tierDataMax != null ? String.valueOf((int)tierDataMax.maxLinhKhi()) : "0";
             case "linhkhi_formatted":
-                String current = String.format("%,.0f", data.getLinhKhi());
+                String current = String.format("%.0f", data.getLinhKhi());
                 RealmManager.TierData tierDataFormatted = realmManager.getTierData(data.getRealmId(), data.getTierId());
                 String max = tierDataFormatted != null ? String.valueOf((int)tierDataFormatted.maxLinhKhi()) : "0";
                 return current + "/" + max;
@@ -73,8 +76,33 @@ public class PAPIExpansion extends PlaceholderExpansion {
                  if (tierDataPercent == null || tierDataPercent.maxLinhKhi() == 0) return "0";
                  double percent = (data.getLinhKhi() / tierDataPercent.maxLinhKhi()) * 100;
                  return String.format("%.0f", Math.min(percent, 100));
+
+            // === CÁC PLACEHOLDER VỀ CON ĐƯỜNG TU LUYỆN ===
+            case "path_name":
+                 String pathId = data.getCultivationPath();
+                 if (pathId == null || pathId.equals("none")) {
+                     return "Chưa chọn";
+                 }
+                 // Lấy tên hiển thị từ config
+                 return plugin.getConfig().getString("paths." + pathId + ".display-name", "Không Rõ");
+
+            // === CÁC PLACEHOLDER MỚI VỀ TÔNG MÔN ===
+            case "tongmon_ten":
+                String tongMonId = data.getTongMonId();
+                if (tongMonId == null || tongMonId.equalsIgnoreCase("none")) {
+                    return "Vô Môn Phái";
+                }
+                // Sử dụng hàm getTenHienThi từ TongMonManager để lấy tên đã có màu
+                return plugin.getTongMonManager().getTenHienThi(tongMonId);
+
+            case "tongmon_prefix":
+                 String tongMonIdPrefix = data.getTongMonId();
+                 if (tongMonIdPrefix == null || tongMonIdPrefix.equalsIgnoreCase("none")) {
+                     return ""; // Trả về chuỗi rỗng nếu không có tông môn
+                 }
+                 return plugin.getTongMonManager().getTenHienThi(tongMonIdPrefix) + " "; // Ví dụ: "[Hắc Kiếm Môn] "
         }
 
-        return null;
+        return null; // Trả về null nếu placeholder không hợp lệ
     }
 }
