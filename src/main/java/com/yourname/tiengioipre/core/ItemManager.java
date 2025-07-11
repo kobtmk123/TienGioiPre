@@ -101,7 +101,7 @@ public class ItemManager {
     }
     
     /**
-     * Định dạng màu cho tin nhắn, hỗ trợ cả mã màu & và RGB (&#RRGGBB).
+     * Định dạng màu cho tin nhắn, hỗ trợ cả mã màu & Và RGB (&#RRGGBB).
      */
     private String format(String message) {
         if (message == null) return "";
