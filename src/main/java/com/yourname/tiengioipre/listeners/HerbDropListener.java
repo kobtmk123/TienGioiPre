@@ -27,7 +27,9 @@ public class HerbDropListener implements Listener {
 
     private final TienGioiPre plugin;
     private final Random random = new Random();
+    
     // Danh sách các loại block có thể rơi ra dược liệu
+    // Đã sửa lỗi: Thêm "Material." vào trước tất cả các tên block
     private final List<Material> FARMABLE_BLOCKS = Arrays.asList(
             Material.GRASS, Material.TALL_GRASS, Material.FERN,
             Material.WHEAT, Material.CARROTS, Material.POTATOES, Material.BEETROOTS
@@ -44,6 +46,7 @@ public class HerbDropListener implements Listener {
         Material blockType = block.getType();
 
         // 1. Kiểm tra các điều kiện ban đầu
+        // Bỏ qua nếu người chơi ở chế độ creative hoặc không phải các block hợp lệ
         if (player.getGameMode() == GameMode.CREATIVE || !FARMABLE_BLOCKS.contains(blockType)) {
             return;
         }
