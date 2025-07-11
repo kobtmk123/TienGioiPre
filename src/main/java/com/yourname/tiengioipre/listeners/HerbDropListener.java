@@ -91,7 +91,7 @@ public class HerbDropListener implements Listener {
             }
         }
 
-        // 5. Nếu đã drop ra dược liệu, hủy các drop mặc định (như hạt giống, lúa mì,...)
+        // 5. Nếu đã drop ra dược liệu, hủy các drop mặc định (như hạt giống, Lúa Mì,...)
         if (didDropHerb) {
             event.setDropItems(false);
         }
