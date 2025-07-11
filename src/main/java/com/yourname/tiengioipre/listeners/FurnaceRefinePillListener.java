@@ -16,6 +16,8 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -45,7 +47,7 @@ public class FurnaceRefinePillListener implements Listener {
         // Kiểm tra xem có phải là đan dược nửa mùa không bằng NBT
         if (smeltingItem.getItemMeta().getPersistentDataContainer().has(halfMadePillKey, PersistentDataType.BYTE)) {
             int cookTime = plugin.getConfig().getInt("alchemy.settings.furnace-smelt-time-seconds", 20) * 20; // Chuyển sang tick
-            event.setCookTime(cookTime);
+            event.setBurnTime(cookTime);
         }
     }
 
@@ -106,7 +108,7 @@ public class FurnaceRefinePillListener implements Listener {
         meta.addEnchant(Enchantment.LUCK, 1, true);
         meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
 
-        // Lưu NBT để nhận biết đây là đan dược hoàn chỉnh
+        // Lưu NBT để nhận biết đây là đan dược hoàn chỉnh (không còn là half-made)
         meta.getPersistentDataContainer().set(plugin.getItemManager().ITEM_ID_KEY, PersistentDataType.STRING, pillId);
         meta.getPersistentDataContainer().set(plugin.getItemManager().ITEM_TIER_KEY, PersistentDataType.STRING, pillTier);
 
@@ -114,7 +116,18 @@ public class FurnaceRefinePillListener implements Listener {
         return pill;
     }
 
-    private String format(String msg) {
-        return ChatColor.translateAlternateColorCodes('&', msg);
+    /**
+     * Định dạng màu cho tin nhắn, hỗ trợ cả mã màu & và RGB (&#RRGGBB).
+     */
+    private String format(String message) {
+        if (message == null) return "";
+        Pattern pattern = Pattern.compile("&#[a-fA-F0-9]{6}");
+        Matcher matcher = pattern.matcher(message);
+        while (matcher.find()) {
+            String color = message.substring(matcher.start(), matcher.end());
+            message = message.replace(color, net.md_5.bungee.api.ChatColor.of(color.substring(1)) + "");
+            matcher = pattern.matcher(message);
+        }
+        return ChatColor.translateAlternateColorCodes('&', message);
     }
 }

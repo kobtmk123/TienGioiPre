@@ -35,7 +35,7 @@ public final class TienGioiPre extends JavaPlugin {
 
         saveDefaultConfig();
 
-        // Khởi tạo tất cả các trình quản lý
+        // Khởi tạo tất cả các trình quản lý THEO ĐÚNG THỨ TỰ
         this.itemManager = new ItemManager(this);
         this.shopGUI = new ShopGUI(this);
         this.tongMonManager = new TongMonManager(this);

@@ -15,8 +15,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
-import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
@@ -27,7 +27,6 @@ import java.util.*;
 public class CauldronAlchemyListener implements Listener {
 
     private final TienGioiPre plugin;
-    // Map để lưu trữ trạng thái của các vạc đang hoạt động
     private final Map<Location, CauldronData> activeCauldrons = new HashMap<>();
     private final Random random = new Random();
 
@@ -50,41 +49,36 @@ public class CauldronAlchemyListener implements Listener {
         Player player = event.getPlayer();
         PlayerData data = plugin.getPlayerDataManager().getPlayerData(player);
         if (data == null || !"luyendansu".equals(data.getCultivationPath())) {
-            return; // Chỉ Luyện Đan Sư mới có thể đun nước
+            return;
         }
-
+        
+        if (!(block.getBlockData() instanceof Levelled)) return;
         Levelled cauldronData = (Levelled) block.getBlockData();
-        if (cauldronData.getLevel() == cauldronData.getMaximumLevel()) {
-            return; // Vạc đã đầy nước
-        }
+        if (cauldronData.getLevel() != 0) return;
 
-        // Kiểm tra xem có lửa bên dưới không
         Material blockBelow = block.getRelative(0, -1, 0).getType();
         if (blockBelow != Material.FIRE && blockBelow != Material.MAGMA_BLOCK) {
             return;
         }
 
-        // Đánh dấu đây là sự kiện của plugin để tránh các plugin khác can thiệp
-        event.setCancelled(true); 
-        
-        // Cập nhật bằng tay
+        event.setCancelled(true);
         if (player.getGameMode() != org.bukkit.GameMode.CREATIVE) {
             event.getItem().setType(Material.BUCKET);
         }
-        cauldronData.setLevel(cauldronData.getMaximumLevel());
-        block.setBlockData(cauldronData);
+        
+        block.setType(Material.WATER_CAULDRON);
+        Levelled waterCauldronData = (Levelled) block.getBlockData();
+        waterCauldronData.setLevel(waterCauldronData.getMaximumLevel());
+        block.setBlockData(waterCauldronData);
+        
         player.playSound(player.getLocation(), Sound.ITEM_BUCKET_EMPTY, 1.0f, 1.0f);
-
-        // Bắt đầu đun nước
         startBoiling(player, block.getLocation());
     }
 
     private void startBoiling(Player player, Location loc) {
         if (activeCauldrons.containsKey(loc)) return;
 
-        CauldronData cauldron = new CauldronData();
-        activeCauldrons.put(loc, cauldron);
-        
+        activeCauldrons.put(loc, new CauldronData());
         long boilTime = plugin.getConfig().getLong("alchemy.settings.water-boil-time-seconds", 60) * 20L;
         player.sendMessage(format("&bNước trong vạc bắt đầu được đun nóng..."));
 
@@ -92,7 +86,8 @@ public class CauldronAlchemyListener implements Listener {
             @Override
             public void run() {
                 CauldronData currentData = activeCauldrons.get(loc);
-                if (currentData == null) {
+                if (currentData == null || loc.getBlock().getType() != Material.WATER_CAULDRON) {
+                    activeCauldrons.remove(loc);
                     this.cancel();
                     return;
                 }
@@ -108,13 +103,12 @@ public class CauldronAlchemyListener implements Listener {
     public void onItemDropInCauldron(PlayerDropItemEvent event) {
         Player player = event.getPlayer();
         Item droppedItemEntity = event.getItemDrop();
-        ItemStack droppedItemStack = droppedItemEntity.getItemStack();
         
-        // Chờ một chút để item rơi xuống
         new BukkitRunnable() {
+            int ticksLived = 0;
             @Override
             public void run() {
-                if (!droppedItemEntity.isValid()) {
+                if (!droppedItemEntity.isValid() || ticksLived++ > 40) { // Hủy sau 2 giây
                     this.cancel();
                     return;
                 }
@@ -122,40 +116,36 @@ public class CauldronAlchemyListener implements Listener {
                 Location itemLoc = droppedItemEntity.getLocation();
                 Block blockAt = itemLoc.getBlock();
                 
-                // Kiểm tra xem item có nằm trong vạc đang sôi không
                 if (blockAt.getType() == Material.WATER_CAULDRON && activeCauldrons.containsKey(blockAt.getLocation())) {
                     CauldronData cauldron = activeCauldrons.get(blockAt.getLocation());
                     if (cauldron != null && cauldron.isBoiling) {
-                        handleItemAlchemy(player, cauldron, droppedItemStack, blockAt.getLocation());
-                        droppedItemEntity.remove(); // Xóa item đã ném
+                        handleItemAlchemy(player, cauldron, droppedItemEntity.getItemStack(), blockAt.getLocation());
+                        droppedItemEntity.remove();
+                        this.cancel();
                     }
                 }
             }
-        }.runTaskLater(plugin, 10L); // Chờ nửa giây
+        }.runTaskTimer(plugin, 5L, 5L); // Kiểm tra mỗi 1/4 giây
     }
 
     private void handleItemAlchemy(Player player, CauldronData cauldron, ItemStack item, Location loc) {
         ItemMeta meta = item.getItemMeta();
         if (meta == null) return;
         
-        // Lấy ID của dược liệu từ NBT
         String herbId = meta.getPersistentDataContainer().get(plugin.getItemManager().ITEM_ID_KEY, PersistentDataType.STRING);
-        if (herbId == null || !herbId.startsWith("linh_") && !herbId.startsWith("huyet_") && !herbId.startsWith("bach_")) {
-            player.sendMessage(format("&cVật phẩm này không phải dược liệu!"));
+        if (herbId == null) {
+            player.sendMessage(format("&cVật phẩm này không phải dược liệu hợp lệ!"));
             return;
         }
         
-        // Thêm nguyên liệu vào vạc
         cauldron.addIngredient(herbId, item.getAmount());
         player.sendMessage(format("&aĐã thêm " + item.getAmount() + "x " + meta.getDisplayName() + " &avào vạc."));
         
-        // Kiểm tra công thức
         String matchedRecipeId = findMatchingRecipe(cauldron.ingredients);
         if (matchedRecipeId != null) {
             player.sendMessage(format("&eNguyên liệu đã đủ, bắt đầu luyện đan!"));
             player.playSound(player.getLocation(), Sound.BLOCK_LAVA_EXTINGUISH, 1.0f, 1.0f);
             
-            // Xóa vạc khỏi danh sách hoạt động để tránh người khác ném thêm đồ vào
             activeCauldrons.remove(loc); 
             
             long craftTime = plugin.getConfig().getLong("alchemy.settings.cauldron-craft-time-seconds", 30) * 20L;
@@ -163,21 +153,18 @@ public class CauldronAlchemyListener implements Listener {
             new BukkitRunnable() {
                 @Override
                 public void run() {
-                    // Cạn nước
                     Block cauldronBlock = loc.getBlock();
                     if (cauldronBlock.getType() == Material.WATER_CAULDRON) {
                         cauldronBlock.setType(Material.CAULDRON);
                     }
                     
-                    // Random phẩm chất
                     String pillTier = getRandomPillTier(matchedRecipeId);
                     if (pillTier == null) return;
                     
-                    // Tạo viên đan dược nửa mùa
                     ItemStack halfMadePill = createHalfMadePill(matchedRecipeId, pillTier);
                     if (halfMadePill != null) {
-                        loc.getWorld().dropItemNaturally(loc.add(0, 1, 0), halfMadePill);
-                        player.sendMessage(format("&6Một viên đan dược đã được luyện thành!"));
+                        loc.getWorld().dropItemNaturally(loc.clone().add(0, 1, 0), halfMadePill);
+                        player.sendMessage(format("&6Một viên đan dược đã được luyện thành! Hãy nung nó để hoàn thiện."));
                     }
                 }
             }.runTaskLater(plugin, craftTime);
@@ -204,24 +191,47 @@ public class CauldronAlchemyListener implements Listener {
     }
     
     private String getRandomPillTier(String recipeId) {
-        // ... (Logic random tier tương tự như trong AnvilRefineListener)
+        ConfigurationSection chanceSection = plugin.getConfig().getConfigurationSection("alchemy.recipes." + recipeId + ".tier-chance");
+        if (chanceSection == null) return "tam_pham"; // Mặc định là phẩm chất thấp nhất
+        
+        int totalWeight = chanceSection.getKeys(false).stream().mapToInt(chanceSection::getInt).sum();
+        if (totalWeight <= 0) return "tam_pham";
+
+        int randomNum = random.nextInt(totalWeight);
+        int currentWeight = 0;
+        for (String key : chanceSection.getKeys(false)) {
+            currentWeight += chanceSection.getInt(key);
+            if (randomNum < currentWeight) {
+                return key;
+            }
+        }
+        return "tam_pham";
     }
     
     private ItemStack createHalfMadePill(String pillId, String pillTier) {
-        // Tạo một item mới, có tên và lore đặc biệt để nhận biết
+        ItemStack item = new ItemStack(Material.SLIME_BALL);
+        ItemMeta meta = item.getItemMeta();
+        if (meta == null) return null;
+
+        meta.setDisplayName(format("&7Đan Dược Nửa Mùa"));
+        meta.setLore(Collections.singletonList(format("&fBỏ vào lò nung để hoàn thiện.")));
+        
+        ItemManager itemManager = plugin.getItemManager();
+        meta.getPersistentDataContainer().set(itemManager.HALF_MADE_PILL_KEY, PersistentDataType.BYTE, (byte) 1);
+        meta.getPersistentDataContainer().set(itemManager.ITEM_ID_KEY, PersistentDataType.STRING, pillId);
+        meta.getPersistentDataContainer().set(itemManager.ITEM_TIER_KEY, PersistentDataType.STRING, pillTier);
+        
+        item.setItemMeta(meta);
+        return item;
     }
 
     private String format(String msg) {
         return ChatColor.translateAlternateColorCodes('&', msg);
     }
     
-    // Class nội bộ để lưu dữ liệu của mỗi vạc
     private static class CauldronData {
         boolean isBoiling = false;
         Map<String, Integer> ingredients = new HashMap<>();
-
-        void addIngredient(String id, int amount) {
-            ingredients.merge(id, amount, Integer::sum);
-        }
+        void addIngredient(String id, int amount) { ingredients.merge(id, amount, Integer::sum); }
     }
 }
