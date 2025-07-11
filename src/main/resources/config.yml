@@ -1,7 +1,7 @@
 # ============================================================ #
 #                  CONFIG PLUGIN TIENGIOIPRE                   #
 #                 Tác giả: Bố Been Vũ Đại                   #
-#                        Version: 1.3                          #
+#                        Version: 1.4                          #
 # ============================================================ #
 
 # ============================================
@@ -691,6 +691,7 @@ paths:
       - "&e- &c/matu &7- Dấn thân vào Ma Đạo, sức mạnh thuần túy."
       - "&e- &b/phattu &7- Theo gót Phật Tổ, thân thể vững vàng."
       - "&e- &d/luyenkhisu &7- Trở thành bậc thầy chế tác."
+      - "&e- &6/luyendansu &7- Trở thành Đại Sư Luyện Đan."
   kiemtu:
     display-name: "&aKiếm Tu"
     description: "&7Bậc thầy vũ khí, sát thương vô song."
@@ -714,6 +715,10 @@ paths:
     display-name: "&dLuyện Khí Sư"
     description: "&7Bậc thầy chế tác, tạo ra thần binh lợi khí."
     stats: {}
+  luyendansu:
+    display-name: "&6Luyện Đan Sư"
+    description: "&7Bậc thầy điều chế linh dược, nghịch thiên cải mệnh."
+    stats: {} # Không có bonus chỉ số trực tiếp
 
 # ============================================
 #              HỆ THỐNG LUYỆN KHÍ
@@ -836,3 +841,101 @@ refining:
         cuc: "1-2"
         huyen: "2-3"
         tuyet: "3-4"
+        
+         # ============================================
+#              HỆ THỐNG LUYỆN ĐAN
+# ============================================
+alchemy:
+  # Cài đặt chung cho việc luyện đan
+  settings:
+    # Thời gian (giây) để nước trong vạc sôi sau khi đổ nước và có lửa bên dưới
+    water-boil-time-seconds: 60
+    # Thời gian (giây) để luyện ra Đan Dược Nửa Mùa sau khi thả đủ nguyên liệu
+    cauldron-craft-time-seconds: 30
+    # Thời gian (giây) để nung trong lò từ Nửa Mùa thành Hoàn Chỉnh
+    furnace-smelt-time-seconds: 20
+
+  # ===================== DƯỢC LIỆU =====================
+  # Định nghĩa các loại dược liệu có thể tìm thấy
+  # Tỷ lệ rơi ra khi phá cỏ (ví dụ: 0.01 = 1%)
+  herbs:
+    linh_tam_thao:
+      display-name: "&aLinh Tâm Thảo"
+      lore:
+        - "&7Dược liệu cơ bản, chứa đựng linh khí đất trời."
+      material: "WHEAT_SEEDS"
+      enchanted: true
+      drop-chance-from-grass: 0.05 # 5%
+    huyet_tinh_hoa:
+      display-name: "&cHuyết Tinh Hoa"
+      lore:
+        - "&7Mọc ở nơi có máu huyết yêu thú, dược tính mạnh mẽ."
+      material: "BEETROOT_SEEDS"
+      enchanted: true
+      drop-chance-from-grass: 0.02 # 2%
+    bach_ngoc_sam:
+      display-name: "&fBách Ngọc Sâm"
+      lore:
+        - "&7Nhân sâm trăm tuổi, ôn hòa và tinh khiết."
+      material: "POTATO"
+      enchanted: true
+      drop-chance-from-grass: 0.01 # 1%
+    # ... Thêm 12 loại dược liệu khác ở đây với cấu trúc tương tự ...
+
+  # ===================== ĐAN DƯỢC =====================
+  # Định nghĩa các loại đan dược có thể luyện ra
+  # success-chance-bonus: Tỷ lệ thành công CỘNG THÊM vào tỷ lệ gốc khi đột phá
+  pills:
+    luyen_khi_dan:
+      tam_pham:
+        display-name: "&7Luyện Khí Đan [Tam Phẩm]"
+        lore:
+          - "&7Đan dược hỗ trợ đột phá Luyện Khí."
+          - "&fTăng &a%bonus%%&f tỷ lệ thành công."
+        success-chance-bonus: 5 # +5%
+      nhi_pham:
+        display-name: "&aLuyện Khí Đan [Nhị Phẩm]"
+        lore:
+          - "&7Đan dược hỗ trợ đột phá Luyện Khí."
+          - "&fTăng &a%bonus%%&f tỷ lệ thành công."
+        success-chance-bonus: 10 # +10%
+      nhat_pham:
+        display-name: "&bLuyện Khí Đan [Nhất Phẩm]"
+        lore:
+          - "&7Đan dược hỗ trợ đột phá Luyện Khí."
+          - "&fTăng &a%bonus%%&f tỷ lệ thành công."
+        success-chance-bonus: 15 # +15%
+    truc_co_dan:
+      tam_pham:
+        display-name: "&7Trúc Cơ Đan [Tam Phẩm]"
+        lore:
+          - "&7Đan dược hỗ trợ đột phá Trúc Cơ."
+          - "&fTăng &a%bonus%%&f tỷ lệ thành công."
+        success-chance-bonus: 8 # +8%
+      # ... các phẩm chất khác ...
+    # ... Các loại đan khác cho Kết Đan,  Nguyên Anh, v.v...
+
+  # ===================== CÔNG THỨC LUYỆN ĐAN =====================
+  # Định nghĩa công thức cho từng loại đan dược
+  # Key ở đây phải khớp với key trong mục 'pills'
+  recipes:
+    luyen_khi_dan:
+      # Tỷ lệ ra các phẩm chất khi luyện (tổng phải là 100)
+      tier-chance:
+        tam_pham: 60
+        nhi_pham: 30
+        nhat_pham: 10
+      # Nguyên liệu cần thiết: id_dược_liệu: số_lượng
+      ingredients:
+        linh_tam_thao: 5
+        huyet_tinh_hoa: 2
+    truc_co_dan:
+      tier-chance:
+        tam_pham: 70
+        nhi_pham: 25
+        nhat_pham: 5
+      ingredients:
+        linh_tam_thao: 10
+        huyet_tinh_hoa: 5
+        bach_ngoc_sam: 1
+    # ... Các công thức khác ...

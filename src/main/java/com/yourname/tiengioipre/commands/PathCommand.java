@@ -13,16 +13,19 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
 /**
  * Xử lý tất cả các lệnh liên quan đến Con Đường Tu Luyện.
+ * Bao gồm /conduongtuluyen và các lệnh chọn con đường cụ thể.
  */
 public class PathCommand implements CommandExecutor, TabCompleter {
 
     private final TienGioiPre plugin;
+    private final String prefix = "&8[&bTiên Giới&8] &r";
 
     public PathCommand(TienGioiPre plugin) {
         this.plugin = plugin;
@@ -30,18 +33,18 @@ public class PathCommand implements CommandExecutor, TabCompleter {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
-        // Lấy tên lệnh được gõ (ví dụ: "conduongtuluyen", "kiemtu", ...)
         String cmdName = command.getName().toLowerCase();
 
         switch (cmdName) {
             case "conduongtuluyen":
                 handleMainCommand(sender, args, label);
                 break;
-            // Các lệnh chọn con đường sẽ đi vào case này
+            // Tất cả các lệnh chọn con đường đều đi vào đây
             case "kiemtu":
             case "matu":
             case "phattu":
-            case "luyenkhisu": // <-- ĐÃ THÊM LỆNH MỚI
+            case "luyenkhisu":
+            case "luyendansu": // <-- ĐÃ THÊM LỆNH MỚI
                 handlePathSelection(sender, cmdName);
                 break;
         }
@@ -49,26 +52,23 @@ public class PathCommand implements CommandExecutor, TabCompleter {
     }
 
     /**
-     * Xử lý lệnh chính /conduongtuluyen.
+     * Xử lý lệnh chính /conduongtuluyen và lệnh /cdtl set của admin.
      */
     private void handleMainCommand(CommandSender sender, String[] args, String label) {
-        // Lệnh set của Admin
         if (args.length > 0 && args[0].equalsIgnoreCase("set")) {
             if (!sender.hasPermission("tiengioipre.admin")) {
-                sender.sendMessage(format("&cBạn không có quyền sử dụng lệnh này."));
+                sender.sendMessage(format(prefix + "&cBạn không có quyền sử dụng lệnh này."));
                 return;
             }
             setPlayerPathByAdmin(sender, args, label);
             return;
         }
 
-        // Lệnh của người chơi
         if (!(sender instanceof Player)) {
             sender.sendMessage("Chỉ người chơi mới có thể xem danh sách con đường.");
             return;
         }
         
-        // Hiển thị tin nhắn hướng dẫn chọn con đường
         List<String> messages = plugin.getConfig().getStringList("paths.settings.path-selection-message");
         for (String msg : messages) {
             sender.sendMessage(format(msg));
@@ -76,7 +76,7 @@ public class PathCommand implements CommandExecutor, TabCompleter {
     }
 
     /**
-     * Xử lý khi người chơi gõ các lệnh chọn con đường như /kiemtu, /matu, v.v.
+     * Xử lý khi người chơi gõ các lệnh chọn con đường như /kiemtu, /luyendansu, v.v.
      */
     private void handlePathSelection(CommandSender sender, String pathId) {
         if (!(sender instanceof Player)) {
@@ -88,18 +88,16 @@ public class PathCommand implements CommandExecutor, TabCompleter {
         PlayerData data = plugin.getPlayerDataManager().getPlayerData(player);
 
         if (data == null) {
-            player.sendMessage(format("&cKhông thể tải dữ liệu của bạn, vui lòng thử lại."));
+            player.sendMessage(format(prefix + "&cKhông thể tải dữ liệu của bạn, vui lòng thử lại."));
             return;
         }
 
-        // Kiểm tra xem người chơi có được chọn lại hay không
         boolean firstChoiceOnly = plugin.getConfig().getBoolean("paths.settings.first-choice-only", true);
         if (firstChoiceOnly && data.getCultivationPath() != null && !data.getCultivationPath().equals("none")) {
-            player.sendMessage(format("&cBạn đã chọn con đường tu luyện của mình, không thể thay đổi!"));
+            player.sendMessage(format(prefix + "&cBạn đã chọn con đường tu luyện của mình, không thể thay đổi!"));
             return;
         }
 
-        // Thực hiện việc chọn con đường
         setPathForPlayer(player, pathId);
     }
     
@@ -108,25 +106,24 @@ public class PathCommand implements CommandExecutor, TabCompleter {
      */
     private void setPlayerPathByAdmin(CommandSender sender, String[] args, String label) {
         if (args.length < 3) {
-            sender.sendMessage(format("&cUsage: /" + label + " set <player> <path_id>"));
+            sender.sendMessage(format(prefix + "&cUsage: /" + label + " set <player> <path_id>"));
             return;
         }
 
         Player target = Bukkit.getPlayer(args[1]);
         if (target == null) {
-            sender.sendMessage(format("&cKhông tìm thấy người chơi " + args[1]));
+            sender.sendMessage(format(prefix + "&cKhông tìm thấy người chơi " + args[1]));
             return;
         }
         
         String pathId = args[2].toLowerCase();
         if (!plugin.getConfig().contains("paths." + pathId)) {
-            sender.sendMessage(format("&cCon đường tu luyện '" + pathId + "' không tồn tại trong config.yml."));
+            sender.sendMessage(format(prefix + "&cCon đường tu luyện '" + pathId + "' không tồn tại trong config.yml."));
             return;
         }
         
-        // Thực hiện việc đặt con đường và thông báo cho admin
         setPathForPlayer(target, pathId);
-        sender.sendMessage(format("&aĐã đặt con đường tu luyện cho " + target.getName() + " thành: " + pathId));
+        sender.sendMessage(format(prefix + "&aĐã đặt con đường tu luyện cho " + target.getName() + " thành: " + pathId));
     }
     
     /**
@@ -137,20 +134,18 @@ public class PathCommand implements CommandExecutor, TabCompleter {
         if (data == null) return;
 
         data.setCultivationPath(pathId);
-        
-        // Áp dụng lại toàn bộ stats (từ cảnh giới + con đường mới)
         plugin.getRealmManager().applyAllStats(player);
         
         String displayName = plugin.getConfig().getString("paths." + pathId + ".display-name", pathId);
-        player.sendMessage(format("&aBạn đã chính thức bước lên con đường của một " + displayName + "!"));
+        player.sendMessage(format(prefix + "&aBạn đã chính thức bước lên con đường của một " + displayName + "!"));
     }
     
     private String format(String msg) {
-        return ChatColor.translateAlternateColorCodes('&', msg);
+        return plugin.getTongMonManager().format(msg);
     }
 
     /**
-     * Xử lý gợi ý lệnh (tab-complete).
+     * Xử lý gợi ý lệnh (tab-complete) cho /conduongtuluyen.
      */
     @Nullable
     @Override
@@ -173,16 +168,18 @@ public class PathCommand implements CommandExecutor, TabCompleter {
 
         if (args.length == 3 && args[0].equalsIgnoreCase("set")) {
             if (sender.hasPermission("tiengioipre.admin")) {
-                // Gợi ý các ID của con đường tu luyện từ config
-                return filter(plugin.getConfig().getConfigurationSection("paths").getKeys(false), args[2]);
+                // Gợi ý các ID của con đường tu luyện từ config (trừ mục 'settings')
+                List<String> pathIds = new ArrayList<>(plugin.getConfig().getConfigurationSection("paths").getKeys(false));
+                pathIds.remove("settings");
+                return filter(pathIds, args[2]);
             }
         }
         
         return Collections.emptyList();
     }
 
-    private List<String> filter(Iterable<String> list, String start) {
-        return ((List<String>) list).stream()
+    private List<String> filter(List<String> list, String start) {
+        return list.stream()
                 .filter(s -> s.toLowerCase().startsWith(start.toLowerCase()))
                 .collect(Collectors.toList());
     }

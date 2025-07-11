@@ -1,18 +1,21 @@
-# Thông tin cơ bản của plugin
+# ============================================
+#              THÔNG TIN PLUGIN
+# ============================================
 name: TienGioiPre
 version: '${project.version}'
 main: com.yourname.tiengioipre.TienGioiPre
 api-version: '1.20'
 author: YourName
-description: Hệ thống tu tiên cảnh giới và con đường tu luyện cho server Minecraft.
+description: Hệ thống tu tiên đa năng cho server Minecraft.
 
+# Các plugin mà TienGioiPre cần để hoạt động đầy đủ
 softdepend: [PlaceholderAPI, Vault]
 
 # ============================================
 #              ĐỊNH NGHĨA LỆNH
 # ============================================
 commands:
-  # Lệnh chính của Admin
+  # Lệnh quản trị
   tiengioi:
     description: Lệnh chính của plugin TienGioiPre.
     usage: /tiengioi <args>
@@ -31,13 +34,13 @@ commands:
     aliases: [stg]
     permission: tiengioipre.user.shop
 
-  # --- LỆNH TÔNG MÔN ---
+  # Lệnh Tông Môn
   tongmon:
     description: Quản lý và tương tác với Tông Môn.
     aliases: [tm]
     permission: tiengioipre.user.tongmon
   
-  # --- LỆNH CON ĐƯỜNG TU LUYỆN ---
+  # Lệnh Con Đường Tu Luyện
   conduongtuluyen:
     description: Hiển thị hoặc thiết lập con đường tu luyện.
     aliases: [cdtl]
@@ -51,17 +54,23 @@ commands:
   phattu:
     description: Chọn con đường Phật Tu.
     permission: tiengioipre.user.path.select
-  luyenkhisu: # <-- LỆNH BỊ THIẾU ĐÃ ĐƯỢC THÊM
+  luyenkhisu:
     description: Chọn con đường Luyện Khí Sư.
+    permission: tiengioipre.user.path.select
+  luyendansu: # <-- LỆNH MỚI
+    description: Chọn con đường Luyện Đan Sư.
     permission: tiengioipre.user.path.select
 
 # ============================================
 #              ĐỊNH NGHĨA QUYỀN
 # ============================================
 permissions:
+  # Quyền quản trị cao nhất
   tiengioipre.admin:
     description: Quyền truy cập tất cả các lệnh quản trị của TienGioiPre.
     default: op
+
+  # Các quyền cơ bản của người chơi
   tiengioipre.user.tuluyen:
     description: Cho phép người chơi sử dụng lệnh /tuluyen.
     default: true
@@ -74,6 +83,8 @@ permissions:
   tiengioipre.user.tongmon:
     description: Cho phép người chơi sử dụng lệnh /tongmon.
     default: true
+  
+  # Các quyền cho Con Đường Tu Luyện
   tiengioipre.user.path:
     description: Cho phép người chơi xem danh sách các con đường tu luyện.
     default: true
