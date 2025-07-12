@@ -21,12 +21,16 @@ import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
 
+/**
+ * Xử lý việc rơi ra Dược Liệu khi người chơi là Luyện Đan Sư phá các loại cây cỏ.
+ */
 public class HerbDropListener implements Listener {
 
     private final TienGioiPre plugin;
     private final Random random = new Random();
     
-    // ĐÃ BỎ "Material.GRASS" RA KHỎI DANH SÁCH
+    // Danh sách các loại cây có thể rơi ra dược liệu.
+    // ĐÃ BỎ "Material.GRASS" (cỏ thấp) RA KHỎI DANH SÁCH.
     private final Set<Material> HERB_SOURCES = new HashSet<>(Arrays.asList(
             Material.TALL_GRASS, Material.FERN, Material.LARGE_FERN,
             Material.WHEAT, Material.CARROTS, Material.POTATOES, Material.BEETROOTS,
@@ -34,6 +38,7 @@ public class HerbDropListener implements Listener {
             Material.BIRCH_LEAVES, Material.JUNGLE_LEAVES, Material.ACACIA_LEAVES, Material.DARK_OAK_LEAVES
     ));
     
+    // Danh sách các cây nông sản cần phải chín hoàn toàn mới có tỷ lệ rơi
     private final Set<Material> RIPE_CROP_SOURCES = new HashSet<>(Arrays.asList(
             Material.WHEAT, Material.CARROTS, Material.POTATOES, Material.BEETROOTS
     ));
@@ -47,30 +52,37 @@ public class HerbDropListener implements Listener {
         Player player = event.getPlayer();
         Block block = event.getBlock();
 
+        // 1. Bỏ qua nếu người chơi ở chế độ sáng tạo hoặc block bị phá không nằm trong danh sách nguồn
         if (player.getGameMode() == GameMode.CREATIVE || !HERB_SOURCES.contains(block.getType())) {
             return;
         }
 
+        // 2. Kiểm tra xem người chơi có phải Luyện Đan Sư không
         PlayerData playerData = plugin.getPlayerDataManager().getPlayerData(player);
         if (playerData == null || !"luyendansu".equals(playerData.getCultivationPath())) {
             return;
         }
 
+        // 3. Nếu là cây nông sản, kiểm tra xem đã chín hoàn toàn chưa
         if (RIPE_CROP_SOURCES.contains(block.getType())) {
             if (block.getBlockData() instanceof Ageable) {
                 Ageable ageable = (Ageable) block.getBlockData();
                 if (ageable.getAge() < ageable.getMaximumAge()) {
-                    return;
+                    return; // Cây chưa chín, không rơi dược liệu
                 }
             }
         }
 
+        // 4. Lấy mục cấu hình của các dược liệu
         ConfigurationSection herbsSection = plugin.getConfig().getConfigurationSection("alchemy.herbs");
-        if (herbsSection == null) return;
+        if (herbsSection == null) {
+            return;
+        }
         
         Location dropLocation = block.getLocation().add(0.5, 0.5, 0.5);
         ItemManager itemManager = plugin.getItemManager();
 
+        // 5. Duyệt qua từng loại dược liệu trong config và random tỷ lệ rơi
         for (String herbId : herbsSection.getKeys(false)) {
             ConfigurationSection herbConfig = herbsSection.getConfigurationSection(herbId);
             if (herbConfig == null) continue;
@@ -78,10 +90,14 @@ public class HerbDropListener implements Listener {
             double dropChance = herbConfig.getDouble("drop-chance-from-grass", 0.0);
             
             if (random.nextDouble() < dropChance) {
+                // Giả sử các dược liệu không có tier, ta dùng "default" để gọi hàm tạo item
                 ItemStack herbItemStack = itemManager.createCultivationItem(herbId, "default");
                 
                 if (herbItemStack != null) {
+                    // Drop vật phẩm ra thế giới
                     block.getWorld().dropItemNaturally(dropLocation, herbItemStack);
+                    
+                    // Ngăn block drop item mặc định (ví dụ: wheat, seeds) để tránh rác
                     event.setDropItems(false);
                 }
             }
