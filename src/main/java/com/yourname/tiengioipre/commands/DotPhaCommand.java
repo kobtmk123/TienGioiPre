@@ -5,6 +5,7 @@ import com.yourname.tiengioipre.core.RealmManager;
 import com.yourname.tiengioipre.data.PlayerData;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.NamespacedKey;
 import org.bukkit.Sound;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -22,13 +23,19 @@ import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
 
+/**
+ * Xử lý lệnh /dotpha của người chơi, bao gồm logic tỷ lệ, lôi kiếp và thông báo.
+ */
 public class DotPhaCommand implements CommandExecutor {
     private final TienGioiPre plugin;
+    // Set để ngăn người chơi spam lệnh /dotpha khi đang trong quá trình độ kiếp
     private final Set<UUID> playersInTribulation = new HashSet<>();
     private final Random random = new Random();
+    private final NamespacedKey pillBonusKey;
 
     public DotPhaCommand(TienGioiPre plugin) {
         this.plugin = plugin;
+        this.pillBonusKey = new NamespacedKey(plugin, "tiengioi_pill_bonus");
     }
 
     @Override
@@ -47,100 +54,167 @@ public class DotPhaCommand implements CommandExecutor {
 
         PlayerData data = plugin.getPlayerDataManager().getPlayerData(player);
         if (data == null) {
-            player.sendMessage(format("&c[Lỗi] Không thể tải dữ liệu của bạn."));
+            player.sendMessage(format("&c[Lỗi] Không thể tải dữ liệu của bạn. Vui lòng thử lại."));
             return true;
         }
 
-        RealmManager realmManager = plugin.getRealmManager();
-        RealmManager.TierData currentTier = realmManager.getTierData(data.getRealmId(), data.getTierId());
+        RealmManager.TierData currentTier = plugin.getRealmManager().getTierData(data.getRealmId(), data.getTierId());
+
         if (currentTier == null) {
-            player.sendMessage(format("&c[Lỗi] Cảnh giới hiện tại không hợp lệ."));
-            return true;
-        }
-        
-        String[] nextProgression = realmManager.getNextProgression(data.getRealmId(), data.getTierId());
-        if (nextProgression == null) {
-            player.sendMessage(format("&eBạn đã đạt tới cảnh giới cao nhất!"));
+            player.sendMessage(format("&c[Lỗi] Cảnh giới hiện tại của bạn không hợp lệ. Vui lòng liên hệ Admin."));
             return true;
         }
 
+        // Kiểm tra xem đã đủ linh khí chưa
         if (data.getLinhKhi() >= currentTier.maxLinhKhi()) {
-            boolean chanceEnabled = plugin.getConfig().getBoolean("settings.breakthrough-chance.enabled", false);
-            int successRate = plugin.getConfig().getInt("settings.breakthrough-chance.success-rate", 100);
-
-            // === LOGIC MỚI: KIỂM TRA VÀ SỬ DỤNG ĐAN DƯỢC ===
-            int pillBonus = consumeBreakthroughPill(player, nextProgression[0]); // nextProgression[0] là ID của Tu Vi sắp lên
-            if (pillBonus > 0) {
-                player.sendMessage(format("&dNhờ có đan dược phụ trợ, tỷ lệ đột phá của bạn đã tăng thêm &e" + pillBonus + "%&d!"));
-            }
-            int finalSuccessRate = successRate + pillBonus;
             
+            boolean chanceEnabled = plugin.getConfig().getBoolean("settings.breakthrough-chance.enabled", false);
+            int successRate = plugin.getConfig().getInt("settings.breakthrough-chance.success-rate", 45);
+            
+            // Lấy bonus từ đan dược và tự động sử dụng nó
+            int pillBonus = getPillBonusAndConsume(player, currentTier);
+            int finalSuccessRate = successRate + pillBonus;
+
             // Nếu hệ thống tỷ lệ được bật VÀ random thất bại
             if (chanceEnabled && random.nextInt(100) >= finalSuccessRate) {
-                player.sendMessage(format("&c&lĐáng Tiếc! &7Lần đột phá này đã thất bại, linh khí hỗn loạn."));
-                data.setLinhKhi(data.getLinhKhi() * 0.75); 
+                // ĐỘT PHÁ THẤT BẠI
+                player.sendMessage(format("&c&lĐáng Tiếc! &7Lần đột phá này đã thất bại, linh khí hỗn loạn. Hãy thử lại lần sau!"));
+                data.setLinhKhi(data.getLinhKhi() * 0.75); // Trừ 25% linh khí khi thất bại
                 player.playSound(player.getLocation(), Sound.ENTITY_ITEM_BREAK, 1.0f, 1.0f);
             } else {
+                // ĐỘT PHÁ THÀNH CÔNG -> Bắt đầu Lôi Kiếp
                 handleBreakthrough(player, data, currentTier);
             }
         } else {
-            String message = "&cBạn chưa đủ linh khí! Cần &e%req%&c, có &e%cur%&c.";
-            message = message.replace("%req%", String.format("%,.0f", currentTier.maxLinhKhi()))
-                             .replace("%cur%", String.format("%,.0f", data.getLinhKhi()));
+            String message = "&cBạn chưa đủ linh khí để đột phá! Cần &e%required%&c, bạn đang có &e%current%&c.";
+            message = message.replace("%required%", String.format("%,.0f", currentTier.maxLinhKhi()));
+            message = message.replace("%current%", String.format("%,.0f", data.getLinhKhi()));
             player.sendMessage(format(message));
         }
+
         return true;
+    }
+    
+    /**
+     * Bắt đầu quá trình Lôi Kiếp sau khi đã xác định là đột phá thành công.
+     */
+    private void handleBreakthrough(Player player, PlayerData data, RealmManager.TierData currentTier) {
+        String[] nextProgression = plugin.getRealmManager().getNextProgression(data.getRealmId(), data.getTierId());
+
+        if (nextProgression == null) {
+            player.sendMessage(format("&eBạn đã đạt tới cảnh giới cao nhất, không thể đột phá thêm!"));
+            return;
+        }
+        
+        ConfigurationSection breakthroughConfig = currentTier.breakthroughConfig();
+        if (breakthroughConfig == null) {
+             player.sendMessage(format("&c[Lỗi] Cấu hình đột phá cho cảnh giới này bị thiếu. Vui lòng báo Admin."));
+             return;
+        }
+        
+        String tribulationName = format(breakthroughConfig.getString("tribulation-name", "&c&lThiên Kiếp"));
+        int lightningCount = breakthroughConfig.getInt("lightning-count", 1);
+        double lightningDamage = breakthroughConfig.getDouble("lightning-damage", 2.0);
+        long lightningDelay = breakthroughConfig.getLong("lightning-delay-ticks", 20L);
+        
+        if (lightningCount <= 0) {
+            completeBreakthrough(player, data, currentTier);
+            return;
+        }
+        
+        playersInTribulation.add(player.getUniqueId());
+        player.sendMessage(format("&4&lBầu trời đột nhiên u ám, " + tribulationName + " sắp giáng lâm!"));
+        player.playSound(player.getLocation(), Sound.ENTITY_WITHER_SPAWN, 1.0f, 0.5f);
+
+        new BukkitRunnable() {
+            int strikes = 0;
+            @Override
+            public void run() {
+                if (!player.isOnline() || player.isDead()) {
+                    if (player.isOnline() && player.isDead()) {
+                         player.sendMessage(format("&cĐộ kiếp thất bại, thân tử đạo tiêu!"));
+                    }
+                    playersInTribulation.remove(player.getUniqueId());
+                    this.cancel();
+                    return;
+                }
+                
+                player.getWorld().strikeLightningEffect(player.getLocation());
+                player.damage(lightningDamage);
+                strikes++;
+                player.sendMessage(format(tribulationName + " - Đạo thứ &c" + strikes + "&4&l!"));
+                
+                if (strikes >= lightningCount) {
+                    if (!player.isDead()) {
+                        completeBreakthrough(player, data, currentTier);
+                    }
+                    playersInTribulation.remove(player.getUniqueId());
+                    this.cancel();
+                }
+            }
+        }.runTaskTimer(plugin, 40L, lightningDelay);
     }
 
     /**
-     * Tìm và sử dụng (xóa) viên đan dược đột phá phù hợp trong túi đồ của người chơi.
-     * @param player Người chơi
-     * @param nextRealmId ID của Tu Vi người chơi SẮP đột phá lên (ví dụ: "trucco")
-     * @return Tỷ lệ bonus nhận được từ đan dược.
+     * Hoàn tất việc thăng cấp sau khi sống sót qua lôi kiếp.
      */
-    private int consumeBreakthroughPill(Player player, String nextRealmId) {
-        String requiredPillId = nextRealmId + "_dan"; // Ví dụ: "trucco" -> "trucco_dan"
-        ItemStack bestPill = null;
-        int bestBonus = 0;
-        int bestPillSlot = -1;
+    private void completeBreakthrough(Player player, PlayerData data, RealmManager.TierData currentTier) {
+        RealmManager realmManager = plugin.getRealmManager();
+        String[] nextProgression = realmManager.getNextProgression(data.getRealmId(), data.getTierId());
+        
+        if (nextProgression == null) return;
+        
+        String nextRealmId = nextProgression[0];
+        String nextTierId = nextProgression[1];
 
-        // Duyệt qua túi đồ để tìm viên đan dược tốt nhất
+        double remainingLinhKhi = data.getLinhKhi() - currentTier.maxLinhKhi();
+
+        data.setRealmId(nextRealmId);
+        data.setTierId(nextTierId);
+        data.setLinhKhi(remainingLinhKhi);
+        
+        realmManager.applyAllStats(player); 
+        
+        String realmName = realmManager.getRealmDisplayName(nextRealmId);
+        String tierName = realmManager.getTierDisplayName(nextRealmId, nextTierId);
+        
+        String privateMsg = "&b&lChúc Mừng! &fBạn đã thành công độ kiếp, tiến vào &b%realm_name% - %tier_name%&f!";
+        privateMsg = privateMsg.replace("%realm_name%", realmName).replace("%tier_name%", tierName);
+        player.sendMessage(format(privateMsg));
+        
+        String broadcastMsg = "&6&l[Thông Báo Tiên Giới] &eChúc mừng đạo hữu &f%player_name% &eđã thành công vượt qua thiên kiếp, chính thức đột phá lên cảnh giới &b%realm_name% - %tier_name%&e!";
+        broadcastMsg = broadcastMsg.replace("%player_name%", player.getName())
+                                 .replace("%realm_name%", realmName)
+                                 .replace("%tier_name%", tierName);
+        Bukkit.broadcastMessage(format(broadcastMsg));
+        
+        player.playSound(player.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, 1.0f, 1.2f);
+    }
+    
+    /**
+     * Tìm và sử dụng đan dược trong túi đồ người chơi, trả về bonus tỷ lệ.
+     */
+    private int getPillBonusAndConsume(Player player, RealmManager.TierData currentTier) {
+        // Cần một cách để biết đan dược này dùng cho cảnh giới nào. Ví dụ: NBT "pill_for_realm"
+        // Logic này cần được hoàn thiện thêm để kiểm tra đúng loại đan
+        int totalBonus = 0;
         for (int i = 0; i < player.getInventory().getSize(); i++) {
             ItemStack item = player.getInventory().getItem(i);
             if (item == null || !item.hasItemMeta()) continue;
-            
+
             ItemMeta meta = item.getItemMeta();
-            // Giả sử chúng ta lưu ID của đan dược vào NBT để kiểm tra chính xác
-            String pillId = meta.getPersistentDataContainer().get(plugin.getItemManager().ITEM_ID_KEY, PersistentDataType.STRING);
-            
-            if (requiredPillId.equals(pillId)) {
-                String pillTier = meta.getPersistentDataContainer().get(plugin.getItemManager().ITEM_TIER_KEY, PersistentDataType.STRING);
-                int currentBonus = plugin.getConfig().getInt("alchemy.pills." + pillId + "." + pillTier + ".success-chance-bonus", 0);
+            if (meta.getPersistentDataContainer().has(pillBonusKey, PersistentDataType.INTEGER)) {
+                int bonus = meta.getPersistentDataContainer().get(pillBonusKey, PersistentDataType.INTEGER);
                 
-                if (currentBonus > bestBonus) {
-                    bestBonus = currentBonus;
-                    bestPill = item;
-                    bestPillSlot = i;
-                }
+                player.sendMessage(format("&aĐã sử dụng " + meta.getDisplayName() + " &ađể tăng &e" + bonus + "% &atỷ lệ đột phá!"));
+                totalBonus += bonus;
+                
+                item.setAmount(item.getAmount() - 1);
+                player.getInventory().setItem(i, item);
+                break; // Chỉ cho dùng 1 viên mỗi lần đột phá
             }
         }
-
-        // Nếu tìm thấy một viên đan dược, sử dụng nó
-        if (bestPill != null && bestPillSlot != -1) {
-            bestPill.setAmount(bestPill.getAmount() - 1);
-            player.getInventory().setItem(bestPillSlot, bestPill);
-            return bestBonus;
-        }
-
-        return 0;
-    }
-    
-    private void handleBreakthrough(Player player, PlayerData data, RealmManager.TierData currentTier) {
-        // ... (Logic bắt đầu lôi kiếp giữ nguyên)
-    }
-
-    private void completeBreakthrough(Player player, PlayerData data, RealmManager.TierData currentTier) {
-        // ... (Logic hoàn tất đột phá và gửi thông báo giữ nguyên)
+        return totalBonus;
     }
     
     private String format(String message) {

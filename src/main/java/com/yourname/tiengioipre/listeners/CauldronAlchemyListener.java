@@ -1,13 +1,13 @@
 package com.yourname.tiengioipre.listeners;
 
 import com.yourname.tiengioipre.TienGioiPre;
-import com.yourname.tiengioipre.core.ItemManager;
 import com.yourname.tiengioipre.data.PlayerData;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.Levelled;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Item;
@@ -17,85 +17,91 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.util.Vector;
 
 import java.util.*;
 
 public class CauldronAlchemyListener implements Listener {
 
     private final TienGioiPre plugin;
-    private final Map<Location, CauldronData> activeCauldrons = new HashMap<>();
-    private final Random random = new Random();
+    
+    // Class nhỏ để lưu trữ dữ liệu của vạc đang luyện đan
+    private static class CauldronSession {
+        Map<String, Integer> ingredients = new HashMap<>();
+        BukkitRunnable craftTask;
+    }
+    
+    // Map quản lý trạng thái của các vạc
+    private final Map<Location, BukkitRunnable> boilingCauldrons = new HashMap<>();
+    private final Set<Location> readyCauldrons = new HashSet<>();
+    private final Map<Location, CauldronSession> craftingCauldrons = new HashMap<>();
 
     public CauldronAlchemyListener(TienGioiPre plugin) {
         this.plugin = plugin;
     }
 
-    // Sự kiện khi người chơi dùng xô nước đổ vào vạc
+    // Sự kiện khi người chơi đổ nước vào vạc
     @EventHandler
-    public void onPlayerFillCauldron(PlayerInteractEvent event) {
-        if (event.getAction() != Action.RIGHT_CLICK_BLOCK || event.getItem() == null || event.getItem().getType() != Material.WATER_BUCKET) {
-            return;
-        }
+    public void onCauldronFill(PlayerInteractEvent event) {
+        // Chỉ xử lý khi người chơi chuột phải vào block
+        if (event.getHand() != EquipmentSlot.HAND || event.getAction() != Action.RIGHT_CLICK_BLOCK) return;
 
-        Block block = event.getClickedBlock();
-        if (block == null || block.getType() != Material.CAULDRON) {
+        Block clickedBlock = event.getClickedBlock();
+        if (clickedBlock == null || clickedBlock.getType() != Material.WATER_CAULDRON) {
             return;
         }
 
         Player player = event.getPlayer();
-        PlayerData data = plugin.getPlayerDataManager().getPlayerData(player);
-        if (data == null || !"luyendansu".equals(data.getCultivationPath())) {
-            return;
-        }
+        ItemStack itemInHand = player.getInventory().getItemInMainHand();
         
-        if (!(block.getBlockData() instanceof Levelled)) return;
-        Levelled cauldronData = (Levelled) block.getBlockData();
-        if (cauldronData.getLevel() != 0) return;
-
-        Material blockBelow = block.getRelative(0, -1, 0).getType();
-        if (blockBelow != Material.FIRE && blockBelow != Material.MAGMA_BLOCK) {
-            return;
+        // Đây là cách kiểm tra đổ nước vào vạc rỗng, vì PlayerBucketFillEvent không đáng tin cậy
+        if (itemInHand.getType() == Material.WATER_BUCKET) {
+            Levelled cauldronData = (Levelled) clickedBlock.getBlockData();
+            // Nếu vạc chưa đầy nước
+            if (cauldronData.getLevel() < cauldronData.getMaximumLevel()) {
+                // Chỉ kiểm tra và bắt đầu đun khi đổ nước vào vạc chưa đầy
+                plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
+                    checkAndBoil(player, clickedBlock.getLocation());
+                }, 1L); // Chờ 1 tick để server cập nhật trạng thái vạc
+            }
         }
-
-        event.setCancelled(true);
-        if (player.getGameMode() != org.bukkit.GameMode.CREATIVE) {
-            event.getItem().setType(Material.BUCKET);
-        }
-        
-        block.setType(Material.WATER_CAULDRON);
-        Levelled waterCauldronData = (Levelled) block.getBlockData();
-        waterCauldronData.setLevel(waterCauldronData.getMaximumLevel());
-        block.setBlockData(waterCauldronData);
-        
-        player.playSound(player.getLocation(), Sound.ITEM_BUCKET_EMPTY, 1.0f, 1.0f);
-        startBoiling(player, block.getLocation());
     }
 
-    private void startBoiling(Player player, Location loc) {
-        if (activeCauldrons.containsKey(loc)) return;
+    private void checkAndBoil(Player player, Location loc) {
+        Block block = loc.getBlock();
+        if (block.getType() != Material.WATER_CAULDRON) return;
 
-        activeCauldrons.put(loc, new CauldronData());
-        long boilTime = plugin.getConfig().getLong("alchemy.settings.water-boil-time-seconds", 60) * 20L;
-        player.sendMessage(format("&bNước trong vạc bắt đầu được đun nóng..."));
-
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                CauldronData currentData = activeCauldrons.get(loc);
-                if (currentData == null || loc.getBlock().getType() != Material.WATER_CAULDRON) {
-                    activeCauldrons.remove(loc);
-                    this.cancel();
-                    return;
+        Block blockBelow = block.getRelative(BlockFace.DOWN);
+        if (blockBelow.getType() == Material.FIRE || blockBelow.getType() == Material.MAGMA_BLOCK) {
+            if (boilingCauldrons.containsKey(loc) || readyCauldrons.contains(loc)) return;
+            
+            long boilTime = plugin.getConfig().getLong("alchemy.settings.water-boil-time-seconds", 60);
+            player.sendMessage(format("&bBạn bắt đầu đun nước trong vạc..."));
+            
+            BukkitRunnable boilTask = new BukkitRunnable() {
+                @Override
+                public void run() {
+                    // Kiểm tra lại trạng thái của vạc trước khi hoàn thành
+                    if (loc.getBlock().getType() != Material.WATER_CAULDRON) {
+                        boilingCauldrons.remove(loc);
+                        return;
+                    }
+                    player.sendMessage(format("&aNước trong vạc đã sôi, có thể bắt đầu luyện đan!"));
+                    loc.getWorld().playSound(loc, Sound.BLOCK_BUBBLE_COLUMN_UPWARDS_AMBIENT, 1.0f, 1.0f);
+                    loc.getWorld().spawnParticle(org.bukkit.Particle.CAMPFIRE_COSY_SMOKE, loc.clone().add(0.5, 1, 0.5), 10, 0.2, 0.1, 0.2, 0.01);
+                    readyCauldrons.add(loc);
+                    boilingCauldrons.remove(loc);
                 }
-                currentData.isBoiling = true;
-                player.sendMessage(format("&dNước đã sôi, có thể bắt đầu luyện đan!"));
-                player.playSound(player.getLocation(), Sound.BLOCK_BUBBLE_COLUMN_UPWARDS_AMBIENT, 1.0f, 1.0f);
-            }
-        }.runTaskLater(plugin, boilTime);
+            };
+            
+            boilTask.runTaskLater(plugin, boilTime * 20L);
+            boilingCauldrons.put(loc, boilTask);
+        }
     }
     
     // Sự kiện khi người chơi ném item vào vạc
@@ -103,88 +109,101 @@ public class CauldronAlchemyListener implements Listener {
     public void onItemDropInCauldron(PlayerDropItemEvent event) {
         Player player = event.getPlayer();
         Item droppedItemEntity = event.getItemDrop();
-        
-        new BukkitRunnable() {
-            int ticksLived = 0;
-            @Override
-            public void run() {
-                if (!droppedItemEntity.isValid() || ticksLived++ > 40) { // Hủy sau 2 giây
-                    this.cancel();
-                    return;
-                }
-                
-                Location itemLoc = droppedItemEntity.getLocation();
-                Block blockAt = itemLoc.getBlock();
-                
-                if (blockAt.getType() == Material.WATER_CAULDRON && activeCauldrons.containsKey(blockAt.getLocation())) {
-                    CauldronData cauldron = activeCauldrons.get(blockAt.getLocation());
-                    if (cauldron != null && cauldron.isBoiling) {
-                        handleItemAlchemy(player, cauldron, droppedItemEntity.getItemStack(), blockAt.getLocation());
-                        droppedItemEntity.remove();
-                        this.cancel();
-                    }
-                }
-            }
-        }.runTaskTimer(plugin, 5L, 5L); // Kiểm tra mỗi 1/4 giây
-    }
+        ItemStack droppedItemStack = droppedItemEntity.getItemStack();
+        Location dropLocation = droppedItemEntity.getLocation();
 
-    private void handleItemAlchemy(Player player, CauldronData cauldron, ItemStack item, Location loc) {
-        ItemMeta meta = item.getItemMeta();
-        if (meta == null) return;
+        // Tìm vạc đã sôi gần nhất
+        Location cauldronLoc = findNearbyReadyCauldron(dropLocation, 2);
+        if (cauldronLoc == null) return;
+
+        // Kiểm tra xem có phải Luyện Đan Sư không
+        PlayerData playerData = plugin.getPlayerDataManager().getPlayerData(player);
+        if (playerData == null || !"luyendansu".equals(playerData.getCultivationPath())) return;
+
+        // Kiểm tra xem item có phải là dược liệu không (dựa vào NBT)
+        ItemMeta meta = droppedItemStack.getItemMeta();
+        if (meta == null || !meta.getPersistentDataContainer().has(plugin.getItemManager().ITEM_ID_KEY, PersistentDataType.STRING)) return;
         
         String herbId = meta.getPersistentDataContainer().get(plugin.getItemManager().ITEM_ID_KEY, PersistentDataType.STRING);
-        if (herbId == null) {
-            player.sendMessage(format("&cVật phẩm này không phải dược liệu hợp lệ!"));
-            return;
-        }
+        if (!plugin.getConfig().contains("alchemy.herbs." + herbId)) return;
         
-        cauldron.addIngredient(herbId, item.getAmount());
-        player.sendMessage(format("&aĐã thêm " + item.getAmount() + "x " + meta.getDisplayName() + " &avào vạc."));
+        // Hủy việc drop item và xử lý logic
+        event.setCancelled(true);
+        droppedItemEntity.remove();
         
-        String matchedRecipeId = findMatchingRecipe(cauldron.ingredients);
-        if (matchedRecipeId != null) {
-            player.sendMessage(format("&eNguyên liệu đã đủ, bắt đầu luyện đan!"));
-            player.playSound(player.getLocation(), Sound.BLOCK_LAVA_EXTINGUISH, 1.0f, 1.0f);
+        // Thêm nguyên liệu vào session của vạc đó
+        CauldronSession session = craftingCauldrons.computeIfAbsent(cauldronLoc, k -> new CauldronSession());
+        session.ingredients.merge(herbId, droppedItemStack.getAmount(), Integer::sum);
+        
+        player.sendMessage(format("&aĐã thêm " + droppedItemStack.getAmount() + "x " + meta.getDisplayName() + " &avào vạc."));
+        cauldronLoc.getWorld().playSound(cauldronLoc, Sound.ENTITY_GENERIC_SPLASH, 0.5f, 1.5f);
+        
+        // Sau khi thêm, kiểm tra xem có khớp công thức nào không
+        checkForRecipe(player, cauldronLoc, session);
+    }
+    
+    private void checkForRecipe(Player player, Location cauldronLoc, CauldronSession session) {
+        ConfigurationSection recipesSection = plugin.getConfig().getConfigurationSection("alchemy.recipes");
+        if (recipesSection == null) return;
+        
+        for (String recipeId : recipesSection.getKeys(false)) {
+            Map<String, Object> requiredIngredients = recipesSection.getConfigurationSection(recipeId + ".ingredients").getValues(false);
             
-            activeCauldrons.remove(loc); 
-            
-            long craftTime = plugin.getConfig().getLong("alchemy.settings.cauldron-craft-time-seconds", 30) * 20L;
-            
-            new BukkitRunnable() {
-                @Override
-                public void run() {
-                    Block cauldronBlock = loc.getBlock();
-                    if (cauldronBlock.getType() == Material.WATER_CAULDRON) {
-                        cauldronBlock.setType(Material.CAULDRON);
+            if (ingredientsMatch(session.ingredients, requiredIngredients)) {
+                // Hủy task cũ nếu có (trường hợp người chơi thêm nguyên liệu khác vào)
+                if (session.craftTask != null) session.craftTask.cancel();
+
+                player.sendMessage(format("&eDược liệu đã đủ, lò luyện bắt đầu khởi động..."));
+                cauldronLoc.getWorld().playSound(cauldronLoc, Sound.BLOCK_LAVA_AMBIENT, 1.0f, 0.8f);
+
+                long craftTime = plugin.getConfig().getLong("alchemy.settings.cauldron-craft-time-seconds", 30);
+
+                session.craftTask = new BukkitRunnable() {
+                    @Override
+                    public void run() {
+                        craftingCauldrons.remove(cauldronLoc);
+                        readyCauldrons.remove(cauldronLoc);
+                        
+                        Block cauldronBlock = cauldronLoc.getBlock();
+                        if (cauldronBlock.getType() == Material.WATER_CAULDRON) {
+                            cauldronBlock.setType(Material.CAULDRON);
+                        }
+                        
+                        // Random ra phẩm chất của đan dược
+                        String tierId = getRandomPillTier(recipeId);
+                        
+                        // Tạo item Đan Dược "Nửa Mùa"
+                        ItemStack semiPill = createSemiFinishedPill(recipeId, tierId);
+                        
+                        if (semiPill != null) {
+                            cauldronLoc.getWorld().dropItem(cauldronLoc.clone().add(0.5, 1.2, 0.5), semiPill).setVelocity(new Vector(0, 0.2, 0));
+                            player.sendMessage(format("&6&lLuyện đan thành công! &fBạn nhận được một viên đan dược cần được tinh luyện."));
+                            cauldronLoc.getWorld().playSound(cauldronLoc, Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 1.5f);
+                        } else {
+                            player.sendMessage(format("&cLỗi khi tạo đan dược, vui lòng báo admin."));
+                        }
                     }
-                    
-                    String pillTier = getRandomPillTier(matchedRecipeId);
-                    if (pillTier == null) return;
-                    
-                    ItemStack halfMadePill = createHalfMadePill(matchedRecipeId, pillTier);
-                    if (halfMadePill != null) {
-                        loc.getWorld().dropItemNaturally(loc.clone().add(0, 1, 0), halfMadePill);
-                        player.sendMessage(format("&6Một viên đan dược đã được luyện thành! Hãy nung nó để hoàn thiện."));
-                    }
-                }
-            }.runTaskLater(plugin, craftTime);
+                };
+                session.craftTask.runTaskLater(plugin, craftTime * 20L);
+                break; // Dừng lại sau khi tìm thấy công thức đầu tiên khớp
+            }
         }
     }
 
-    private String findMatchingRecipe(Map<String, Integer> ingredients) {
-        ConfigurationSection recipes = plugin.getConfig().getConfigurationSection("alchemy.recipes");
-        if (recipes == null) return null;
-
-        for (String recipeId : recipes.getKeys(false)) {
-            ConfigurationSection recipeIngredients = recipes.getConfigurationSection(recipeId + ".ingredients");
-            if (recipeIngredients == null) continue;
-
-            Map<String, Integer> required = new HashMap<>();
-            for (String key : recipeIngredients.getKeys(false)) {
-                required.put(key, recipeIngredients.getInt(key));
+    private boolean ingredientsMatch(Map<String, Integer> provided, Map<String, Object> required) {
+        if (provided.size() != required.size()) return false;
+        for (Map.Entry<String, Object> entry : required.entrySet()) {
+            if (!provided.containsKey(entry.getKey()) || provided.get(entry.getKey()) < (Integer) entry.getValue()) {
+                return false;
             }
-            if (ingredients.equals(required)) {
-                return recipeId;
+        }
+        return true;
+    }
+    
+    private Location findNearbyReadyCauldron(Location loc, double radius) {
+        for (Location readyLoc : readyCauldrons) {
+            if (Objects.equals(readyLoc.getWorld(), loc.getWorld()) && readyLoc.distanceSquared(loc) <= radius * radius) {
+                return readyLoc;
             }
         }
         return null;
@@ -192,8 +211,8 @@ public class CauldronAlchemyListener implements Listener {
     
     private String getRandomPillTier(String recipeId) {
         ConfigurationSection chanceSection = plugin.getConfig().getConfigurationSection("alchemy.recipes." + recipeId + ".tier-chance");
-        if (chanceSection == null) return "tam_pham"; // Mặc định là phẩm chất thấp nhất
-        
+        if (chanceSection == null) return "tam_pham"; // Mặc định là tam phẩm
+
         int totalWeight = chanceSection.getKeys(false).stream().mapToInt(chanceSection::getInt).sum();
         if (totalWeight <= 0) return "tam_pham";
 
@@ -207,31 +226,28 @@ public class CauldronAlchemyListener implements Listener {
         }
         return "tam_pham";
     }
-    
-    private ItemStack createHalfMadePill(String pillId, String pillTier) {
-        ItemStack item = new ItemStack(Material.SLIME_BALL);
-        ItemMeta meta = item.getItemMeta();
+
+    private ItemStack createSemiFinishedPill(String pillId, String tierId) {
+        ItemStack pill = new ItemStack(Material.MAGMA_CREAM);
+        ItemMeta meta = pill.getItemMeta();
         if (meta == null) return null;
 
-        meta.setDisplayName(format("&7Đan Dược Nửa Mùa"));
-        meta.setLore(Collections.singletonList(format("&fBỏ vào lò nung để hoàn thiện.")));
+        String displayName = plugin.getConfig().getString("alchemy.pills." + pillId + "." + tierId + ".display-name", "Đan Dược Lỗi");
+        meta.setDisplayName(format("&e" + displayName + " &7(Nửa Mùa)"));
         
-        ItemManager itemManager = plugin.getItemManager();
-        meta.getPersistentDataContainer().set(itemManager.HALF_MADE_PILL_KEY, PersistentDataType.BYTE, (byte) 1);
-        meta.getPersistentDataContainer().set(itemManager.ITEM_ID_KEY, PersistentDataType.STRING, pillId);
-        meta.getPersistentDataContainer().set(itemManager.ITEM_TIER_KEY, PersistentDataType.STRING, pillTier);
-        
-        item.setItemMeta(meta);
-        return item;
-    }
+        List<String> lore = new ArrayList<>();
+        lore.add(format("&7Viên đan dược chưa được tinh luyện hoàn toàn."));
+        lore.add(format("&7Hãy cho vào lò nung để hoàn tất."));
+        meta.setLore(lore);
 
-    private String format(String msg) {
-        return ChatColor.translateAlternateColorCodes('&', msg);
+        // Lưu NBT để listener lò nung nhận biết
+        meta.getPersistentDataContainer().set(new NamespacedKey(plugin, "semi_finished_pill"), PersistentDataType.STRING, pillId + ":" + tierId);
+        
+        pill.setItemMeta(meta);
+        return pill;
     }
     
-    private static class CauldronData {
-        boolean isBoiling = false;
-        Map<String, Integer> ingredients = new HashMap<>();
-        void addIngredient(String id, int amount) { ingredients.merge(id, amount, Integer::sum); }
+    private String format(String msg) {
+        return ChatColor.translateAlternateColorCodes('&', msg);
     }
 }

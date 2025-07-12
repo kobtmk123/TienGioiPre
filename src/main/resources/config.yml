@@ -581,6 +581,8 @@ items:
       material: "NETHER_STAR"
       enchanted: true
       linh-khi-amount: 400
+       
+      
   phoi_thien_tinh:
     display-name: "&bPhôi Thiên Tinh"
     lore:
@@ -609,7 +611,98 @@ items:
       - "&7Dùng để chế tác công cụ."
     material: "RAW_IRON"
     enchanted: false
-
+    
+    
+    linh_tam_thao:
+    display-name: "&aLinh Tâm Thảo"
+    lore:
+      - "&7Dược liệu cơ bản, chứa đựng linh khí đất trời."
+    material: "WHEAT_SEEDS"
+    enchanted: true
+  huyet_tinh_hoa:
+    display-name: "&cHuyết Tinh Hoa"
+    lore:
+      - "&7Mọc ở nơi có máu huyết yêu thú, dược tính mạnh mẽ."
+    material: "BEETROOT_SEEDS"
+    enchanted: true
+  bach_ngoc_sam:
+    display-name: "&fBách Ngọc Sâm"
+    lore:
+      - "&7Nhân sâm trăm tuổi, ôn hòa và tinh khiết."
+    material: "POTATO"
+    enchanted: true
+  tu_van_hoa:
+    display-name: "&dTử Vân Hoa"
+    lore:
+      - "&7Đóa hoa màu tím, tỏa ra làn sương mờ ảo."
+    material: "ALLIUM"
+    enchanted: true
+  dia_long_thao:
+    display-name: "&6Địa Long Thảo"
+    lore:
+      - "&7Mọc sâu trong lòng đất, hấp thụ địa khí."
+    material: "CARROT"
+    enchanted: true
+  bang_hon_qua:
+    display-name: "&bBăng Hồn Quả"
+    lore:
+      - "&7Trái cây sinh trưởng ở nơi cực hàn, mang hàn khí."
+    material: "SWEET_BERRIES"
+    enchanted: true
+  huyen_vuong_chi:
+    display-name: "&8Huyền Vương Chi"
+    lore:
+      - "&7Linh chi ngàn năm, cực kỳ quý hiếm."
+    material: "CRIMSON_FUNGUS"
+    enchanted: true
+  ngan_la_co:
+    display-name: "&7Ngân Diệp Thảo"
+    lore:
+      - "&7Lá cây lấp lánh như bạc, dùng để trung hòa dược tính."
+    material: "FERN"
+    enchanted: false
+  tinh_van_lo:
+    display-name: "&eTinh Vẫn Lộ"
+    lore:
+      - "&7Giọt sương đọng lại dưới trời sao."
+    material: "GLOW_BERRIES"
+    enchanted: true
+  thien_luc_diep:
+    display-name: "&2Thiên Lục Diệp"
+    lore:
+      - "&7Lá cây ẩn chứa sinh mệnh lực dồi dào."
+    material: "OAK_LEAVES"
+    enchanted: false
+  co_ba_la:
+    display-name: "&dCỏ Ba Lá"
+    lore:
+      - "&7Mang lại một chút may mắn."
+    material: "GRASS"
+    enchanted: false
+  hoa_mat_troi:
+    display-name: "&6Hướng Dương Thảo"
+    lore:
+      - "&7Luôn hướng về phía mặt trời, hấp thụ dương khí."
+    material: "SUNFLOWER"
+    enchanted: true
+  hoa_hong_gai:
+    display-name: "&cHoa Hồng Gai"
+    lore:
+      - "&7Vẻ đẹp ẩn chứa nguy hiểm."
+    material: "ROSE_BUSH"
+    enchanted: true
+  nam_doc:
+    display-name: "&5Nấm Độc"
+    lore:
+      - "&7Dùng để lấy độc trị độc."
+    material: "RED_MUSHROOM"
+    enchanted: false
+  re_cay_co_thu:
+    display-name: "&6Rễ Cây Cổ Thụ"
+    lore:
+      - "&7Một phần của cây đại thụ ngàn năm."
+    material: "OAK_SAPLING"
+    enchanted: false
 # ============================================
 #              CỬA HÀNG TU TIÊN
 # ============================================

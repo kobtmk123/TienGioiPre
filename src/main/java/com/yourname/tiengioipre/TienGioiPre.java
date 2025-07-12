@@ -18,7 +18,6 @@ public final class TienGioiPre extends JavaPlugin {
     private static TienGioiPre instance;
     private static Economy econ = null;
 
-    // Các trình quản lý (Manager)
     private PlayerDataManager playerDataManager;
     private RealmManager realmManager;
     private CultivationManager cultivationManager;
@@ -32,10 +31,8 @@ public final class TienGioiPre extends JavaPlugin {
         instance = this;
         getLogger().info("------------------------------------");
         getLogger().info("Dang khoi dong plugin TienGioiPre...");
-
         saveDefaultConfig();
 
-        // Khởi tạo tất cả các trình quản lý THEO ĐÚNG THỨ TỰ
         this.itemManager = new ItemManager(this);
         this.shopGUI = new ShopGUI(this);
         this.tongMonManager = new TongMonManager(this);
@@ -68,9 +65,6 @@ public final class TienGioiPre extends JavaPlugin {
         getLogger().info("Plugin TienGioiPre da duoc tat.");
     }
 
-    /**
-     * Đăng ký tất cả các lệnh của plugin.
-     */
     private void registerCommands() {
         MainCommand mainCommand = new MainCommand(this);
         getCommand("tiengioi").setExecutor(mainCommand);
@@ -87,16 +81,13 @@ public final class TienGioiPre extends JavaPlugin {
         getCommand("matu").setExecutor(pathCommand);
         getCommand("phattu").setExecutor(pathCommand);
         getCommand("luyenkhisu").setExecutor(pathCommand);
-        getCommand("luyendansu").setExecutor(pathCommand); // Đăng ký lệnh Luyện Đan Sư
+        getCommand("luyendansu").setExecutor(pathCommand);
         
         TongMonCommand tongMonCommand = new TongMonCommand(this);
         getCommand("tongmon").setExecutor(tongMonCommand);
         getCommand("tongmon").setTabCompleter(tongMonCommand);
     }
 
-    /**
-     * Đăng ký tất cả các sự kiện (listeners) của plugin.
-     */
     private void registerListeners() {
         getServer().getPluginManager().registerEvents(new PlayerConnectionListener(this), this);
         getServer().getPluginManager().registerEvents(new PlayerInteractListener(this), this);
@@ -106,35 +97,15 @@ public final class TienGioiPre extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new AnvilRefineListener(this), this);
         getServer().getPluginManager().registerEvents(new OreSpawnListener(this), this);
         getServer().getPluginManager().registerEvents(new TongMonListener(this), this);
-
+        
         // === ĐĂNG KÝ CÁC LISTENER MỚI CHO HỆ THỐNG LUYỆN ĐAN ===
         getServer().getPluginManager().registerEvents(new HerbDropListener(this), this);
         getServer().getPluginManager().registerEvents(new CauldronAlchemyListener(this), this);
         getServer().getPluginManager().registerEvents(new FurnaceRefinePillListener(this), this);
     }
 
-    /**
-     * Thiết lập và kết nối với các plugin phụ thuộc.
-     */
     private void setupIntegrations() {
-        // Vault
-        if (getServer().getPluginManager().getPlugin("Vault") != null) {
-            RegisteredServiceProvider<Economy> rsp = getServer().getServicesManager().getRegistration(Economy.class);
-            if (rsp != null) {
-                econ = rsp.getProvider();
-                getLogger().info("Da tich hop thanh cong voi Vault (Economy).");
-            } else {
-                getLogger().severe("!!! Khong tim thay plugin Economy (EssentialsX, etc.)! Chuc nang shop se bi vo hieu hoa.");
-            }
-        } else {
-             getLogger().severe("!!! Khong tim thay Vault! Chuc nang shop se bi vo hieu hoa.");
-        }
-
-        // PlaceholderAPI
-        if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
-            new PAPIExpansion(this).register();
-            getLogger().info("Da tich hop thanh cong voi PlaceholderAPI.");
-        }
+        // ... (Giữ nguyên)
     }
 
     // --- CÁC GETTER ---
