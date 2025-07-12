@@ -5,6 +5,7 @@ import com.yourname.tiengioipre.data.PlayerData;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -40,6 +41,7 @@ public class CauldronAlchemyListener implements Listener {
     private final Map<Location, BukkitRunnable> boilingCauldrons = new HashMap<>();
     private final Set<Location> readyCauldrons = new HashSet<>();
     private final Map<Location, CauldronSession> craftingCauldrons = new HashMap<>();
+    private final Random random = new Random();
 
     public CauldronAlchemyListener(TienGioiPre plugin) {
         this.plugin = plugin;
@@ -48,21 +50,18 @@ public class CauldronAlchemyListener implements Listener {
     // Sự kiện khi người chơi đổ nước vào vạc
     @EventHandler
     public void onCauldronFill(PlayerInteractEvent event) {
-        // Chỉ xử lý khi người chơi chuột phải vào block
         if (event.getHand() != EquipmentSlot.HAND || event.getAction() != Action.RIGHT_CLICK_BLOCK) return;
 
         Block clickedBlock = event.getClickedBlock();
         if (clickedBlock == null || clickedBlock.getType() != Material.WATER_CAULDRON) {
             return;
         }
-
+        
         Player player = event.getPlayer();
         ItemStack itemInHand = player.getInventory().getItemInMainHand();
-        
-        // Đây là cách kiểm tra đổ nước vào vạc rỗng, vì PlayerBucketFillEvent không đáng tin cậy
+
         if (itemInHand.getType() == Material.WATER_BUCKET) {
             Levelled cauldronData = (Levelled) clickedBlock.getBlockData();
-            // Nếu vạc chưa đầy nước
             if (cauldronData.getLevel() < cauldronData.getMaximumLevel()) {
                 // Chỉ kiểm tra và bắt đầu đun khi đổ nước vào vạc chưa đầy
                 plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
@@ -147,7 +146,10 @@ public class CauldronAlchemyListener implements Listener {
         if (recipesSection == null) return;
         
         for (String recipeId : recipesSection.getKeys(false)) {
-            Map<String, Object> requiredIngredients = recipesSection.getConfigurationSection(recipeId + ".ingredients").getValues(false);
+            ConfigurationSection ingredientsSection = recipesSection.getConfigurationSection(recipeId + ".ingredients");
+            if (ingredientsSection == null) continue;
+
+            Map<String, Object> requiredIngredients = ingredientsSection.getValues(false);
             
             if (ingredientsMatch(session.ingredients, requiredIngredients)) {
                 // Hủy task cũ nếu có (trường hợp người chơi thêm nguyên liệu khác vào)
