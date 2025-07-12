@@ -26,16 +26,9 @@ public class MainCommand implements CommandExecutor, TabCompleter {
 
     private final TienGioiPre plugin;
     private final String prefix = "&8[&bTienGioi&8] &r";
-    private final boolean debugMode = true; // Bật/tắt chế độ debug tại đây
 
     public MainCommand(TienGioiPre plugin) {
         this.plugin = plugin;
-    }
-
-    private void debug(CommandSender sender, String message) {
-        if (debugMode) {
-            sender.sendMessage(format("&e[DEBUG] " + message));
-        }
     }
 
     @Override
@@ -45,17 +38,12 @@ public class MainCommand implements CommandExecutor, TabCompleter {
             return true;
         }
 
-        debug(sender, "Lệnh nhận được: " + command.getName() + " với " + args.length + " đối số.");
-
         if (args.length == 0) {
             sendHelpMessage(sender, label);
             return true;
         }
 
-        String subCommand = args[0].toLowerCase();
-        debug(sender, "Lệnh con: " + subCommand);
-
-        switch (subCommand) {
+        switch (args[0].toLowerCase()) {
             case "reload":
                 handleReload(sender);
                 break;
@@ -66,7 +54,6 @@ public class MainCommand implements CommandExecutor, TabCompleter {
                 handleSetRealm(sender, args, label);
                 break;
             case "setlinhkhi":
-                debug(sender, "Đang gọi hàm handleSetLinhKhi...");
                 handleSetLinhKhi(sender, args, label);
                 break;
             default:
@@ -77,20 +64,18 @@ public class MainCommand implements CommandExecutor, TabCompleter {
     }
 
     private void handleReload(CommandSender sender) {
-        debug(sender, "Bắt đầu reload...");
         plugin.reloadConfig();
         plugin.getRealmManager().loadRealms();
         for (Player player : Bukkit.getOnlinePlayers()) {
             plugin.getRealmManager().applyAllStats(player);
         }
         sender.sendMessage(format(prefix + "&aĐã tải lại cấu hình và áp dụng cho người chơi online."));
-        debug(sender, "Reload hoàn tất.");
     }
 
     private void handleGive(CommandSender sender, String[] args, String label) {
-        debug(sender, "Đang xử lý lệnh 'give'.");
         if (args.length < 4) {
-            sender.sendMessage(format(prefix + "&cUsage: /" + label + " give <player> <item_type> <item_id> [amount]"));
+            sender.sendMessage(format(prefix + "&cUsage: /" + label + " give <player> <type> <id> [amount]"));
+            sender.sendMessage(format(prefix + "&eTypes: cuonlinhkhi, phoi, duoclieu"));
             return;
         }
 
@@ -108,18 +93,20 @@ public class MainCommand implements CommandExecutor, TabCompleter {
              try { amount = Integer.parseInt(args[4]); } catch (NumberFormatException e) { sender.sendMessage(format("&cSố lượng không hợp lệ.")); return; }
         }
 
-        debug(sender, "Give: player=" + target.getName() + ", type=" + itemType + ", id=" + itemId + ", amount=" + amount);
-
         ItemStack itemToGive;
         ItemManager itemManager = plugin.getItemManager();
 
-        if (itemType.equals("cuonlinhkhi")) {
-            itemToGive = itemManager.createCultivationItem(itemType, itemId);
-        } else if (itemType.equals("phoi")) {
-            itemToGive = itemManager.createCultivationItem(itemId, "default"); 
-        } else {
-            sender.sendMessage(format(prefix + "&cLoại vật phẩm không hợp lệ: 'cuonlinhkhi' hoặc 'phoi'."));
-            return;
+        switch (itemType) {
+            case "cuonlinhkhi":
+                itemToGive = itemManager.createCultivationItem(itemType, itemId);
+                break;
+            case "phoi":
+            case "duoclieu":
+                itemToGive = itemManager.createCultivationItem(itemId, "default");
+                break;
+            default:
+                sender.sendMessage(format(prefix + "&cLoại vật phẩm không hợp lệ: 'cuonlinhkhi', 'phoi', hoặc 'duoclieu'."));
+                return;
         }
 
         if (itemToGive == null) {
@@ -130,11 +117,9 @@ public class MainCommand implements CommandExecutor, TabCompleter {
         itemToGive.setAmount(amount);
         target.getInventory().addItem(itemToGive);
         sender.sendMessage(format(prefix + "&aĐã trao " + amount + "x " + itemToGive.getItemMeta().getDisplayName() + " &acho " + target.getName()));
-        debug(sender, "Lệnh 'give' hoàn tất.");
     }
     
     private void handleSetRealm(CommandSender sender, String[] args, String label) {
-        debug(sender, "Đang xử lý lệnh 'setrealm'.");
         if (args.length < 4) {
             sender.sendMessage(format(prefix + "&cUsage: /" + label + " setrealm <player> <tuvi_id> <bac_id>"));
             return;
@@ -146,8 +131,6 @@ public class MainCommand implements CommandExecutor, TabCompleter {
         }
         String realmId = args[2];
         String tierId = args[3];
-        debug(sender, "SetRealm: player=" + target.getName() + ", realmId=" + realmId + ", tierId=" + tierId);
-
         RealmManager.TierData tierData = plugin.getRealmManager().getTierData(realmId, tierId);
         if (tierData == null) {
             sender.sendMessage(format(prefix + "&cTu Vi ID hoặc Bậc ID không tồn tại."));
@@ -166,7 +149,6 @@ public class MainCommand implements CommandExecutor, TabCompleter {
         String tierName = plugin.getRealmManager().getTierDisplayName(realmId, tierId);
         sender.sendMessage(format(prefix + "&aĐã đặt cảnh giới của " + target.getName() + " thành " + realmName + " " + tierName));
         target.sendMessage(format(prefix + "&aCảnh giới của bạn đã được admin thay đổi."));
-        debug(sender, "Lệnh 'setrealm' hoàn tất.");
     }
     
     private void handleSetLinhKhi(CommandSender sender, String[] args, String label) {
@@ -174,15 +156,11 @@ public class MainCommand implements CommandExecutor, TabCompleter {
             sender.sendMessage(format(prefix + "&cUsage: /" + label + " setlinhkhi <player> <amount>"));
             return;
         }
-        debug(sender, "Bước 1: Cú pháp lệnh hợp lệ.");
-
         Player target = Bukkit.getPlayer(args[1]);
         if (target == null) {
             sender.sendMessage(format(prefix + "&cKhông tìm thấy người chơi " + args[1]));
             return;
         }
-        debug(sender, "Bước 2: Đã tìm thấy người chơi '" + target.getName() + "'.");
-        
         double amount;
         try {
             amount = Double.parseDouble(args[2]);
@@ -190,21 +168,14 @@ public class MainCommand implements CommandExecutor, TabCompleter {
             sender.sendMessage(format(prefix + "&cSố lượng linh khí không hợp lệ."));
             return;
         }
-        debug(sender, "Bước 3: Số lượng linh khí hợp lệ: " + amount);
-
         PlayerData data = plugin.getPlayerDataManager().getPlayerData(target);
         if (data == null) {
-            sender.sendMessage(format(prefix + "&cKhông tìm thấy dữ liệu của người chơi '" + target.getName() + "'."));
+            sender.sendMessage(format(prefix + "&cKhông tìm thấy dữ liệu của người chơi."));
             return;
         }
-        debug(sender, "Bước 4: Đã tìm thấy dữ liệu của người chơi.");
-
         data.setLinhKhi(amount);
-        debug(sender, "Bước 5: Đã set linh khí thành công trong đối tượng PlayerData. Giá trị mới: " + data.getLinhKhi());
-        
         sender.sendMessage(format(prefix + "&aĐã đặt linh khí của " + target.getName() + " thành &e" + String.format("%,.0f", amount)));
         target.sendMessage(format(prefix + "&aLinh khí của bạn đã được admin thay đổi."));
-        debug(sender, "Bước 6: Gửi tin nhắn thành công. Lệnh 'setlinhkhi' hoàn tất.");
     }
     
     private void sendHelpMessage(CommandSender sender, String label) {
@@ -232,7 +203,7 @@ public class MainCommand implements CommandExecutor, TabCompleter {
         }
         if (args[0].equalsIgnoreCase("give")) {
             if (args.length == 3) {
-                return filter(Arrays.asList("cuonlinhkhi", "phoi"), args[2]);
+                return filter(Arrays.asList("cuonlinhkhi", "phoi", "duoclieu"), args[2]);
             }
             if (args.length == 4) {
                 String itemType = args[2].toLowerCase();
@@ -240,13 +211,16 @@ public class MainCommand implements CommandExecutor, TabCompleter {
                     ConfigurationSection section = plugin.getConfig().getConfigurationSection("items.cuonlinhkhi");
                     return section != null ? filter(new ArrayList<>(section.getKeys(false)), args[3]) : Collections.emptyList();
                 }
-                if (itemType.equals("phoi")) {
-                    List<String> phoiKeys = new ArrayList<>();
+                if (itemType.equals("phoi") || itemType.equals("duoclieu")) {
+                    List<String> keys = new ArrayList<>();
                     ConfigurationSection section = plugin.getConfig().getConfigurationSection("items");
                     if (section != null) {
-                        section.getKeys(false).forEach(key -> { if (key.startsWith("phoi_")) phoiKeys.add(key); });
+                        section.getKeys(false).forEach(key -> {
+                            if (key.startsWith("phoi_") && itemType.equals("phoi")) keys.add(key);
+                            if (!key.startsWith("phoi_") && !key.equals("cuonlinhkhi") && itemType.equals("duoclieu")) keys.add(key);
+                        });
                     }
-                    return filter(phoiKeys, args[3]);
+                    return filter(keys, args[3]);
                 }
             }
         }
