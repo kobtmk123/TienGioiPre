@@ -1,6 +1,7 @@
 package com.yourname.tiengioipre.listeners;
 
 import com.yourname.tiengioipre.TienGioiPre;
+import com.yourname.tiengioipre.utils.DebugLogger; // <-- IMPORT MỚI
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -8,7 +9,7 @@ import org.bukkit.block.Furnace;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority; // Import EventPriority
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.FurnaceBurnEvent;
 import org.bukkit.event.inventory.FurnaceSmeltEvent;
@@ -17,7 +18,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
-import org.bukkit.scheduler.BukkitRunnable; // Import BukkitRunnable
+import org.bukkit.scheduler.BukkitRunnable; // <-- IMPORT BukkitRunnable
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,12 +35,11 @@ public class FurnaceRefinePillListener implements Listener {
         this.pillBonusKey = new NamespacedKey(plugin, "tiengioi_pill_bonus");
     }
 
-    // Ưu tiên cao nhất để xử lý trước các plugin khác
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onPillSmelt(FurnaceSmeltEvent event) {
         ItemStack source = event.getSource();
         if (source == null || !source.hasItemMeta()) {
-            plugin.getLogger().info("[Debug-FSmelt] Source item is null or has no meta. -> No Action");
+            DebugLogger.log("FurnaceRefine", "onPillSmelt: Source item is null or has no meta. -> No Action");
             return;
         }
 
@@ -47,49 +47,47 @@ public class FurnaceRefinePillListener implements Listener {
         PersistentDataContainer container = sourceMeta.getPersistentDataContainer();
 
         if (!container.has(semiPillKey, PersistentDataType.STRING)) {
-            plugin.getLogger().info("[Debug-FSmelt] Source item is NOT a semi-finished pill (no NBT). -> No Action");
+            DebugLogger.log("FurnaceRefine", "onPillSmelt: Source item is NOT a semi-finished pill (no NBT). -> No Action");
             return;
         }
-        plugin.getLogger().info("[Debug-FSmelt] Detected SEMI-FINISHED PILL in smelt slot!");
+        DebugLogger.log("FurnaceRefine", "onPillSmelt: Detected SEMI-FINISHED PILL in smelt slot!");
 
         String pillData = container.get(semiPillKey, PersistentDataType.STRING);
-        plugin.getLogger().info("[Debug-FSmelt] Pill NBT data: " + pillData);
+        DebugLogger.log("FurnaceRefine", "onPillSmelt: Pill NBT data: " + pillData);
 
         String[] parts = pillData.split(":");
         if (parts.length < 2) {
-            plugin.getLogger().warning("[Debug-FSmelt] Invalid pill data format: " + pillData);
+            DebugLogger.warn("FurnaceRefine", "onPillSmelt: Invalid pill data format: " + pillData);
             return;
         }
 
         String pillId = parts[0];
         String tierId = parts[1];
-        plugin.getLogger().info("[Debug-FSmelt] Processing pill: ID=" + pillId + ", Tier=" + tierId);
+        DebugLogger.log("FurnaceRefine", "onPillSmelt: Processing pill: ID=" + pillId + ", Tier=" + tierId);
 
         ItemStack finalPill = createFinalPill(pillId, tierId);
         
         if (finalPill != null) {
             event.setResult(finalPill);
-            plugin.getLogger().info("[Debug-FSmelt] Successfully set final pill result: " + finalPill.getItemMeta().getDisplayName());
+            DebugLogger.log("FurnaceRefine", "onPillSmelt: Successfully set final pill result: " + finalPill.getItemMeta().getDisplayName());
         } else {
-            plugin.getLogger().warning("[Debug-FSmelt] createFinalPill returned null for " + pillId + ":" + tierId);
+            DebugLogger.warn("FurnaceRefine", "onPillSmelt: createFinalPill returned null for " + pillId + ":" + tierId);
         }
     }
 
-    // Ưu tiên cao nhất để xử lý trước các plugin khác
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onFurnaceBurn(FurnaceBurnEvent event) {
-        // Lấy item trong ô nguyên liệu của lò (ô trên cùng)
-        // Cần kiểm tra xem block có phải là Furnace không để tránh lỗi
-        if (!(event.getBlock().getState() instanceof Furnace)) {
-            plugin.getLogger().info("[Debug-FBurn] Block is not a furnace. -> No Action");
+        Block block = event.getBlock();
+        if (!(block.getState() instanceof Furnace)) {
+            DebugLogger.log("FurnaceRefine", "onFurnaceBurn: Block is not a furnace. -> No Action");
             return;
         }
         
-        Furnace furnace = (Furnace) event.getBlock().getState();
+        Furnace furnace = (Furnace) block.getState();
         ItemStack source = furnace.getInventory().getSmelting();
 
         if (source == null || !source.hasItemMeta()) {
-            plugin.getLogger().info("[Debug-FBurn] Smelting item is null or has no meta. -> No Action");
+            DebugLogger.log("FurnaceRefine", "onFurnaceBurn: Smelting item is null or has no meta. -> No Action");
             return;
         }
 
@@ -97,44 +95,29 @@ public class FurnaceRefinePillListener implements Listener {
         PersistentDataContainer container = sourceMeta.getPersistentDataContainer();
 
         if (!container.has(semiPillKey, PersistentDataType.STRING)) {
-            plugin.getLogger().info("[Debug-FBurn] Smelting item is NOT a semi-finished pill (no NBT). -> No Action");
+            DebugLogger.log("FurnaceRefine", "onFurnaceBurn: Smelting item is NOT a semi-finished pill (no NBT). -> No Action");
             return;
         }
-        plugin.getLogger().info("[Debug-FBurn] Detected SEMI-FINISHED PILL in furnace! Setting custom burn time.");
+        DebugLogger.log("FurnaceRefine", "onFurnaceBurn: Detected SEMI-FINISHED PILL in furnace! Setting custom burn time.");
 
         int cookTimeInSeconds = plugin.getConfig().getInt("alchemy.settings.furnace-smelt-time-seconds", 20);
-        event.setBurnTime(cookTimeInSeconds * 20); // 20 ticks = 1 giây
         
-        // Đặt event.setBurning(true) ở đây không phải lúc nào cũng đủ.
-        // Chúng ta sẽ ép buộc lò nung hoạt động bằng cách đặt cook time và fuel time trực tiếp
-        // (Nếu vẫn không được, cần dùng một task lặp để kiểm tra và ép)
-
-        // Cần một task nhỏ để ép lò nung nếu nó không cháy ngay lập tức
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                if (!(furnace.getInventory().getSmelting() != null && furnace.getInventory().getSmelting().hasItemMeta() && furnace.getInventory().getSmelting().getItemMeta().getPersistentDataContainer().has(semiPillKey, PersistentDataType.STRING))) {
-                    this.cancel(); // Item đã bị rút ra hoặc đã nung xong
-                    return;
-                }
-
-                furnace.setCookTime( (short) (furnace.getCookTime() + 1)); // Tăng cook time mỗi tick
-                furnace.setBurnTime( (short) (furnace.getBurnTime() + 1)); // Tăng burn time mỗi tick
-                furnace.update(true); // Cập nhật trạng thái lò
-                
-                plugin.getLogger().info("[Debug-FBurn-Force] Forcing furnace at " + furnace.getLocation().toVector() + ". CookTime: " + furnace.getCookTime());
-
-                if (furnace.getCookTime() >= cookTimeInSeconds * 20) {
-                    this.cancel(); // Đã nung xong
-                }
-            }
-        }.runTaskTimer(plugin, 1L, 1L); // Chạy task mỗi tick sau 1 tick
+        event.setBurnTime(cookTimeInSeconds * 20); // Thời gian đốt nhiên liệu
+        
+        // Củng cố lò nung bằng cách đặt lại thời gian nung và cập nhật trạng thái
+        furnace.setCookTime((short) 0); // Đặt lại cook time về 0
+        furnace.setCookTimeTotal((short)(cookTimeInSeconds * 20)); // Ép tổng thời gian nấu
+        furnace.update(true); // Cập nhật trạng thái lò ngay lập tức
+        
+        event.setBurning(true); // Đảm bảo event báo lò đang cháy
+        
+        DebugLogger.log("FurnaceRefine", "onFurnaceBurn: Custom burn time set to " + cookTimeInSeconds + " seconds for " + source.getItemMeta().getDisplayName());
     }
 
     private ItemStack createFinalPill(String pillId, String tierId) {
         ConfigurationSection pillConfig = plugin.getConfig().getConfigurationSection("alchemy.pills." + pillId + "." + tierId);
         if (pillConfig == null) {
-            plugin.getLogger().warning("Không tìm thấy cấu hình cho đan dược: " + pillId + " - " + tierId);
+            DebugLogger.warn("FurnaceRefine", "createFinalPill: Không tìm thấy cấu hình cho đan dược: " + pillId + " - " + tierId);
             return null;
         }
 
@@ -158,6 +141,7 @@ public class FurnaceRefinePillListener implements Listener {
         meta.getPersistentDataContainer().set(pillBonusKey, PersistentDataType.INTEGER, bonus);
         
         pill.setItemMeta(meta);
+        DebugLogger.log("FurnaceRefine", "createFinalPill: Final pill created with NBT bonus: " + bonus);
         return pill;
     }
 

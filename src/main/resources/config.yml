@@ -1,6 +1,6 @@
 # ============================================================ #
 #                  CONFIG PLUGIN TIENGIOIPRE                   #
-#                 Tác giả: Bố Been Vũ Đại                   #
+#                 Tác giả: Bố Been Vĩ Đại                   #
 #                        Version: 1.4                          #
 # ============================================================ #
 
@@ -15,11 +15,25 @@ settings:
   # Cấu hình cho tỷ lệ đột phá
   breakthrough-chance:
     enabled: true # Đặt là true để bật hệ thống tỷ lệ, false để luôn thành công 100%
-    success-rate: 45 # Tỷ lệ thành công (%), tỷ lệ thất bại sẽ là (100 - success-rate)
+    success-rate: 45 # Tỷ lệ thành công (%) cơ bản, sẽ được cộng thêm bởi đan dược
+  
+  # Bật/tắt chế độ debug, sẽ in ra các thông báo chi tiết trong console
+  debug-mode: true
 
 # ============================================
 #        ĐỊNH NGHĨA CÁC TU VI VÀ BẬC
 # ============================================
+# Mỗi Tu Vi (realm) sẽ có các Bậc (tiers) bên trong.
+# stats: Các chỉ số được cộng thêm cho người chơi ở cảnh giới này.
+#   max-health-bonus: Cộng thêm máu (2.0 = 1 trái tim)
+#   attack-damage-bonus: Cộng thêm sát thương tấn công
+#   walk-speed-bonus: Cộng thêm tốc độ di chuyển (0.01 = 10% tốc độ gốc)
+# breakthrough: Cấu hình Lôi Kiếp khi đột phá lên Bậc/Tu Vi này.
+#   tribulation-name: Tên của Lôi Kiếp hiển thị trên chat.
+#   lightning-count: Số lượng tia sét sẽ đánh xuống.
+#   lightning-damage: Sát thương của MỖI tia sét.
+#   lightning-delay-ticks: Độ trễ giữa các tia sét (20 ticks = 1 giây).
+
 realms:
   phannhan:
     display-name: "&fPhàm Nhân"
@@ -115,7 +129,7 @@ realms:
       hauky:
         display-name: "&b_Hậu Kỳ"
         max-linh-khi: 7000
-        linh-khi-gain-per-second: 14
+        linh-ki-gain-per-second: 14
         breakthrough:
           tribulation-name: "&cTrúc Cơ Kiếp"
           lightning-count: 7
@@ -328,7 +342,7 @@ realms:
           lightning-delay-ticks: 10
         stats:
           max-health-bonus: 10.0
-          attack-damage-bonus: 3.5 
+          attack-damage-bonus: 3.5
   luyenhu:
     display-name: "&9Luyện Hư"
     tiers:
@@ -391,7 +405,7 @@ realms:
           lightning-delay-ticks: 10
         stats:
           max-health-bonus: 12.0
-          attack-damage-bonus: 4.5 
+          attack-damage-bonus: 4.5
   hopthe:
     display-name: "&5Hợp Thể"
     tiers:
@@ -485,7 +499,7 @@ realms:
       hauky:
         display-name: "&6_Hậu Kỳ"
         max-linh-khi: 800000
-        linh-khi-gain-per-second: 110
+        linh-ki-gain-per-second: 110
         breakthrough:
           tribulation-name: "&4&lCửu Cửu Quy Nhất Kiếp"
           lightning-count: 40
@@ -497,7 +511,7 @@ realms:
       dinhphong:
         display-name: "&6_Đỉnh Phong"
         max-linh-khi: 900000
-        linh-khi-gain-per-second: 120
+        linh-ki-gain-per-second: 120
         breakthrough:
           tribulation-name: "&4&lCửu Cửu Quy Nhất Kiếp"
           lightning-count: 42
@@ -543,7 +557,10 @@ progression:
 # ============================================
 #            VẬT PHẨM PLUGIN
 # ============================================
+# Định nghĩa TẤT CẢ các vật phẩm tùy chỉnh của plugin.
+# ID ở đây phải khớp với ID dùng trong shop, công thức, give lệnh, v.v.
 items:
+  # --- Vật phẩm Cộng Linh Khí ---
   cuonlinhkhi:
     ha:
       display-name: "&aCuộn Linh Khí [Hạ Phẩm]"
@@ -581,8 +598,8 @@ items:
       material: "NETHER_STAR"
       enchanted: true
       linh-khi-amount: 400
-       
-      
+
+  # --- Phôi Dùng Cho Luyện Khí Sư ---
   phoi_thien_tinh:
     display-name: "&bPhôi Thiên Tinh"
     lore:
@@ -611,9 +628,10 @@ items:
       - "&7Dùng để chế tác công cụ."
     material: "RAW_IRON"
     enchanted: false
-    
-    
-    linh_tam_thao:
+
+  # --- Dược Liệu Dùng Cho Luyện Đan Sư ---
+  # ID của các dược liệu này phải khớp với ID trong mục alchemy.herbs và alchemy.recipes
+  linh_tam_thao:
     display-name: "&aLinh Tâm Thảo"
     lore:
       - "&7Dược liệu cơ bản, chứa đựng linh khí đất trời."
@@ -703,6 +721,7 @@ items:
       - "&7Một phần của cây đại thụ ngàn năm."
     material: "OAK_SAPLING"
     enchanted: false
+
 # ============================================
 #              CỬA HÀNG TU TIÊN
 # ============================================
@@ -753,7 +772,7 @@ shop:
     phoi_thien_tinh_shop:
       slot: 15
       item-id: "phoi_thien_tinh"
-      item-tier: "default" # Tier mặc định cho item không có nhiều tier
+      item-tier: "default"
       price: 5000
       extra-lore:
         - ""
@@ -770,6 +789,17 @@ shop:
         - "&eGiá: &f%price% Xu"
         - "&aChuột trái để mua x1"
         - "&aChuột phải để mua x16"
+    # Dược liệu cũng có thể bán trong shop nếu muốn
+    linh_tam_thao_shop:
+      slot: 18
+      item-id: "linh_tam_thao"
+      item-tier: "default"
+      price: 100
+      extra-lore:
+        - ""
+        - "&eGiá: &f%price% Xu"
+        - "&aChuột trái để mua x1"
+        - "&aChuột phải để mua x64"
 
 # ============================================
 #            CON ĐƯỜNG TU LUYỆN
@@ -811,172 +841,115 @@ paths:
   luyendansu:
     display-name: "&6Luyện Đan Sư"
     description: "&7Bậc thầy điều chế linh dược, nghịch thiên cải mệnh."
-    stats: {} # Không có bonus chỉ số trực tiếp
+    stats: {}
 
 # ============================================
 #              HỆ THỐNG LUYỆN KHÍ
 # ============================================
 refining:
-  # Định nghĩa các cấp bậc cho vật phẩm được rèn
   tiers:
     ha:
       display-name: "&7[Hạ]"
-      name-color: "&7" # Màu của tên vật phẩm sau khi rèn
+      color: "&7"
+      damage-range: "1.0-1.5"
+      health-range: "0.5-1.0"
     trung:
       display-name: "&a[Trung]"
-      name-color: "&a"
+      color: "&a"
+      damage-range: "1.5-2.5"
+      health-range: "1.0-2.0"
     thuong:
       display-name: "&b[Thượng]"
-      name-color: "&b"
+      color: "&b"
+      damage-range: "2.5-3.5"
+      health-range: "2.0-3.0"
     cuc:
       display-name: "&d[Cực]"
-      name-color: "&d"
-    huyen:
-      display-name: "&5[Huyền]"
-      name-color: "&5"
+      color: "&d"
+      damage-range: "3.5-5.0"
+      health-range: "3.0-4.0"
     tuyet:
       display-name: "&c&l[Tuyệt]"
-      name-color: "&c"
-
-  # Tỷ lệ ra các cấp bậc khi rèn (TỔNG PHẢI LÀ 100)
-  # Yêu cầu của bạn: 60% cho 2 bậc cùi, 40% cho bậc cao hơn, 30% cho bậc cao nhất là không thể
-  # vì tổng đã vượt 100%. Tôi sẽ chia theo một tỷ lệ hợp lý hơn:
+      color: "&c"
+      damage-range: "5.0-7.0"
+      health-range: "4.0-6.0"
   chances:
-    default: # Tỷ lệ mặc định cho các phôi cùi
-      ha: 40
-      trung: 25
-      thuong: 20
-      cuc: 10
-      huyen: 4
-      tuyet: 1
-    premium: # Tỷ lệ cho các phôi xịn hơn (ví dụ: Phôi Thiên Tinh)
-      ha: 15
-      trung: 30
-      thuong: 25
-      cuc: 18
-      huyen: 9
-      tuyet: 3
-
-  # Các loại phôi và loại tỷ lệ chúng sử dụng
-  catalysts:
     phoi_thien_tinh:
-      type: "armor_weapon"
-      chance-group: "premium" # Dùng nhóm tỷ lệ xịn
+      ha: 20
+      trung: 35
+      thuong: 25
+      cuc: 15
+      tuyet: 5
     phoi_huyet_thach:
-      type: "armor_weapon"
-      chance-group: "default"
+      ha: 40
+      trung: 30
+      thuong: 20
+      cuc: 8
+      tuyet: 2
     phoi_tinh_the:
-      type: "tool"
-      chance-group: "premium"
+      ha: 25
+      trung: 40
+      thuong: 25
+      cuc: 10
+      tuyet: 0
     phoi_thep_hoa_phat:
-      type: "tool"
-      chance-group: "default"
+      ha: 50
+      trung: 35
+      thuong: 15
+      cuc: 0
+      tuyet: 0
+  catalysts:
+    phoi_thien_tinh: "armor_weapon"
+    phoi_huyet_thach: "armor_weapon"
+    phoi_tinh_the: "tool"
+    phoi_thep_hoa_phat: "tool"
+  ore-spawning:
+    armor_weapon_ore:
+      enabled: true
+      material: "COPPER_ORE"
+      particle: "FLAME"
+      spawn-chance: 0.0002
+    tool_ore:
+      enabled: true
+      material: "IRON_ORE"
+      particle: "FLAME"
+      spawn-chance: 0.0002
 
-  # Định nghĩa các chỉ số có thể có và khoảng giá trị của chúng theo cấp bậc
-  # Các chỉ số sẽ được chọn NGẪU NHIÊN từ danh sách này
-  attributes:
-    # Chỉ số cho VŨ KHÍ
-    weapon:
-      damage: # Sát thương cộng thêm
-        display: "&a Sát thương: &f+%value%"
-        ha: "0.5-1.0"
-        trung: "1.0-2.0"
-        thuong: "2.0-3.0"
-        cuc: "3.0-4.5"
-        huyen: "4.5-6.0"
-        tuyet: "6.0-8.0"
-      crit_chance: # Tỷ lệ chí mạng (%)
-        display: "&e Tỷ lệ chí mạng: &f+%value%%"
-        thuong: "1-3" # Bậc Thượng trở lên mới có
-        cuc: "3-5"
-        huyen: "5-8"
-        tuyet: "8-12"
-      lifesteal: # Hút máu (%)
-        display: "&c Hút máu: &f+%value%%"
-        cuc: "1-2" # Bậc Cực trở lên mới có
-        huyen: "2-4"
-        tuyet: "4-6"
-
-    # Chỉ số cho GIÁP
-    armor:
-      health: # Máu cộng thêm (2.0 = 1 tim)
-        display: "&c Máu: &f+%value%"
-        ha: "1.0-2.0"
-        trung: "2.0-3.0"
-        thuong: "3.0-4.0"
-        cuc: "4.0-6.0"
-        huyen: "6.0-8.0"
-        tuyet: "8.0-10.0"
-      defense: # Giáp cộng thêm
-        display: "&b Giáp: &f+%value%"
-        trung: "0.5-1.0" # Bậc Trung trở lên mới có
-        thuong: "1.0-1.5"
-        cuc: "1.5-2.0"
-        huyen: "2.0-2.5"
-        tuyet: "2.5-3.5"
-      thorns: # Sát thương phản lại (%)
-        display: "&7 Phản đòn: &f+%value%%"
-        huyen: "5-10" # Bậc Huyền trở lên mới có
-        tuyet: "10-15"
-
-    # Chỉ số cho CÔNG CỤ
-    tool:
-      efficiency: # Hiệu suất (Level Enchant)
-        display: "&d Hiệu suất: &f+%value%"
-        trung: "1-2"
-        thuong: "2-3"
-        cuc: "3-4"
-        huyen: "4-5"
-        tuyet: "5-7"
-      fortune: # Gia tài (Level Enchant)
-        display: "&6 May mắn: &f+%value%"
-        thuong: "1-1"
-        cuc: "1-2"
-        huyen: "2-3"
-        tuyet: "3-4"
-        
-         # ============================================
+# ============================================
 #              HỆ THỐNG LUYỆN ĐAN
 # ============================================
 alchemy:
-  # Cài đặt chung cho việc luyện đan
   settings:
-    # Thời gian (giây) để nước trong vạc sôi sau khi đổ nước và có lửa bên dưới
-    water-boil-time-seconds: 60
-    # Thời gian (giây) để luyện ra Đan Dược Nửa Mùa sau khi thả đủ nguyên liệu
-    cauldron-craft-time-seconds: 30
-    # Thời gian (giây) để nung trong lò từ Nửa Mùa thành Hoàn Chỉnh
-    furnace-smelt-time-seconds: 20
+    water-boil-time-seconds: 10 # Thời gian (giây) để nước trong vạc sôi (để debug)
+    cauldron-craft-time-seconds: 10 # Thời gian (giây) để luyện ra Đan Dược Nửa Mùa
+    furnace-smelt-time-seconds: 5 # Thời gian (giây) để nung trong lò từ Nửa Mùa thành Hoàn Chỉnh
 
-  # ===================== DƯỢC LIỆU =====================
-  # Định nghĩa các loại dược liệu có thể tìm thấy
-  # Tỷ lệ rơi ra khi phá cỏ (ví dụ: 0.01 = 1%)
+  # --- Dược liệu ---
+  # Định nghĩa các loại dược liệu có thể tìm thấy (ID này phải khớp với ID trong mục 'items' ở trên)
   herbs:
     linh_tam_thao:
       display-name: "&aLinh Tâm Thảo"
-      lore:
-        - "&7Dược liệu cơ bản, chứa đựng linh khí đất trời."
-      material: "WHEAT_SEEDS"
-      enchanted: true
       drop-chance-from-grass: 0.05 # 5%
     huyet_tinh_hoa:
       display-name: "&cHuyết Tinh Hoa"
-      lore:
-        - "&7Mọc ở nơi có máu huyết yêu thú, dược tính mạnh mẽ."
-      material: "BEETROOT_SEEDS"
-      enchanted: true
       drop-chance-from-grass: 0.02 # 2%
     bach_ngoc_sam:
       display-name: "&fBách Ngọc Sâm"
-      lore:
-        - "&7Nhân sâm trăm tuổi, ôn hòa và tinh khiết."
-      material: "POTATO"
-      enchanted: true
       drop-chance-from-grass: 0.01 # 1%
-    # ... Thêm 12 loại dược liệu khác ở đây với cấu trúc tương tự ...
+    tu_van_hoa: {display-name: "&dTử Vân Hoa", drop-chance-from-grass: 0.008}
+    dia_long_thao: {display-name: "&6Địa Long Thảo", drop-chance-from-grass: 0.007}
+    bang_hon_qua: {display-name: "&bBăng Hồn Quả", drop-chance-from-grass: 0.005}
+    huyen_vuong_chi: {display-name: "&8Huyền Vương Chi", drop-chance-from-grass: 0.003}
+    ngan_la_co: {display-name: "&7Ngân Diệp Thảo", drop-chance-from-grass: 0.01}
+    tinh_van_lo: {display-name: "&eTinh Vẫn Lộ", drop-chance-from-grass: 0.006}
+    thien_luc_diep: {display-name: "&2Thiên Lục Diệp", drop-chance-from-grass: 0.009}
+    co_ba_la: {display-name: "&dCỏ Ba Lá", drop-chance-from-grass: 0.015}
+    hoa_mat_troi: {display-name: "&6Hướng Dương Thảo", drop-chance-from-grass: 0.004}
+    hoa_hong_gai: {display-name: "&cHoa Hồng Gai", drop-chance-from-grass: 0.007}
+    nam_doc: {display-name: "&5Nấm Độc", drop-chance-from-grass: 0.002}
+    re_cay_co_thu: {display-name: "&6Rễ Cây Cổ Thụ", drop-chance-from-grass: 0.001}
 
-  # ===================== ĐAN DƯỢC =====================
-  # Định nghĩa các loại đan dược có thể luyện ra
+  # --- Đan Dược ---
   # success-chance-bonus: Tỷ lệ thành công CỘNG THÊM vào tỷ lệ gốc khi đột phá
   pills:
     luyen_khi_dan:
@@ -985,41 +958,45 @@ alchemy:
         lore:
           - "&7Đan dược hỗ trợ đột phá Luyện Khí."
           - "&fTăng &a%bonus%%&f tỷ lệ thành công."
-        success-chance-bonus: 5 # +5%
+        success-chance-bonus: 5
       nhi_pham:
         display-name: "&aLuyện Khí Đan [Nhị Phẩm]"
         lore:
-          - "&7Đan dược hỗ trợ đột phá Luyện Khí."
           - "&fTăng &a%bonus%%&f tỷ lệ thành công."
-        success-chance-bonus: 10 # +10%
+        success-chance-bonus: 10
       nhat_pham:
         display-name: "&bLuyện Khí Đan [Nhất Phẩm]"
         lore:
-          - "&7Đan dược hỗ trợ đột phá Luyện Khí."
           - "&fTăng &a%bonus%%&f tỷ lệ thành công."
-        success-chance-bonus: 15 # +15%
+        success-chance-bonus: 15
     truc_co_dan:
       tam_pham:
         display-name: "&7Trúc Cơ Đan [Tam Phẩm]"
         lore:
           - "&7Đan dược hỗ trợ đột phá Trúc Cơ."
           - "&fTăng &a%bonus%%&f tỷ lệ thành công."
-        success-chance-bonus: 8 # +8%
-      # ... các phẩm chất khác ...
-    # ... Các loại đan khác cho Kết Đan,  Nguyên Anh, v.v...
+        success-chance-bonus: 8
+      nhi_pham:
+        display-name: "&aTrúc Cơ Đan [Nhị Phẩm]"
+        lore:
+          - "&fTăng &a%bonus%%&f tỷ lệ thành công."
+        success-chance-bonus: 16
+      nhat_pham:
+        display-name: "&bTrúc Cơ Đan [Nhất Phẩm]"
+        lore:
+          - "&fTăng &a%bonus%%&f tỷ lệ thành công."
+        success-chance-bonus: 24
+    # ... các loại đan khác ...
 
-  # ===================== CÔNG THỨC LUYỆN ĐAN =====================
-  # Định nghĩa công thức cho từng loại đan dược
-  # Key ở đây phải khớp với key trong mục 'pills'
+  # --- Công Thức Luyện Đan ---
+  # Công thức cho từng loại đan dược. Key phải khớp với key trong mục 'pills'
   recipes:
     luyen_khi_dan:
-      # Tỷ lệ ra các phẩm chất khi luyện (tổng phải là 100)
-      tier-chance:
+      tier-chance: # Tỷ lệ ra các phẩm chất khi luyện (tổng phải là 100)
         tam_pham: 60
         nhi_pham: 30
         nhat_pham: 10
-      # Nguyên liệu cần thiết: id_dược_liệu: số_lượng
-      ingredients:
+      ingredients: # Nguyên liệu cần thiết: id_dược_liệu: số_lượng
         linh_tam_thao: 5
         huyet_tinh_hoa: 2
     truc_co_dan:
@@ -1031,4 +1008,3 @@ alchemy:
         linh_tam_thao: 10
         huyet_tinh_hoa: 5
         bach_ngoc_sam: 1
-    # ... Các công thức khác ...
