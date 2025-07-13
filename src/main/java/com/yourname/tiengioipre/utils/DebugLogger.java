@@ -1,6 +1,6 @@
-package com.yourname.tiengioipre.utils;
+package com.myname.tiengioipre.utils;
 
-import com.yourname.tiengioipre.TienGioiPre;
+import com.myname.tiengioipre.TienGioiPre;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class DebugLogger {

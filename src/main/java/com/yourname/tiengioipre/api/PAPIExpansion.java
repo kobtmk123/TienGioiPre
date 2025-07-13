@@ -1,8 +1,8 @@
-package com.yourname.tiengioipre.api;
+package com.myname.tiengioipre.api;
 
-import com.yourname.tiengioipre.TienGioiPre;
-import com.yourname.tiengioipre.core.RealmManager;
-import com.yourname.tiengioipre.data.PlayerData;
+import com.myname.tiengioipre.TienGioiPre;
+import com.myname.tiengioipre.core.RealmManager;
+import com.myname.tiengioipre.data.PlayerData;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.OfflinePlayer;
 import org.jetbrains.annotations.NotNull;

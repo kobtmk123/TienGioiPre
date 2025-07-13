@@ -1,8 +1,8 @@
-package com.yourname.tiengioipre.commands;
+package com.myname.tiengioipre.commands;
 
-import com.yourname.tiengioipre.TienGioiPre;
-import com.yourname.tiengioipre.core.ItemManager;
-import com.yourname.tiengioipre.core.RealmManager;
+import com.myname.tiengioipre.TienGioiPre;
+import com.myname.tiengioipre.core.ItemManager;
+import com.myname.tiengioipre.core.RealmManager;
 import com.yourname.tiengioipre.data.PlayerData;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;

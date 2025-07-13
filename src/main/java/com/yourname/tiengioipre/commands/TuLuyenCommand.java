@@ -1,6 +1,6 @@
-package com.yourname.tiengioipre.commands;
+package com.myname.tiengioipre.commands;
 
-import com.yourname.tiengioipre.TienGioiPre;
+import com.myname.tiengioipre.TienGioiPre;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;

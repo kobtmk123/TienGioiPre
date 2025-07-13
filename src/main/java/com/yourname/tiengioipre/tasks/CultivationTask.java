@@ -1,10 +1,10 @@
-package com.yourname.tiengioipre.tasks;
+package com.myname.tiengioipre.tasks;
 
-import com.yourname.tiengioipre.TienGioiPre;
-import com.yourname.tiengioipre.core.CultivationManager;
-import com.yourname.tiengioipre.core.PlayerDataManager;
-import com.yourname.tiengioipre.core.RealmManager;
-import com.yourname.tiengioipre.data.PlayerData;
+import com.myname.tiengioipre.TienGioiPre;
+import com.myname.tiengioipre.core.CultivationManager;
+import com.myname.tiengioipre.core.PlayerDataManager;
+import com.myname.tiengioipre.core.RealmManager;
+import com.myname.tiengioipre.data.PlayerData;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 

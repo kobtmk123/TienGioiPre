@@ -1,6 +1,6 @@
-package com.yourname.tiengioipre.core;
+package com.myname.tiengioipre.core;
 
-import com.yourname.tiengioipre.TienGioiPre;
+import com.myname.tiengioipre.TienGioiPre;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;

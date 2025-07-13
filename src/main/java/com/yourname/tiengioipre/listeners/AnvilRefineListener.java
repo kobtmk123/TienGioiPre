@@ -1,7 +1,7 @@
-package com.yourname.tiengioipre.listeners;
+package com.myname.tiengioipre.listeners;
 
-import com.yourname.tiengioipre.TienGioiPre;
-import com.yourname.tiengioipre.data.PlayerData;
+import com.myname.tiengioipre.TienGioiPre;
+import com.myname.tiengioipre.data.PlayerData;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;

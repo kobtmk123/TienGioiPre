@@ -1,6 +1,6 @@
-package com.yourname.tiengioipre.listeners;
+package com.myname.tiengioipre.listeners;
 
-import com.yourname.tiengioipre.TienGioiPre;
+import com.myname.tiengioipre.TienGioiPre;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.event.EventHandler;

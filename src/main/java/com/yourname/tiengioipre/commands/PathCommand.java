@@ -1,7 +1,7 @@
-package com.yourname.tiengioipre.commands;
+package com.myname.tiengioipre.commands;
 
-import com.yourname.tiengioipre.TienGioiPre;
-import com.yourname.tiengioipre.data.PlayerData;
+import com.myname.tiengioipre.TienGioiPre;
+import com.myname.tiengioipre.data.PlayerData;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;

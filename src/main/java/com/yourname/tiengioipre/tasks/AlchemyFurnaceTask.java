@@ -1,7 +1,7 @@
-package com.yourname.tiengioipre.tasks;
+package com.myname.tiengioipre.tasks;
 
-import com.yourname.tiengioipre.TienGioiPre;
-import com.yourname.tiengioipre.utils.DebugLogger;
+import com.myname.tiengioipre.TienGioiPre;
+import com.myname.tiengioipre.utils.DebugLogger;
 import net.md_5.bungee.api.ChatColor; // Đã sửa import cho ChatColor (hỗ trợ RGB)
 import org.bukkit.Location;
 import org.bukkit.Material;

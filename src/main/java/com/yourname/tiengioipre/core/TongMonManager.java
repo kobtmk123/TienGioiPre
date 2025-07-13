@@ -1,7 +1,7 @@
-package com.yourname.tiengioipre.core;
+package com.myname.tiengioipre.core;
 
-import com.yourname.tiengioipre.TienGioiPre;
-import com.yourname.tiengioipre.data.PlayerData;
+import com.myname.tiengioipre.TienGioiPre;
+import com.myname.tiengioipre.data.PlayerData;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;

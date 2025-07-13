@@ -1,4 +1,4 @@
-package com.yourname.tiengioipre.data;
+package com.myname.tiengioipre.data;
 
 import java.util.UUID;
 

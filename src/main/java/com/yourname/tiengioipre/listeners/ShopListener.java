@@ -1,8 +1,8 @@
-package com.yourname.tiengioipre.listeners;
+package com.myname.tiengioipre.listeners;
 
-import com.yourname.tiengioipre.TienGioiPre;
-import com.yourname.tiengioipre.core.ItemManager;
-import com.yourname.tiengioipre.gui.ShopGUI;
+import com.myname.tiengioipre.TienGioiPre;
+import com.myname.tiengioipre.core.ItemManager;
+import com.myname.tiengioipre.gui.ShopGUI;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.economy.EconomyResponse;
 import org.bukkit.ChatColor;
