@@ -1,6 +1,6 @@
-package com.myname.tiengioipre.commands;
+package com.yourname.tiengioipre.commands;
 
-import com.myname.tiengioipre.TienGioiPre;
+import com.yourname.tiengioipre.TienGioiPre;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;

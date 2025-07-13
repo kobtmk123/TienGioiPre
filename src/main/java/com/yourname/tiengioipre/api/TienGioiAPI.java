@@ -1,8 +1,8 @@
-package com.myname.tiengioipre.api;
+package com.yourname.tiengioipre.api;
 
-import com.myname.tiengioipre.TienGioiPre;
-import com.myname.tiengioipre.core.RealmManager;
-import com.myname.tiengioipre.data.PlayerData;
+import com.yourname.tiengioipre.TienGioiPre;
+import com.yourname.tiengioipre.core.RealmManager;
+import com.yourname.tiengioipre.data.PlayerData;
 import org.bukkit.entity.Player;
 
 public class TienGioiAPI {

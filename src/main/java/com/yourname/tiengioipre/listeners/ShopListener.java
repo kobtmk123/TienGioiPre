@@ -1,7 +1,7 @@
-package com.myname.tiengioipre.listeners;
+package com.yourname.tiengioipre.listeners;
 
-import com.myname.tiengioipre.TienGioiPre;
-import com.myname.tiengioipre.core.ItemManager;
+import com.yourname.tiengioipre.TienGioiPre;
+import com.yourname.tiengioipre.core.ItemManager;
 import com.myname.tiengioipre.gui.ShopGUI;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.economy.EconomyResponse;

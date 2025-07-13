@@ -1,7 +1,7 @@
-package com.myname.tiengioipre.gui;
+package com.yourname.tiengioipre.gui;
 
-import com.myname.tiengioipre.TienGioiPre;
-import com.myname.tiengioipre.core.ItemManager;
+import com.yourname.tiengioipre.TienGioiPre;
+import com.yourname.tiengioipre.core.ItemManager;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.NamespacedKey;

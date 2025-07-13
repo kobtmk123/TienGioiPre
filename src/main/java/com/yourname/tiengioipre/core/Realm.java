@@ -1,4 +1,4 @@
-package com.myname.tiengioipre.core;
+package com.yourname.tiengioipre.core;
 
 import org.bukkit.potion.PotionEffect;
 import java.util.List;

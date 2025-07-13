@@ -1,14 +1,14 @@
-package com.myname.tiengioipre;
+package com.yourname.tiengioipre;
 
-import com.myname.tiengioipre.api.PAPIExpansion;
-import com.myname.tiengioipre.api.TienGioiAPI;
-import com.myname.tiengioipre.commands.*;
-import com.myname.tiengioipre.core.*;
-import com.myname.tiengioipre.gui.ShopGUI;
-import com.myname.tiengioipre.listeners.*;
-import com.myname.tiengioipre.tasks.AlchemyFurnaceTask;
-import com.myname.tiengioipre.tasks.CultivationTask;
-import com.myname.tiengioipre.utils.DebugLogger;
+import com.yourname.tiengioipre.api.PAPIExpansion;
+import com.yourname.tiengioipre.api.TienGioiAPI;
+import com.yourname.tiengioipre.commands.*;
+import com.yourname.tiengioipre.core.*;
+import com.yourname.tiengioipre.gui.ShopGUI;
+import com.yourname.tiengioipre.listeners.*;
+import com.yourname.tiengioipre.tasks.AlchemyFurnaceTask;
+import com.yourname.tiengioipre.tasks.CultivationTask;
+import com.yourname.tiengioipre.utils.DebugLogger;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.RegisteredServiceProvider;

@@ -1,8 +1,8 @@
-package com.myname.tiengioipre.commands;
+package com.yourname.tiengioipre.commands;
 
-import com.myname.tiengioipre.TienGioiPre;
-import com.myname.tiengioipre.core.TongMonManager;
-import com.myname.tiengioipre.data.PlayerData;
+import com.yourname.tiengioipre.TienGioiPre;
+import com.yourname.tiengioipre.core.TongMonManager;
+import com.yourname.tiengioipre.data.PlayerData;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;

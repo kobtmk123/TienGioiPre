@@ -1,7 +1,7 @@
-package com.myname.tiengioipre.core;
+package com.yourname.tiengioipre.core;
 
-import com.myname.tiengioipre.TienGioiPre;
-import com.myname.tiengioipre.data.PlayerData;
+import com.yourname.tiengioipre.TienGioiPre;
+import com.yourname.tiengioipre.data.PlayerData;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.entity.ArmorStand;
