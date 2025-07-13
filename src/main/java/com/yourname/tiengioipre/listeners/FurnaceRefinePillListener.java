@@ -36,7 +36,7 @@ public class FurnaceRefinePillListener implements Listener {
     public void onPillSmelt(FurnaceSmeltEvent event) {
         ItemStack source = event.getSource();
         if (source == null || !source.hasItemMeta()) {
-            plugin.getLogger().info("[Debug-FurnaceSmelt] Source item is null or has no meta.");
+            plugin.getLogger().info("[Debug-PillSmelt] Source is null or no meta. -> No Action");
             return;
         }
 
@@ -44,41 +44,44 @@ public class FurnaceRefinePillListener implements Listener {
         PersistentDataContainer container = sourceMeta.getPersistentDataContainer();
 
         if (!container.has(semiPillKey, PersistentDataType.STRING)) {
-            plugin.getLogger().info("[Debug-FurnaceSmelt] Source item is NOT a semi-finished pill.");
+            plugin.getLogger().info("[Debug-PillSmelt] Source is NOT a semi-finished pill. -> No Action");
             return;
         }
-        plugin.getLogger().info("[Debug-FurnaceSmelt] Source item IS a semi-finished pill!");
+        plugin.getLogger().info("[Debug-PillSmelt] Detected SEMI-FINISHED PILL in smelt slot!");
 
         String pillData = container.get(semiPillKey, PersistentDataType.STRING);
         String[] parts = pillData.split(":");
         if (parts.length < 2) {
-            plugin.getLogger().warning("[Debug-FurnaceSmelt] Invalid pill data: " + pillData);
+            plugin.getLogger().warning("[Debug-PillSmelt] Invalid pill data format: " + pillData);
             return;
         }
 
         String pillId = parts[0];
         String tierId = parts[1];
-        plugin.getLogger().info("[Debug-FurnaceSmelt] Smelting pill: " + pillId + " Tier: " + tierId);
+        plugin.getLogger().info("[Debug-PillSmelt] Processing pill: ID=" + pillId + ", Tier=" + tierId);
 
         ItemStack finalPill = createFinalPill(pillId, tierId);
         
         if (finalPill != null) {
             event.setResult(finalPill);
-            plugin.getLogger().info("[Debug-FurnaceSmelt] Successfully set result for pill: " + finalPill.getItemMeta().getDisplayName());
+            plugin.getLogger().info("[Debug-PillSmelt] Successfully set final pill result: " + finalPill.getItemMeta().getDisplayName());
         } else {
-            plugin.getLogger().warning("[Debug-FurnaceSmelt] createFinalPill returned null for " + pillId + ":" + tierId);
+            plugin.getLogger().warning("[Debug-PillSmelt] createFinalPill returned null for " + pillId + ":" + tierId);
         }
     }
 
     @EventHandler
     public void onFurnaceBurn(FurnaceBurnEvent event) {
-        if (!(event.getBlock().getState() instanceof Furnace)) return;
+        if (!(event.getBlock().getState() instanceof Furnace)) {
+            plugin.getLogger().info("[Debug-FurnaceBurn] Block is not a furnace. -> No Action");
+            return;
+        }
         
         Furnace furnace = (Furnace) event.getBlock().getState();
-        ItemStack source = furnace.getInventory().getSmelting(); // Vật phẩm trong ô nung
+        ItemStack source = furnace.getInventory().getSmelting();
 
         if (source == null || !source.hasItemMeta()) {
-            plugin.getLogger().info("[Debug-FurnaceBurn] Smelting item is null or has no meta. Not a pill.");
+            plugin.getLogger().info("[Debug-FurnaceBurn] Smelting item is null or has no meta. -> No Action");
             return;
         }
 
@@ -86,15 +89,15 @@ public class FurnaceRefinePillListener implements Listener {
         PersistentDataContainer container = sourceMeta.getPersistentDataContainer();
 
         if (!container.has(semiPillKey, PersistentDataType.STRING)) {
-            plugin.getLogger().info("[Debug-FurnaceBurn] Smelting item is NOT a semi-finished pill. Not changing burn time.");
+            plugin.getLogger().info("[Debug-FurnaceBurn] Smelting item is NOT a semi-finished pill. -> No Action");
             return;
         }
-        plugin.getLogger().info("[Debug-FurnaceBurn] Smelting item IS a semi-finished pill! Setting custom burn time.");
+        plugin.getLogger().info("[Debug-FurnaceBurn] Detected SEMI-FINISHED PILL in furnace! Setting custom burn time.");
 
         int cookTimeInSeconds = plugin.getConfig().getInt("alchemy.settings.furnace-smelt-time-seconds", 20);
         event.setBurnTime(cookTimeInSeconds * 20); // 20 ticks = 1 giây
-        event.setBurning(true); // Đảm bảo lò cháy
-        plugin.getLogger().info("[Debug-FurnaceBurn] Custom burn time set to " + cookTimeInSeconds + " seconds.");
+        event.setBurning(true);
+        plugin.getLogger().info("[Debug-FurnaceBurn] Custom burn time set to " + cookTimeInSeconds + " seconds for " + source.getItemMeta().getDisplayName());
     }
 
     private ItemStack createFinalPill(String pillId, String tierId) {
