@@ -5,6 +5,7 @@ import com.yourname.tiengioipre.utils.DebugLogger; // <-- IMPORT MỚI
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
+import org.bukkit.block.Block; // <-- IMPORT ĐÃ ĐƯỢC THÊM
 import org.bukkit.block.Furnace;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.enchantments.Enchantment;
@@ -18,11 +19,13 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
-import org.bukkit.scheduler.BukkitRunnable; // <-- IMPORT BukkitRunnable
 
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Xử lý logic nung "Đan Dược Nửa Mùa" trong lò để tạo ra Đan Dược hoàn chỉnh.
+ */
 public class FurnaceRefinePillListener implements Listener {
 
     private final TienGioiPre plugin;
@@ -31,13 +34,19 @@ public class FurnaceRefinePillListener implements Listener {
 
     public FurnaceRefinePillListener(TienGioiPre plugin) {
         this.plugin = plugin;
+        // Key để nhận biết Đan Dược Nửa Mùa
         this.semiPillKey = new NamespacedKey(plugin, "semi_finished_pill");
+        // Key để lưu trữ bonus tỷ lệ vào Đan Dược hoàn chỉnh
         this.pillBonusKey = new NamespacedKey(plugin, "tiengioi_pill_bonus");
     }
 
+    /**
+     * Sự kiện này được kích hoạt ngay trước khi một vật phẩm được nung xong.
+     * Chúng ta sẽ can thiệp vào đây để thay đổi kết quả nung.
+     */
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onPillSmelt(FurnaceSmeltEvent event) {
-        ItemStack source = event.getSource();
+        ItemStack source = event.getSource(); // Vật phẩm đang được nung
         if (source == null || !source.hasItemMeta()) {
             DebugLogger.log("FurnaceRefine", "onPillSmelt: Source item is null or has no meta. -> No Action");
             return;
@@ -75,6 +84,10 @@ public class FurnaceRefinePillListener implements Listener {
         }
     }
 
+    /**
+     * Sự kiện này kích hoạt khi lò bắt đầu cháy (đốt nhiên liệu).
+     * Chúng ta dùng nó để đặt thời gian nung tùy chỉnh.
+     */
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onFurnaceBurn(FurnaceBurnEvent event) {
         Block block = event.getBlock();
@@ -114,6 +127,12 @@ public class FurnaceRefinePillListener implements Listener {
         DebugLogger.log("FurnaceRefine", "onFurnaceBurn: Custom burn time set to " + cookTimeInSeconds + " seconds for " + source.getItemMeta().getDisplayName());
     }
 
+    /**
+     * Tạo ra một ItemStack Đan Dược hoàn chỉnh dựa trên ID và phẩm chất.
+     * @param pillId ID của loại đan, ví dụ: "luyen_khi_dan"
+     * @param tierId ID của phẩm chất, ví dụ: "nhat_pham"
+     * @return ItemStack Đan Dược hoàn chỉnh, hoặc null nếu có lỗi.
+     */
     private ItemStack createFinalPill(String pillId, String tierId) {
         ConfigurationSection pillConfig = plugin.getConfig().getConfigurationSection("alchemy.pills." + pillId + "." + tierId);
         if (pillConfig == null) {
@@ -121,7 +140,7 @@ public class FurnaceRefinePillListener implements Listener {
             return null;
         }
 
-        ItemStack pill = new ItemStack(Material.MAGMA_CREAM);
+        ItemStack pill = new ItemStack(Material.MAGMA_CREAM); // Ngoại hình là Kem Dung Nham
         ItemMeta meta = pill.getItemMeta();
         if (meta == null) return null;
 

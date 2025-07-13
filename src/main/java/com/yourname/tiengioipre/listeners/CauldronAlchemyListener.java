@@ -12,6 +12,7 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.Levelled;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.entity.Item; // <-- IMPORT ĐÃ ĐƯỢC THÊM
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -27,41 +28,27 @@ import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
-/**
- * Xử lý tất cả các sự kiện liên quan đến luyện đan trong vạc.
- * Bao gồm đun nước, thêm dược liệu, và kích hoạt quá trình luyện đan.
- */
 public class CauldronAlchemyListener implements Listener {
 
     private final TienGioiPre plugin;
     
-    // Class nhỏ để lưu trữ dữ liệu của vạc đang luyện đan
     private static class CauldronSession {
         Map<String, Integer> ingredients = new HashMap<>();
         BukkitTask craftTask;
-        // Chúng ta không cần lưu playerUUID và startTime ở đây vì nó chỉ cần cho debug/tracking
-        // và Player object sẽ được truyền lại qua các hàm.
     }
     
-    // Map quản lý trạng thái của các vạc
-    private final Map<Location, BukkitRunnable> boilingCauldrons = new HashMap<>(); // Vạc đang đun nước
-    private final Set<Location> readyCauldrons = new HashSet<>();                  // Vạc đã sôi, sẵn sàng nhận nguyên liệu
-    private final Map<Location, CauldronSession> craftingCauldrons = new HashMap<>(); // Vạc đang trong quá trình luyện đan
+    private final Map<Location, BukkitRunnable> boilingCauldrons = new HashMap<>();
+    private final Set<Location> readyCauldrons = new HashSet<>();
+    private final Map<Location, CauldronSession> craftingCauldrons = new HashMap<>();
     private final Random random = new Random();
 
     public CauldronAlchemyListener(TienGioiPre plugin) {
         this.plugin = plugin;
     }
 
-    /**
-     * Xử lý sự kiện tương tác của người chơi với vạc.
-     * Bao gồm đổ nước vào vạc và thêm dược liệu vào vạc đã sôi.
-     */
     @EventHandler
     public void onCauldronInteract(PlayerInteractEvent event) {
-        // Chỉ xử lý khi người chơi chuột phải vào block bằng tay chính
         if (event.getHand() != EquipmentSlot.HAND || event.getAction() != Action.RIGHT_CLICK_BLOCK) return;
 
         Block clickedBlock = event.getClickedBlock();
@@ -71,10 +58,10 @@ public class CauldronAlchemyListener implements Listener {
         ItemStack itemInHand = player.getInventory().getItemInMainHand();
         Location cauldronLoc = clickedBlock.getLocation();
 
-        // 1. Xử lý khi đổ nước vào vạc rỗng để đun
+        // 1. Xử lý khi đổ nước vào vạc rỗng
         if (clickedBlock.getType() == Material.CAULDRON && itemInHand.getType() == Material.WATER_BUCKET) {
             DebugLogger.log("CauldronAlchemy", "Player " + player.getName() + " right-clicked empty cauldron with water bucket at " + cauldronLoc.toVector());
-            // Chờ 1 tick để server cập nhật block thành WATER_CAULDRON sau khi đổ nước
+            // Chờ 1 tick để server cập nhật block thành WATER_CAULDRON
             plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
                 if (clickedBlock.getType() == Material.WATER_CAULDRON) { // Đảm bảo đã có nước
                     checkAndBoil(player, cauldronLoc);
@@ -91,9 +78,6 @@ public class CauldronAlchemyListener implements Listener {
         }
     }
 
-    /**
-     * Xử lý việc thêm dược liệu vào vạc đã sôi.
-     */
     private void handleIngredientAdd(Player player, ItemStack ingredient, Location cauldronLoc, PlayerInteractEvent event) {
         PlayerData playerData = plugin.getPlayerDataManager().getPlayerData(player);
         if (playerData == null || !"luyendansu".equals(playerData.getCultivationPath())) {
@@ -113,7 +97,7 @@ public class CauldronAlchemyListener implements Listener {
         }
         
         String herbId = meta.getPersistentDataContainer().get(plugin.getItemManager().ITEM_ID_KEY, PersistentDataType.STRING);
-        // Kiểm tra xem item có phải là dược liệu không (tức là có tồn tại trong mục 'items' và 'alchemy.herbs' trong config)
+        // Kiểm tra xem item có phải là dược liệu không (tức là có tồn tại trong items và alchemy.herbs)
         if (!plugin.getConfig().contains("items." + herbId) || !plugin.getConfig().contains("alchemy.herbs." + herbId)) {
             DebugLogger.log("CauldronAlchemy", "Item ID '" + herbId + "' is not a defined herb in config.");
             return;
@@ -182,6 +166,7 @@ public class CauldronAlchemyListener implements Listener {
             boilingCauldrons.put(loc, boilTask); // Lưu task lại
         } else {
             player.sendMessage(format("&cCần có lửa hoặc khối magma bên dưới vạc để đun nước."));
+            DebugLogger.log("CauldronAlchemy", "No valid heat source below cauldron at " + loc.toVector());
         }
     }
     
@@ -269,7 +254,6 @@ public class CauldronAlchemyListener implements Listener {
                     }
                 }
             }.runTaskLater(plugin, craftTime * 20L); // Chạy task sau một khoảng thời gian
-            // Không return ở đây để các log sau vẫn có thể chạy
         } else {
             DebugLogger.log("CauldronAlchemy", "No matching recipe found for ingredients in cauldron at " + cauldronLoc.toVector() + ". Current ingredients: " + session.ingredients);
         }
@@ -279,16 +263,21 @@ public class CauldronAlchemyListener implements Listener {
      * So sánh các nguyên liệu được cung cấp với nguyên liệu yêu cầu của công thức.
      */
     private boolean ingredientsMatch(Map<String, Integer> provided, Map<String, Object> required) {
-        if (provided.size() != required.size()) return false; // Số loại nguyên liệu phải khớp
+        if (provided.size() != required.size()) {
+            DebugLogger.log("CauldronAlchemy", "Ingredients mismatch: Provided size " + provided.size() + ", Required size " + required.size());
+            return false;
+        }
         for (Map.Entry<String, Object> entry : required.entrySet()) {
             String requiredHerbId = entry.getKey();
             int requiredAmount = (Integer) entry.getValue(); // Giá trị từ config là Integer
             
             if (!provided.containsKey(requiredHerbId) || provided.get(requiredHerbId) < requiredAmount) {
-                return false; // Thiếu loại nguyên liệu hoặc không đủ số lượng
+                DebugLogger.log("CauldronAlchemy", "Ingredients mismatch: Missing " + requiredHerbId + " or not enough. Provided: " + provided.getOrDefault(requiredHerbId, 0) + ", Required: " + requiredAmount);
+                return false;
             }
         }
-        return true; // Tất cả nguyên liệu khớp
+        DebugLogger.log("CauldronAlchemy", "Ingredients match! Provided: " + provided + ", Required: " + required);
+        return true;
     }
     
     /**
@@ -309,19 +298,27 @@ public class CauldronAlchemyListener implements Listener {
      */
     private String getRandomPillTier(String recipeId) {
         ConfigurationSection chanceSection = plugin.getConfig().getConfigurationSection("alchemy.recipes." + recipeId + ".tier-chance");
-        if (chanceSection == null) return "tam_pham"; // Mặc định là tam_pham nếu không có cấu hình
+        if (chanceSection == null) {
+            DebugLogger.warn("CauldronAlchemy", "No tier-chance section for recipe " + recipeId + ". Defaulting to 'tam_pham'.");
+            return "tam_pham";
+        }
 
         int totalWeight = chanceSection.getKeys(false).stream().mapToInt(chanceSection::getInt).sum();
-        if (totalWeight <= 0) return "tam_pham";
+        if (totalWeight <= 0) {
+            DebugLogger.warn("CauldronAlchemy", "Total weight for recipe " + recipeId + " is 0. Defaulting to 'tam_pham'.");
+            return "tam_pham";
+        }
 
         int randomNum = random.nextInt(totalWeight);
         int currentWeight = 0;
         for (String key : chanceSection.getKeys(false)) {
             currentWeight += chanceSection.getInt(key);
             if (randomNum < currentWeight) {
+                DebugLogger.log("CauldronAlchemy", "Random pill tier for recipe " + recipeId + ": " + key);
                 return key;
             }
         }
+        DebugLogger.warn("CauldronAlchemy", "Failed to randomly select pill tier. Defaulting to 'tam_pham'.");
         return "tam_pham"; // Dự phòng
     }
 
