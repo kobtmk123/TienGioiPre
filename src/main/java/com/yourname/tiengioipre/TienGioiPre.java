@@ -29,9 +29,13 @@ public final class TienGioiPre extends JavaPlugin {
     private ShopGUI shopGUI;
     private TongMonManager tongMonManager;
     
-    // Các Task chính của plugin
-    private BukkitTask cultivationMainTask; // Task cho tu luyện
-    private BukkitTask alchemyFurnaceMainTask; // Task cho lò nung luyện đan
+    // Task Runnables (đối tượng chứa logic của task)
+    private CultivationTask cultivationTaskInstance; 
+    private AlchemyFurnaceTask alchemyFurnaceTaskInstance; 
+
+    // Task Bukkit (đối tượng mà scheduler trả về để quản lý task)
+    private BukkitTask cultivationBukkitTask; 
+    private BukkitTask alchemyFurnaceBukkitTask; 
 
     @Override
     public void onEnable() {
@@ -43,10 +47,9 @@ public final class TienGioiPre extends JavaPlugin {
         saveDefaultConfig();
 
         // Cài đặt Debug Mode từ config
-        DebugLogger.setDebugMode(getConfig().getBoolean("settings.debug-mode", true)); // Đọc từ config
+        DebugLogger.setDebugMode(getConfig().getBoolean("settings.debug-mode", true));
 
-        // Khởi tạo tất cả các trình quản lý THEO ĐÚNG THỨ TỰ
-        // Các manager không phụ thuộc vào nhau có thể đặt trước
+        // Khởi tạo tất cả các trình quản lý THEO ĐÚNG THỨ TỰ (nếu có phụ thuộc)
         this.itemManager = new ItemManager(this);
         this.shopGUI = new ShopGUI(this);
         this.tongMonManager = new TongMonManager(this);
@@ -62,29 +65,30 @@ public final class TienGioiPre extends JavaPlugin {
         setupIntegrations();
         
         // === KHỞI ĐỘNG CÁC TASK CHÍNH ===
-        this.cultivationMainTask = new CultivationTask(this).runTaskTimer(this, 0L, 20L); // Task Tu Luyện mỗi giây
+        // Cultivation Task (Tu luyện)
+        this.cultivationTaskInstance = new CultivationTask(this); // Khởi tạo đối tượng Runnable
+        this.cultivationBukkitTask = this.cultivationTaskInstance.runTaskTimer(this, 0L, 20L); // Chạy và gán vào BukkitTask
         getLogger().info("Da khoi dong Task Tu Luyen chinh.");
 
-        // Khởi tạo và chạy AlchemyFurnaceTask
-        // Task này sẽ chạy mỗi 1 giây (20 ticks) để kiểm tra các lò nung
-        this.alchemyFurnaceMainTask = new AlchemyFurnaceTask(this).runTaskTimer(this, 20L, 20L); 
+        // Alchemy Furnace Task (Lò nung luyện đan)
+        this.alchemyFurnaceTaskInstance = new AlchemyFurnaceTask(this); // Khởi tạo đối tượng Runnable
+        this.alchemyFurnaceBukkitTask = this.alchemyFurnaceTaskInstance.runTaskTimer(this, 20L, 20L); // Chạy và gán vào BukkitTask
         getLogger().info("Da khoi dong Task Luyen Dan trong lo.");
 
         getLogger().info("Plugin TienGioiPre da duoc bat thanh cong!");
-        getLogger().info("------------------------------------");
     }
 
     @Override
     public void onDisable() {
         // Hủy các task khi plugin tắt để tránh lỗi và memory leak
-        if (this.cultivationMainTask != null && !this.cultivationMainTask.isCancelled()) {
-            this.cultivationMainTask.cancel();
+        if (this.cultivationBukkitTask != null && !this.cultivationBukkitTask.isCancelled()) {
+            this.cultivationBukkitTask.cancel();
         }
-        if (this.alchemyFurnaceMainTask != null && !this.alchemyFurnaceMainTask.isCancelled()) {
-            this.alchemyFurnaceMainTask.cancel();
+        if (this.alchemyFurnaceBukkitTask != null && !this.alchemyFurnaceBukkitTask.isCancelled()) {
+            this.alchemyFurnaceBukkitTask.cancel();
         }
         
-        // Lưu dữ liệu tông môn
+        // Lưu dữ liệu tông môn (phải lưu trước PlayerData)
         if (tongMonManager != null) {
             tongMonManager.saveTongMonData();
         }
@@ -100,7 +104,7 @@ public final class TienGioiPre extends JavaPlugin {
      * Đăng ký tất cả các lệnh của plugin.
      */
     private void registerCommands() {
-        // Lệnh quản trị
+        // Lệnh quản trị chính
         MainCommand mainCommand = new MainCommand(this);
         getCommand("tiengioi").setExecutor(mainCommand);
         getCommand("tiengioi").setTabCompleter(mainCommand);
@@ -150,7 +154,7 @@ public final class TienGioiPre extends JavaPlugin {
      * Thiết lập và kết nối với các plugin phụ thuộc.
      */
     private void setupIntegrations() {
-        // Vault
+        // Vault (Hệ thống kinh tế)
         if (getServer().getPluginManager().getPlugin("Vault") != null) {
             RegisteredServiceProvider<Economy> rsp = getServer().getServicesManager().getRegistration(Economy.class);
             if (rsp != null) {
@@ -170,7 +174,7 @@ public final class TienGioiPre extends JavaPlugin {
         }
     }
 
-    // --- CÁC GETTER ĐỂ TRUY CẬP TỪ CÁC CLASS KHÁC ---
+    // --- CÁC GETTER ĐỂ CÁC CLASS KHÁC CÓ THỂ TRUY CẬP CÁC MANAGER VÀ TASK ---
 
     public static TienGioiPre getInstance() {
         return instance;
@@ -204,11 +208,13 @@ public final class TienGioiPre extends JavaPlugin {
         return this.tongMonManager;
     }
 
-    // Getter cho instance của AlchemyFurnaceTask
+    /**
+     * Lấy instance của AlchemyFurnaceTask Runnable để truy cập các phương thức của nó.
+     * @return Đối tượng AlchemyFurnaceTask đang chạy.
+     */
     public AlchemyFurnaceTask getAlchemyFurnaceTask() {
-        // Trả về instance đã được khởi tạo trong onEnable
-        // Đảm bảo instance này không null bằng cách khởi tạo sớm
-        return this.alchemyFurnaceMainTask != null ? (AlchemyFurnaceTask) this.alchemyFurnaceMainTask : null;
+        // Trả về instance Runnable đã được khởi tạo trong onEnable
+        return this.alchemyFurnaceTaskInstance;
     }
 
     /**

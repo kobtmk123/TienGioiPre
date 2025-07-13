@@ -1,8 +1,8 @@
-package com.yourname.tiengioipre.tasks;
+package com.myname.tiengioipre.tasks; // <-- Đảm bảo package này đúng
 
-import com.yourname.tiengioipre.TienGioiPre;
-import com.yourname.tiengioipre.utils.DebugLogger;
-import net.md_5.bungee.api.ChatColor; // Đã sửa import cho ChatColor (hỗ trợ RGB)
+import com.myname.tiengioipre.TienGioiPre;
+import com.myname.tiengioipre.utils.DebugLogger;
+import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -18,7 +18,7 @@ import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.ArrayList;
-import java.util.HashMap; // Đã thêm import HashMap
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -103,7 +103,6 @@ public class AlchemyFurnaceTask extends BukkitRunnable {
 
             // Để đảm bảo lò có vẻ "cháy", chúng ta tăng burnTime.
             // Nếu lò không có nhiên liệu, nó sẽ không cháy thật sự, nhưng cookTime vẫn tăng.
-            // Mục tiêu là Đan dược ra, không phải lò cháy đẹp.
             furnace.setBurnTime((short) (furnace.getBurnTime() + 20)); // Tăng burn time (để lò có lửa)
             furnace.update(true); // Cập nhật trạng thái lò ngay lập tức
 
@@ -155,14 +154,13 @@ public class AlchemyFurnaceTask extends BukkitRunnable {
         ItemMeta meta = pill.getItemMeta();
         if (meta == null) return null;
 
-        // Sử dụng hàm format từ TongMonManager để đảm bảo hỗ trợ màu RGB
-        String displayName = plugin.getTongMonManager().format(pillConfig.getString("display-name", "Đan Dược"));
+        String displayName = format(pillConfig.getString("display-name", "Đan Dược"));
         meta.setDisplayName(displayName);
 
         int bonus = pillConfig.getInt("success-chance-bonus", 0);
         List<String> lore = new ArrayList<>();
         for (String line : pillConfig.getStringList("lore")) {
-            lore.add(plugin.getTongMonManager().format(line.replace("%bonus%", String.valueOf(bonus))));
+            lore.add(format(line.replace("%bonus%", String.valueOf(bonus))));
         }
         meta.setLore(lore);
 
