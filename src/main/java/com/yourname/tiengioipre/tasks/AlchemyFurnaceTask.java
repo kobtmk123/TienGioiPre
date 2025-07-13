@@ -1,7 +1,7 @@
-package com.myname.tiengioipre.tasks; // <-- Đảm bảo package này đúng
+package com.yourname.tiengioipre.tasks; // <-- Đảm bảo package này đúng
 
-import com.myname.tiengioipre.TienGioiPre;
-import com.myname.tiengioipre.utils.DebugLogger;
+import com.yourname.tiengioipre.TienGioiPre;
+import com.yourname.tiengioipre.utils.DebugLogger;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
