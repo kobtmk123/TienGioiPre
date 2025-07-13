@@ -19,6 +19,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
@@ -160,6 +161,7 @@ public class CauldronAlchemyListener implements Listener {
             session.craftTask = new BukkitRunnable() {
                 @Override
                 public void run() {
+                    plugin.getLogger().info("[Debug-CauldronAlchemy] Crafting task for " + player.getName() + " completed for cauldron at " + cauldronLoc.toVector());
                     craftingCauldrons.remove(cauldronLoc);
                     readyCauldrons.remove(cauldronLoc);
                     
@@ -175,8 +177,17 @@ public class CauldronAlchemyListener implements Listener {
                         cauldronLoc.getWorld().dropItem(cauldronLoc.clone().add(0.5, 1.2, 0.5), semiPill).setVelocity(new Vector(0, 0.2, 0));
                         player.sendMessage(format("&6&lLuyện đan thành công! &fBạn nhận được một viên đan dược cần được tinh luyện."));
                         cauldronLoc.getWorld().playSound(cauldronLoc, Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 1.5f);
+                        plugin.getLogger().info("[Debug-CauldronAlchemy] Dropped semi-finished pill: " + semiPill.getItemMeta().getDisplayName());
+                        // Kiểm tra NBT của semiPill sau khi tạo
+                        if (semiPill.hasItemMeta() && semiPill.getItemMeta().getPersistentDataContainer().has(new NamespacedKey(plugin, "semi_finished_pill"), PersistentDataType.STRING)) {
+                            plugin.getLogger().info("[Debug-CauldronAlchemy] Semi-finished pill HAS NBT tag: " + semiPill.getItemMeta().getPersistentDataContainer().get(new NamespacedKey(plugin, "semi_finished_pill"), PersistentDataType.STRING));
+                        } else {
+                            plugin.getLogger().warning("[Debug-CauldronAlchemy] ERROR: Semi-finished pill DOES NOT HAVE NBT tag!");
+                        }
+
                     } else {
                         player.sendMessage(format("&cLỗi khi tạo đan dược, vui lòng báo admin."));
+                        plugin.getLogger().warning("[Debug-CauldronAlchemy] createSemiFinishedPill returned null for " + finalRecipeId + ":" + tierId);
                     }
                 }
             }.runTaskLater(plugin, craftTime * 20L);
