@@ -2,8 +2,8 @@ package com.yourname.tiengioipre.tasks;
 
 import com.yourname.tiengioipre.TienGioiPre;
 import com.yourname.tiengioipre.utils.DebugLogger;
-// Sửa import ChatColor từ Bukkit sang BungeeAPI để hỗ trợ RGB
-import net.md_5.bungee.api.ChatColor; // <-- SỬA IMPORT
+import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.block.BlockState;
@@ -17,9 +17,7 @@ import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -28,6 +26,11 @@ public class AlchemyFurnaceTask extends BukkitRunnable {
     private final TienGioiPre plugin;
     private final NamespacedKey semiPillKey;
     private final NamespacedKey pillBonusKey;
+    
+    // Map mới để theo dõi tiến độ của từng viên đan dược trong lò
+    // Key: Location của lò nung
+    // Value: Current progress (ticks)
+    private final Map<Location, Short> furnaceProgress = new HashMap<>();
 
     public AlchemyFurnaceTask(TienGioiPre plugin) {
         this.plugin = plugin;
@@ -37,52 +40,69 @@ public class AlchemyFurnaceTask extends BukkitRunnable {
 
     @Override
     public void run() {
-        for (org.bukkit.World world : plugin.getServer().getWorlds()) {
-            for (org.bukkit.Chunk chunk : world.getLoadedChunks()) {
-                for (BlockState blockState : chunk.getTileEntities()) {
-                    if (blockState instanceof Furnace) {
-                        Furnace furnace = (Furnace) blockState;
-                        ItemStack smeltingItem = furnace.getInventory().getSmelting();
+        // Duyệt qua tất cả các lò nung đang được theo dõi
+        // Sử dụng một bản sao của KeySet để tránh ConcurrentModificationException
+        for (Location furnaceLoc : new ArrayList<>(furnaceProgress.keySet())) {
+            BlockState blockState = furnaceLoc.getBlock().getState();
 
-                        if (smeltingItem == null || !smeltingItem.hasItemMeta()) continue;
-
-                        PersistentDataContainer container = smeltingItem.getItemMeta().getPersistentDataContainer();
-
-                        if (container.has(semiPillKey, PersistentDataType.STRING)) {
-                            DebugLogger.log("AlchemyFurnaceTask", "Detected semi-pill in furnace at " + furnace.getLocation().toVector());
-
-                            int cookTimeInSeconds = plugin.getConfig().getInt("alchemy.settings.furnace-smelt-time-seconds", 5);
-                            short targetCookTime = (short)(cookTimeInSeconds * 20);
-
-                            if (furnace.getCookTime() < targetCookTime) {
-                                DebugLogger.log("AlchemyFurnaceTask", "Forcing furnace cook: " + furnace.getCookTime() + "/" + targetCookTime);
-                                furnace.setCookTime((short) (furnace.getCookTime() + 1));
-                                furnace.setBurnTime((short) (furnace.getBurnTime() + 1));
-                                furnace.update(true);
-                            } else {
-                                DebugLogger.log("AlchemyFurnaceTask", "Semi-pill cooked! Creating final pill.");
-                                String pillData = container.get(semiPillKey, PersistentDataType.STRING);
-                                String[] parts = pillData.split(":");
-                                String pillId = parts[0];
-                                String tierId = parts[1];
-
-                                ItemStack finalPill = createFinalPill(pillId, tierId);
-
-                                if (finalPill != null) {
-                                    furnace.getInventory().setSmelting(null);
-                                    furnace.getInventory().setResult(finalPill);
-                                    furnace.setCookTime((short) 0);
-                                    furnace.setBurnTime((short) 0);
-                                    furnace.update(true);
-                                    DebugLogger.log("AlchemyFurnaceTask", "Final pill created: " + finalPill.getItemMeta().getDisplayName());
-                                } else {
-                                    DebugLogger.warn("AlchemyFurnaceTask", "Failed to create final pill for " + pillId + ":" + tierId);
-                                }
-                            }
-                        }
-                    }
-                }
+            // Nếu block không còn là lò nung hoặc chunk đã bị unload, xóa khỏi map
+            if (!(blockState instanceof Furnace) || !furnaceLoc.getChunk().isLoaded()) {
+                furnaceProgress.remove(furnaceLoc);
+                DebugLogger.log("AlchemyFurnaceTask", "Removed unloaded/invalid furnace from tracking: " + furnaceLoc.toVector());
+                continue;
             }
+
+            Furnace furnace = (Furnace) blockState;
+            ItemStack smeltingItem = furnace.getInventory().getSmelting();
+
+            // Nếu item trong lò không còn là đan dược nửa mùa, xóa khỏi tracking
+            if (smeltingItem == null || !smeltingItem.hasItemMeta() || !smeltingItem.getItemMeta().getPersistentDataContainer().has(semiPillKey, PersistentDataType.STRING)) {
+                furnaceProgress.remove(furnaceLoc);
+                DebugLogger.log("AlchemyFurnaceTask", "Removed cooked/removed item from tracking: " + furnaceLoc.toVector());
+                continue;
+            }
+
+            // Lấy thời gian nấu cần thiết từ config
+            int cookTimeInSeconds = plugin.getConfig().getInt("alchemy.settings.furnace-smelt-time-seconds", 5);
+            short targetCookTime = (short)(cookTimeInSeconds * 20); // Chuyển giây sang ticks
+
+            // Lấy tiến độ hiện tại
+            short currentCookTime = furnaceProgress.getOrDefault(furnaceLoc, (short)0);
+            currentCookTime += 20; // Tăng 20 ticks mỗi 1 giây (task chạy mỗi 20 ticks)
+
+            furnaceProgress.put(furnaceLoc, currentCookTime); // Cập nhật tiến độ
+
+            // DEBUGGING: In tiến độ
+            DebugLogger.log("AlchemyFurnaceTask", "Cooking " + smeltingItem.getItemMeta().getDisplayName() + " at " + furnaceLoc.toVector() + ". Progress: " + currentCookTime + "/" + targetCookTime);
+
+            // Nếu đã nấu xong
+            if (currentCookTime >= targetCookTime) {
+                DebugLogger.log("AlchemyFurnaceTask", "Semi-pill cooked! Creating final pill.");
+                String pillData = smeltingItem.getItemMeta().getPersistentDataContainer().get(semiPillKey, PersistentDataType.STRING);
+                String[] parts = pillData.split(":");
+                String pillId = parts[0];
+                String tierId = parts[1];
+
+                ItemStack finalPill = createFinalPill(pillId, tierId);
+
+                if (finalPill != null) {
+                    // Đặt kết quả vào lò nung
+                    furnace.getInventory().setSmelting(null); // Xóa item nửa mùa
+                    furnace.getInventory().setResult(finalPill); // Đặt đan dược hoàn chỉnh
+                    furnace.setCookTime((short) 0); // Reset cook time
+                    furnace.setBurnTime((short) 0); // Tắt lửa
+                    furnace.update(true); // Cập nhật trạng thái lò
+                    
+                    DebugLogger.log("AlchemyFurnaceTask", "Final pill created: " + finalPill.getItemMeta().getDisplayName());
+                } else {
+                    DebugLogger.warn("AlchemyFurnaceTask", "Failed to create final pill for " + pillId + ":" + tierId);
+                }
+                furnaceProgress.remove(furnaceLoc); // Xóa khỏi tracking
+            }
+            // Không cần phải quản lý burnTime của lò thực sự nếu chúng ta tự quản lý cookTime
+            // Tuy nhiên, để lò có vẻ "cháy" thì cần có nhiên liệu.
+            // Có thể đặt một ít nhiên liệu ảo nếu không có (như một cục than) để lò vẫn có lửa.
+            // Nhưng nếu lửa nháy thì không quan trọng lắm, miễn là đan dược ra.
         }
     }
 
@@ -117,9 +137,7 @@ public class AlchemyFurnaceTask extends BukkitRunnable {
         return pill;
     }
     
-    // SỬA LỖI: Hàm format này bây giờ dùng net.md_5.bungee.api.ChatColor
     private String format(String msg) {
-        // Hỗ trợ cả mã màu & và mã màu RGB dạng &#RRGGBB
         Pattern pattern = Pattern.compile("&#[a-fA-F0-9]{6}");
         Matcher matcher = pattern.matcher(msg);
         while (matcher.find()) {

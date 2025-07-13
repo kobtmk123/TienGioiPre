@@ -6,9 +6,9 @@ import com.yourname.tiengioipre.commands.*;
 import com.yourname.tiengioipre.core.*;
 import com.yourname.tiengioipre.gui.ShopGUI;
 import com.yourname.tiengioipre.listeners.*;
-import com.yourname.tiengioipre.tasks.AlchemyFurnaceTask; // <-- IMPORT MỚI
+import com.yourname.tiengioipre.tasks.AlchemyFurnaceTask;
 import com.yourname.tiengioipre.tasks.CultivationTask;
-import com.yourname.tiengioipre.utils.DebugLogger; // <-- IMPORT MỚI
+import com.yourname.tiengioipre.utils.DebugLogger;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.RegisteredServiceProvider;
@@ -46,10 +46,11 @@ public final class TienGioiPre extends JavaPlugin {
         DebugLogger.setDebugMode(getConfig().getBoolean("settings.debug-mode", true)); // Đọc từ config
 
         // Khởi tạo tất cả các trình quản lý THEO ĐÚNG THỨ TỰ
+        // Các manager không phụ thuộc vào nhau có thể đặt trước
         this.itemManager = new ItemManager(this);
         this.shopGUI = new ShopGUI(this);
         this.tongMonManager = new TongMonManager(this);
-        this.playerDataManager = new PlayerDataManager(this);
+        this.playerDataManager = new PlayerDataManager(this); // Phụ thuộc vào TongMonManager để lấy dữ liệu mặc định
         this.realmManager = new RealmManager(this);
         this.cultivationManager = new CultivationManager(this);
 
@@ -64,7 +65,9 @@ public final class TienGioiPre extends JavaPlugin {
         this.cultivationMainTask = new CultivationTask(this).runTaskTimer(this, 0L, 20L); // Task Tu Luyện mỗi giây
         getLogger().info("Da khoi dong Task Tu Luyen chinh.");
 
-        this.alchemyFurnaceMainTask = new AlchemyFurnaceTask(this).runTaskTimer(this, 20L, 20L); // Task Lò Luyện Đan mỗi giây
+        // Khởi tạo và chạy AlchemyFurnaceTask
+        // Task này sẽ chạy mỗi 1 giây (20 ticks) để kiểm tra các lò nung
+        this.alchemyFurnaceMainTask = new AlchemyFurnaceTask(this).runTaskTimer(this, 20L, 20L); 
         getLogger().info("Da khoi dong Task Luyen Dan trong lo.");
 
         getLogger().info("Plugin TienGioiPre da duoc bat thanh cong!");
@@ -73,7 +76,7 @@ public final class TienGioiPre extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        // Hủy các task khi plugin tắt
+        // Hủy các task khi plugin tắt để tránh lỗi và memory leak
         if (this.cultivationMainTask != null && !this.cultivationMainTask.isCancelled()) {
             this.cultivationMainTask.cancel();
         }
@@ -97,14 +100,17 @@ public final class TienGioiPre extends JavaPlugin {
      * Đăng ký tất cả các lệnh của plugin.
      */
     private void registerCommands() {
+        // Lệnh quản trị
         MainCommand mainCommand = new MainCommand(this);
         getCommand("tiengioi").setExecutor(mainCommand);
         getCommand("tiengioi").setTabCompleter(mainCommand);
 
+        // Lệnh người chơi cơ bản
         getCommand("tuluyen").setExecutor(new TuLuyenCommand(this));
         getCommand("dotpha").setExecutor(new DotPhaCommand(this));
         getCommand("shoptiengioi").setExecutor(new ShopTienGioiCommand(this));
 
+        // Lệnh cho Con Đường Tu Luyện
         PathCommand pathCommand = new PathCommand(this);
         getCommand("conduongtuluyen").setExecutor(pathCommand);
         getCommand("conduongtuluyen").setTabCompleter(pathCommand);
@@ -114,6 +120,7 @@ public final class TienGioiPre extends JavaPlugin {
         getCommand("luyenkhisu").setExecutor(pathCommand);
         getCommand("luyendansu").setExecutor(pathCommand);
         
+        // Lệnh Tông Môn
         TongMonCommand tongMonCommand = new TongMonCommand(this);
         getCommand("tongmon").setExecutor(tongMonCommand);
         getCommand("tongmon").setTabCompleter(tongMonCommand);
@@ -165,16 +172,52 @@ public final class TienGioiPre extends JavaPlugin {
 
     // --- CÁC GETTER ĐỂ TRUY CẬP TỪ CÁC CLASS KHÁC ---
 
-    public static TienGioiPre getInstance() { return instance; }
-    public static Economy getEconomy() { return econ; }
-    public PlayerDataManager getPlayerDataManager() { return playerDataManager; }
-    public RealmManager getRealmManager() { return realmManager; }
-    public CultivationManager getCultivationManager() { return cultivationManager; }
-    public ItemManager getItemManager() { return itemManager; }
-    public ShopGUI getShopGUI() { return shopGUI; }
-    public TongMonManager getTongMonManager() { return this.tongMonManager; }
+    public static TienGioiPre getInstance() {
+        return instance;
+    }
+
+    public static Economy getEconomy() {
+        return econ;
+    }
+    
+    public PlayerDataManager getPlayerDataManager() {
+        return playerDataManager;
+    }
+
+    public RealmManager getRealmManager() {
+        return realmManager;
+    }
+
+    public CultivationManager getCultivationManager() {
+        return cultivationManager;
+    }
+
+    public ItemManager getItemManager() {
+        return itemManager;
+    }
+
+    public ShopGUI getShopGUI() {
+        return shopGUI;
+    }
+    
+    public TongMonManager getTongMonManager() {
+        return this.tongMonManager;
+    }
+
+    // Getter cho instance của AlchemyFurnaceTask
+    public AlchemyFurnaceTask getAlchemyFurnaceTask() {
+        // Trả về instance đã được khởi tạo trong onEnable
+        // Đảm bảo instance này không null bằng cách khởi tạo sớm
+        return this.alchemyFurnaceMainTask != null ? (AlchemyFurnaceTask) this.alchemyFurnaceMainTask : null;
+    }
+
+    /**
+     * Lấy instance của API để các plugin khác sử dụng.
+     */
     public static TienGioiAPI getAPI() {
-        if (instance == null) return null;
+        if (instance == null) {
+            return null;
+        }
         return new TienGioiAPI(instance);
     }
 }
