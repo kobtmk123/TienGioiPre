@@ -21,7 +21,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.scheduler.BukkitTask;
+import org.bukkit.scheduler.BukkitTask; // <-- IMPORT BukkitTask
 import org.bukkit.util.Vector;
 
 import java.util.*;
@@ -32,7 +32,7 @@ public class CauldronAlchemyListener implements Listener {
     
     private static class CauldronSession {
         Map<String, Integer> ingredients = new HashMap<>();
-        BukkitTask craftTask;
+        BukkitTask craftTask; // Sử dụng BukkitTask
     }
     
     private final Map<Location, BukkitRunnable> boilingCauldrons = new HashMap<>();
@@ -55,7 +55,6 @@ public class CauldronAlchemyListener implements Listener {
         ItemStack itemInHand = player.getInventory().getItemInMainHand();
         Location cauldronLoc = clickedBlock.getLocation();
 
-        // 1. Xử lý khi đổ nước vào vạc rỗng
         if (clickedBlock.getType() == Material.CAULDRON && itemInHand.getType() == Material.WATER_BUCKET) {
             plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
                 if (clickedBlock.getType() == Material.WATER_CAULDRON) {
@@ -65,7 +64,6 @@ public class CauldronAlchemyListener implements Listener {
             return;
         }
 
-        // 2. Xử lý khi bỏ dược liệu vào vạc ĐÃ SÔI
         if (clickedBlock.getType() == Material.WATER_CAULDRON && readyCauldrons.contains(cauldronLoc)) {
             handleIngredientAdd(player, itemInHand, cauldronLoc, event);
         }
@@ -150,6 +148,7 @@ public class CauldronAlchemyListener implements Listener {
         if (matchedRecipeId != null) {
             String finalRecipeId = matchedRecipeId;
             
+            // SỬA LỖI Ở ĐÂY: Gán kết quả của runTaskLater vào session.craftTask
             if (session.craftTask != null && !session.craftTask.isCancelled()) {
                 session.craftTask.cancel();
             }
@@ -159,17 +158,17 @@ public class CauldronAlchemyListener implements Listener {
 
             long craftTime = plugin.getConfig().getLong("alchemy.settings.cauldron-craft-time-seconds", 30);
 
-            session.craftTask = new BukkitRunnable() {
+            // Gán kết quả của runTaskLater vào session.craftTask
+            session.craftTask = new BukkitRunnable() { // <-- Lỗi ở đây
                 @Override
                 public void run() {
                     // Xóa session và trạng thái của vạc
                     craftingCauldrons.remove(cauldronLoc);
                     readyCauldrons.remove(cauldronLoc);
                     
-                    // Làm cạn nước trong vạc
                     Block cauldronBlock = cauldronLoc.getBlock();
                     if (cauldronBlock.getType() == Material.WATER_CAULDRON) {
-                        cauldronBlock.setType(Material.CAULDRON); // Đổi thành vạc rỗng
+                        cauldronBlock.setType(Material.CAULDRON);
                     }
                     
                     String tierId = getRandomPillTier(finalRecipeId);
@@ -183,9 +182,11 @@ public class CauldronAlchemyListener implements Listener {
                         player.sendMessage(format("&cLỗi khi tạo đan dược, vui lòng báo admin."));
                     }
                 }
-            };
-            session.craftTask.runTaskLater(plugin, craftTime * 20L);
-            return;
+            }.runTaskLater(plugin, craftTime * 20L); // <-- runTaskLater trả về BukkitTask
+            // Để chắc chắn, bạn có thể kiểm tra xem session.craftTask có phải là null không
+            // if (session.craftTask == null) plugin.getLogger().warning("Craft Task failed to schedule!");
+
+            return; // Quan trọng: Dừng lại sau khi tìm thấy và bắt đầu công thức
         }
     }
 
