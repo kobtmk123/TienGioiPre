@@ -1,7 +1,7 @@
 # ============================================================ #
 #                  CONFIG PLUGIN TIENGIOIPRE                   #
-#                 Tác giả: Bố Been Vĩ Đại                   #
-#                        Version: 1.5                          #
+#                 Tác giả: Been Vĩ Đại                   #
+#                        Version: 1.0.6                          #
 # ============================================================ #
 
 # ============================================
@@ -129,7 +129,7 @@ realms:
       hauky:
         display-name: "&b_Hậu Kỳ"
         max-linh-khi: 7000
-        linh-ki-gain-per-second: 14
+        linh-khi-gain-per-second: 14
         breakthrough:
           tribulation-name: "&cTrúc Cơ Kiếp"
           lightning-count: 7
@@ -360,7 +360,7 @@ realms:
           attack-damage-bonus: 4.0
       trungky:
         display-name: "&9_Trung Kỳ"
-        max-linh-khi: 140000
+        max-linh-ki: 140000
         linh-khi-gain-per-second: 52
         breakthrough:
           tribulation-name: "&9Hư Không Lôi Kiếp"
@@ -447,7 +447,7 @@ realms:
           attack-damage-bonus: 5.0
       dinhphong:
         display-name: "&5_Đỉnh Phong"
-        max-linh-khi: 400000
+        max-linh-ki: 400000
         linh-khi-gain-per-second: 75
         breakthrough:
           tribulation-name: "&5Thiên Địa Pháp Tắc Kiếp"
@@ -498,8 +498,8 @@ realms:
           attack-damage-bonus: 6.0
       hauky:
         display-name: "&6_Hậu Kỳ"
-        max-linh-khi: 800000
-        linh-ki-gain-per-second: 110
+        max-linh-ki: 800000
+        linh-khi-gain-per-second: 110
         breakthrough:
           tribulation-name: "&4&lCửu Cửu Quy Nhất Kiếp"
           lightning-count: 40
@@ -511,7 +511,7 @@ realms:
       dinhphong:
         display-name: "&6_Đỉnh Phong"
         max-linh-khi: 900000
-        linh-ki-gain-per-second: 120
+        linh-khi-gain-per-second: 120
         breakthrough:
           tribulation-name: "&4&lCửu Cửu Quy Nhất Kiếp"
           lightning-count: 42
@@ -601,126 +601,145 @@ items:
 
   # --- Phôi Dùng Cho Luyện Khí Sư ---
   phoi_thien_tinh:
-    display-name: "&bPhôi Thiên Tinh"
-    lore:
-      - "&7Linh khí của trời đất hội tụ."
-      - "&7Dùng để rèn đúc giáp và vũ khí."
-    material: "RAW_COPPER"
-    enchanted: true
+    default:
+      display-name: "&bPhôi Thiên Tinh"
+      lore:
+        - "&7Linh khí của trời đất hội tụ."
+        - "&7Dùng để rèn đúc giáp và vũ khí."
+      material: "RAW_COPPER"
+      enchanted: true
   phoi_huyet_thach:
-    display-name: "&cPhôi Huyết Thạch"
-    lore:
-      - "&7Tinh hoa của địa mạch dung luyện."
-      - "&7Dùng để rèn đúc giáp và vũ khí."
-    material: "RAW_COPPER"
-    enchanted: true
+    default:
+      display-name: "&cPhôi Huyết Thạch"
+      lore:
+        - "&7Tinh hoa của địa mạch dung luyện."
+        - "&7Dùng để rèn đúc giáp và vũ khí."
+      material: "RAW_COPPER"
+      enchanted: true
   phoi_tinh_the:
-    display-name: "&ePhôi Tinh Thể"
-    lore:
-      - "&7Kết tinh của linh khí thuần khiết."
-      - "&7Dùng để chế tác công cụ."
-    material: "RAW_IRON"
-    enchanted: true
+    default:
+      display-name: "&ePhôi Tinh Thể"
+      lore:
+        - "&7Kết tinh của linh khí thuần khiết."
+        - "&7Dùng để chế tác công cụ."
+      material: "RAW_IRON"
+      enchanted: true
   phoi_thep_hoa_phat:
-    display-name: "&7Phôi Thép Hòa Phát"
-    lore:
-      - "&7Thứ thép cứng không gì sánh bằng."
-      - "&7Dùng để chế tác công cụ."
-    material: "RAW_IRON"
-    enchanted: false
+    default:
+      display-name: "&7Phôi Thép Hòa Phát"
+      lore:
+        - "&7Thứ thép cứng không gì sánh bằng."
+        - "&7Dùng để chế tác công cụ."
+      material: "RAW_IRON"
+      enchanted: false
 
   # --- Dược Liệu Dùng Cho Luyện Đan Sư ---
   # ID của các dược liệu này phải khớp với ID trong mục alchemy.herbs và alchemy.recipes
   linh_tam_thao:
-    display-name: "&aLinh Tâm Thảo"
-    lore:
-      - "&7Dược liệu cơ bản, chứa đựng linh khí đất trời."
-    material: "WHEAT_SEEDS"
-    enchanted: true
+    default:
+      display-name: "&aLinh Tâm Thảo"
+      lore:
+        - "&7Dược liệu cơ bản, chứa đựng linh khí đất trời."
+      material: "WHEAT_SEEDS"
+      enchanted: true
   huyet_tinh_hoa:
-    display-name: "&cHuyết Tinh Hoa"
-    lore:
-      - "&7Mọc ở nơi có máu huyết yêu thú, dược tính mạnh mẽ."
-    material: "BEETROOT_SEEDS"
-    enchanted: true
+    default:
+      display-name: "&cHuyết Tinh Hoa"
+      lore:
+        - "&7Mọc ở nơi có máu huyết yêu thú, dược tính mạnh mẽ."
+      material: "BEETROOT_SEEDS"
+      enchanted: true
   bach_ngoc_sam:
-    display-name: "&fBách Ngọc Sâm"
-    lore:
-      - "&7Nhân sâm trăm tuổi, ôn hòa và tinh khiết."
-    material: "POTATO"
-    enchanted: true
+    default:
+      display-name: "&fBách Ngọc Sâm"
+      lore:
+        - "&7Nhân sâm trăm tuổi, ôn hòa và tinh khiết."
+      material: "POTATO"
+      enchanted: true
   tu_van_hoa:
-    display-name: "&dTử Vân Hoa"
-    lore:
-      - "&7Đóa hoa màu tím, tỏa ra làn sương mờ ảo."
-    material: "ALLIUM"
-    enchanted: true
+    default:
+      display-name: "&dTử Vân Hoa"
+      lore:
+        - "&7Đóa hoa màu tím, tỏa ra làn sương mờ ảo."
+      material: "ALLIUM"
+      enchanted: true
   dia_long_thao:
-    display-name: "&6Địa Long Thảo"
-    lore:
-      - "&7Mọc sâu trong lòng đất, hấp thụ địa khí."
-    material: "CARROT"
-    enchanted: true
+    default:
+      display-name: "&6Địa Long Thảo"
+      lore:
+        - "&7Mọc sâu trong lòng đất, hấp thụ địa khí."
+      material: "CARROT"
+      enchanted: true
   bang_hon_qua:
-    display-name: "&bBăng Hồn Quả"
-    lore:
-      - "&7Trái cây sinh trưởng ở nơi cực hàn, mang hàn khí."
-    material: "SWEET_BERRIES"
-    enchanted: true
+    default:
+      display-name: "&bBăng Hồn Quả"
+      lore:
+        - "&7Trái cây sinh trưởng ở nơi cực hàn, mang hàn khí."
+      material: "SWEET_BERRIES"
+      enchanted: true
   huyen_vuong_chi:
-    display-name: "&8Huyền Vương Chi"
-    lore:
-      - "&7Linh chi ngàn năm, cực kỳ quý hiếm."
-    material: "CRIMSON_FUNGUS"
-    enchanted: true
+    default:
+      display-name: "&8Huyền Vương Chi"
+      lore:
+        - "&7Linh chi ngàn năm, cực kỳ quý hiếm."
+      material: "CRIMSON_FUNGUS"
+      enchanted: true
   ngan_la_co:
-    display-name: "&7Ngân Diệp Thảo"
-    lore:
-      - "&7Lá cây lấp lánh như bạc, dùng để trung hòa dược tính."
-    material: "FERN"
-    enchanted: false
+    default:
+      display-name: "&7Ngân Diệp Thảo"
+      lore:
+        - "&7Lá cây lấp lánh như bạc, dùng để trung hòa dược tính."
+      material: "FERN"
+      enchanted: false
   tinh_van_lo:
-    display-name: "&eTinh Vẫn Lộ"
-    lore:
-      - "&7Giọt sương đọng lại dưới trời sao."
-    material: "GLOW_BERRIES"
-    enchanted: true
+    default:
+      display-name: "&eTinh Vẫn Lộ"
+      lore:
+        - "&7Giọt sương đọng lại dưới trời sao."
+      material: "GLOW_BERRIES"
+      enchanted: true
   thien_luc_diep:
-    display-name: "&2Thiên Lục Diệp"
-    lore:
-      - "&7Lá cây ẩn chứa sinh mệnh lực dồi dào."
-    material: "OAK_LEAVES"
-    enchanted: false
+    default:
+      display-name: "&2Thiên Lục Diệp"
+      lore:
+        - "&7Lá cây ẩn chứa sinh mệnh lực dồi dào."
+      material: "OAK_LEAVES"
+      enchanted: false
   co_ba_la:
-    display-name: "&dCỏ Ba Lá"
-    lore:
-      - "&7Mang lại một chút may mắn."
-    material: "GRASS"
-    enchanted: false
+    default:
+      display-name: "&dCỏ Ba Lá"
+      lore:
+        - "&7Mang lại một chút may mắn."
+      material: "GRASS"
+      enchanted: false
   hoa_mat_troi:
-    display-name: "&6Hướng Dương Thảo"
-    lore:
-      - "&7Luôn hướng về phía mặt trời, hấp thụ dương khí."
-    material: "SUNFLOWER"
-    enchanted: true
+    default:
+      display-name: "&6Hướng Dương Thảo"
+      lore:
+        - "&7Luôn hướng về phía mặt trời, hấp thụ dương khí."
+      material: "SUNFLOWER"
+      enchanted: true
   hoa_hong_gai:
-    display-name: "&cHoa Hồng Gai"
-    lore:
-      - "&7Vẻ đẹp ẩn chứa nguy hiểm."
-    material: "ROSE_BUSH"
-    enchanted: true
+    default:
+      display-name: "&cHoa Hồng Gai"
+      lore:
+        - "&7Vẻ đẹp ẩn chứa nguy hiểm."
+      material: "ROSE_BUSH"
+      enchanted: true
   nam_doc:
-    display-name: "&5Nấm Độc"
-    lore:
-      - "&7Dùng để lấy độc trị độc."
-    material: "RED_MUSHROOM"
-    enchanted: false
+    default:
+      display-name: "&5Nấm Độc"
+      lore:
+        - "&7Dùng để lấy độc trị độc."
+      material: "RED_MUSHROOM"
+      enchanted: false
   re_cay_co_thu:
-    display-name: "&6Rễ Cây Cổ Thụ"
-    lore:
-      - "&7Một phần của cây đại thụ ngàn năm."
-    material: "OAK_SAPLING"
-    enchanted: false
+    default:
+      display-name: "&6Rễ Cây Cổ Thụ"
+      lore:
+        - "&7Một phần của cây đại thụ ngàn năm."
+      material: "OAK_SAPLING"
+      enchanted: false
 
 # ============================================
 #              CỬA HÀNG TU TIÊN
@@ -789,7 +808,6 @@ shop:
         - "&eGiá: &f%price% Xu"
         - "&aChuột trái để mua x1"
         - "&aChuột phải để mua x16"
-    # Dược liệu cũng có thể bán trong shop nếu muốn
     linh_tam_thao_shop:
       slot: 18
       item-id: "linh_tam_thao"
@@ -920,22 +938,22 @@ refining:
 # ============================================
 alchemy:
   settings:
-    water-boil-time-seconds: 10 # Thời gian (giây) để nước trong vạc sôi (để debug)
-    cauldron-craft-time-seconds: 10 # Thời gian (giây) để luyện ra Đan Dược Nửa Mùa
-    furnace-smelt-time-seconds: 5 # Thời gian (giây) để nung trong lò từ Nửa Mùa thành Hoàn Chỉnh
+    water-boil-time-seconds: 10
+    cauldron-craft-time-seconds: 10
+    refine-stage2-time-seconds: 5
+    furnace-smelt-time-seconds: 5 # Không dùng nhưng giữ lại để đồng bộ
 
   # --- Dược liệu ---
-  # Định nghĩa các loại dược liệu có thể tìm thấy (ID này phải khớp với ID trong mục 'items' ở trên)
   herbs:
     linh_tam_thao:
       display-name: "&aLinh Tâm Thảo"
-      drop-chance-from-grass: 0.05 # 5%
+      drop-chance-from-grass: 0.05
     huyet_tinh_hoa:
       display-name: "&cHuyết Tinh Hoa"
-      drop-chance-from-grass: 0.02 # 2%
+      drop-chance-from-grass: 0.02
     bach_ngoc_sam:
       display-name: "&fBách Ngọc Sâm"
-      drop-chance-from-grass: 0.01 # 1%
+      drop-chance-from-grass: 0.01
     tu_van_hoa: {display-name: "&dTử Vân Hoa", drop-chance-from-grass: 0.008}
     dia_long_thao: {display-name: "&6Địa Long Thảo", drop-chance-from-grass: 0.007}
     bang_hon_qua: {display-name: "&bBăng Hồn Quả", drop-chance-from-grass: 0.005}
@@ -950,7 +968,6 @@ alchemy:
     re_cay_co_thu: {display-name: "&6Rễ Cây Cổ Thụ", drop-chance-from-grass: 0.001}
 
   # --- Đan Dược ---
-  # success-chance-bonus: Tỷ lệ thành công CỘNG THÊM vào tỷ lệ gốc khi đột phá
   pills:
     luyen_khi_dan:
       tam_pham:
@@ -959,16 +976,19 @@ alchemy:
           - "&7Đan dược hỗ trợ đột phá Luyện Khí."
           - "&fTăng &a%bonus%%&f tỷ lệ thành công."
         success-chance-bonus: 5
-      nhi_pham:
-        display-name: "&aLuyện Khí Đan [Nhị Phẩm]"
-        lore:
-          - "&fTăng &a%bonus%%&f tỷ lệ thành công."
-        success-chance-bonus: 10
-      nhat_pham:
-        display-name: "&bLuyện Khí Đan [Nhất Phẩm]"
-        lore:
-          - "&fTăng &a%bonus%%&f tỷ lệ thành công."
-        success-chance-bonus: 15
+        refine-stage2: # Cấu hình giai đoạn 2
+          success-rate: 50
+          success-effects:
+            lightning-count: 2
+            particle-type: "EXPLOSION_LARGE"
+            particle-radius: 5
+            push-distance: 2
+          failure-effects:
+            explosion-type: "CREEPER" # Nổ creeper không phá hủy block mặc định
+            block-destruction-radius: 0 # Đặt là 0 để không phá hủy block
+            damage-amount: 8.0 # 4 trái tim
+            blindness-duration-seconds: 5
+            penalty-tier-decrease: 1 # Giảm 1 bậc tu vi (ví dụ: Trung Kỳ -> Sơ Kỳ)
     truc_co_dan:
       tam_pham:
         display-name: "&7Trúc Cơ Đan [Tam Phẩm]"
@@ -976,28 +996,29 @@ alchemy:
           - "&7Đan dược hỗ trợ đột phá Trúc Cơ."
           - "&fTăng &a%bonus%%&f tỷ lệ thành công."
         success-chance-bonus: 8
-      nhi_pham:
-        display-name: "&aTrúc Cơ Đan [Nhị Phẩm]"
-        lore:
-          - "&fTăng &a%bonus%%&f tỷ lệ thành công."
-        success-chance-bonus: 16
-      nhat_pham:
-        display-name: "&bTrúc Cơ Đan [Nhất Phẩm]"
-        lore:
-          - "&fTăng &a%bonus%%&f tỷ lệ thành công."
-        success-chance-bonus: 24
-    # ... các loại đan khác ...
+        refine-stage2:
+          success-rate: 45
+          success-effects:
+            lightning-count: 3
+            particle-type: "FIREWORKS_SPARK"
+            particle-radius: 7
+            push-distance: 3
+          failure-effects:
+            explosion-type: "NORMAL"
+            block-destruction-radius: 0
+            damage-amount: 10.0
+            blindness-duration-seconds: 7
+            penalty-tier-decrease: 1
+    # ... Các loại đan khác ...
 
   # --- Công Thức Luyện Đan ---
-  # Công thức cho từng loại đan dược. Key phải khớp với key trong mục 'pills'
   recipes:
     luyen_khi_dan:
-      tier-chance: # Tỷ lệ ra các phẩm chất khi luyện (tổng phải là 100)
+      tier-chance:
         tam_pham: 60
         nhi_pham: 30
         nhat_pham: 10
-      ingredients: # Nguyên liệu cần thiết: id_dược_liệu: số_lượng
-        linh_tam_thao: 5
+      ingredients:
         huyet_tinh_hoa: 2
     truc_co_dan:
       tier-chance:
@@ -1005,6 +1026,14 @@ alchemy:
         nhi_pham: 25
         nhat_pham: 5
       ingredients:
-        linh_tam_thao: 10
         huyet_tinh_hoa: 5
         bach_ngoc_sam: 1
+
+  # --- Đan Dược Hỏng ---
+  failed_pill:
+    display-name: "&4&lViên Đan Hỏng"
+    lore:
+      - "&7Thất bại của một Luyện Đan Sư."
+      - "&7Không có tác dụng."
+    material: "COAL"
+    enchanted: false

@@ -1,8 +1,8 @@
-package com.yourname.tiengioipre.listeners;
+package com.myname.tiengioipre.listeners;
 
-import com.yourname.tiengioipre.TienGioiPre;
-import com.yourname.tiengioipre.data.PlayerData;
-import com.yourname.tiengioipre.utils.DebugLogger; // <-- IMPORT MỚI
+import com.myname.tiengioipre.TienGioiPre;
+import com.myname.tiengioipre.data.PlayerData;
+import com.myname.tiengioipre.utils.DebugLogger; // <-- IMPORT MỚI
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -23,32 +23,42 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
+import org.bukkit.potion.PotionEffect; // <-- IMPORT MỚI
+import org.bukkit.potion.PotionEffectType; // <-- IMPORT MỚI
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class CauldronAlchemyListener implements Listener {
 
     private final TienGioiPre plugin;
-    
+    private final Random random = new Random(); // Khởi tạo Random ở đây
+
+    // Class nhỏ để lưu trữ dữ liệu của vạc đang luyện đan
     private static class CauldronSession {
         Map<String, Integer> ingredients = new HashMap<>();
         BukkitTask craftTask;
     }
     
-    private final Map<Location, BukkitRunnable> boilingCauldrons = new HashMap<>();
-    private final Set<Location> readyCauldrons = new HashSet<>();
-    private final Map<Location, CauldronSession> craftingCauldrons = new HashMap<>();
-    private final Random random = new Random();
+    // Map quản lý trạng thái của các vạc
+    private final Map<Location, BukkitRunnable> boilingCauldrons = new HashMap<>(); // Vạc đang đun nước
+    private final Set<Location> readyCauldrons = new HashSet<>();                  // Vạc đã sôi, sẵn sàng nhận nguyên liệu
+    private final Map<Location, CauldronSession> craftingCauldrons = new HashMap<>(); // Vạc đang trong quá trình luyện đan
 
     public CauldronAlchemyListener(TienGioiPre plugin) {
         this.plugin = plugin;
     }
 
+    /**
+     * Xử lý sự kiện tương tác của người chơi với vạc.
+     * Bao gồm đổ nước vào vạc và thêm dược liệu vào vạc đã sôi.
+     */
     @EventHandler
     public void onCauldronInteract(PlayerInteractEvent event) {
+        // Chỉ xử lý khi người chơi chuột phải vào block bằng tay chính
         if (event.getHand() != EquipmentSlot.HAND || event.getAction() != Action.RIGHT_CLICK_BLOCK) return;
 
         Block clickedBlock = event.getClickedBlock();
@@ -70,15 +80,18 @@ public class CauldronAlchemyListener implements Listener {
             return;
         }
 
-        // 2. Xử lý khi bỏ dược liệu vào vạc ĐÃ SÔI
+        // 2. Xử lý khi bỏ dược liệu vào vạc ĐÃ SÔI (hoặc chuột phải bằng Đan dược nửa mùa)
         // Chỉ xử lý nếu vạc đang là WATER_CAULDRON và đã ở trạng thái sẵn sàng (đã sôi)
         if (clickedBlock.getType() == Material.WATER_CAULDRON && readyCauldrons.contains(cauldronLoc)) {
             DebugLogger.log("CauldronAlchemy", "Player " + player.getName() + " right-clicked boiling cauldron at " + cauldronLoc.toVector());
-            handleIngredientAdd(player, itemInHand, cauldronLoc, event);
+            handleIngredientOrSemiPillAdd(player, itemInHand, cauldronLoc, event);
         }
     }
 
-    private void handleIngredientAdd(Player player, ItemStack ingredient, Location cauldronLoc, PlayerInteractEvent event) {
+    /**
+     * Xử lý việc thêm dược liệu hoặc tinh luyện đan dược nửa mùa.
+     */
+    private void handleIngredientOrSemiPillAdd(Player player, ItemStack itemInHand, Location cauldronLoc, PlayerInteractEvent event) {
         PlayerData playerData = plugin.getPlayerDataManager().getPlayerData(player);
         if (playerData == null || !"luyendansu".equals(playerData.getCultivationPath())) {
             player.sendMessage(format("&cChỉ Luyện Đan Sư mới có thể luyện đan."));
@@ -86,38 +99,54 @@ public class CauldronAlchemyListener implements Listener {
             return;
         }
 
-        if (ingredient == null || ingredient.getType() == Material.AIR || !ingredient.hasItemMeta()) {
+        if (itemInHand == null || itemInHand.getType() == Material.AIR || !itemInHand.hasItemMeta()) {
             DebugLogger.log("CauldronAlchemy", "Item in hand is not valid for alchemy.");
             return;
         }
-        ItemMeta meta = ingredient.getItemMeta();
-        if (!meta.getPersistentDataContainer().has(plugin.getItemManager().ITEM_ID_KEY, PersistentDataType.STRING)) {
-            DebugLogger.log("CauldronAlchemy", "Item in hand has no custom ID. Not an herb.");
-            return;
+        ItemMeta meta = itemInHand.getItemMeta();
+        
+        // --- XỬ LÝ KHI BỎ DƯỢC LIỆU VÀO VẠC (NHƯ CŨ) ---
+        NamespacedKey itemIDKey = plugin.getItemManager().ITEM_ID_KEY;
+        if (meta.getPersistentDataContainer().has(itemIDKey, PersistentDataType.STRING)) {
+            String herbId = meta.getPersistentDataContainer().get(itemIDKey, PersistentDataType.STRING);
+            if (plugin.getConfig().contains("items." + herbId) && plugin.getConfig().contains("alchemy.herbs." + herbId)) {
+                event.setCancelled(true);
+                CauldronSession session = craftingCauldrons.computeIfAbsent(cauldronLoc, k -> new CauldronSession());
+                session.ingredients.merge(herbId, 1, Integer::sum);
+                itemInHand.setAmount(itemInHand.getAmount() - 1); // Trừ 1 item trên tay
+                player.sendMessage(format("&aĐã thêm 1x " + meta.getDisplayName() + " &avào vạc."));
+                cauldronLoc.getWorld().playSound(cauldronLoc, Sound.ENTITY_GENERIC_SPLASH, 0.5f, 1.5f);
+                DebugLogger.log("CauldronAlchemy", "Added " + herbId + " to cauldron at " + cauldronLoc.toVector() + ". Current ingredients: " + session.ingredients);
+                checkForRecipe(player, cauldronLoc, session);
+                return; // Đã xử lý dược liệu
+            }
         }
         
-        String herbId = meta.getPersistentDataContainer().get(plugin.getItemManager().ITEM_ID_KEY, PersistentDataType.STRING);
-        // Kiểm tra xem item có phải là dược liệu không (tức là có tồn tại trong items và alchemy.herbs)
-        if (!plugin.getConfig().contains("items." + herbId) || !plugin.getConfig().contains("alchemy.herbs." + herbId)) {
-            DebugLogger.log("CauldronAlchemy", "Item ID '" + herbId + "' is not a defined herb in config.");
-            return;
+        // --- XỬ LÝ KHI TINH LUYỆN ĐAN DƯỢC NỬA MÙA LẦN 2 ---
+        NamespacedKey semiPillKey = new NamespacedKey(plugin, "semi_finished_pill");
+        if (meta.getPersistentDataContainer().has(semiPillKey, PersistentDataType.STRING)) {
+            event.setCancelled(true); // Ngăn các hành động mặc định
+
+            // Hủy trạng thái sẵn sàng để tránh spam
+            readyCauldrons.remove(cauldronLoc);
+
+            String pillData = meta.getPersistentDataContainer().get(semiPillKey, PersistentDataType.STRING);
+            String[] pillInfo = pillData.split(":");
+            if (pillInfo.length < 2) {
+                player.sendMessage(format("&cViên đan dược này không hợp lệ."));
+                DebugLogger.warn("CauldronAlchemy", "Invalid semi-finished pill data for " + player.getName());
+                return;
+            }
+            String pillId = pillInfo[0];
+            String tierId = pillInfo[1];
+
+            // Trừ viên đan dược nửa mùa trên tay
+            itemInHand.setAmount(itemInHand.getAmount() - 1);
+
+            handleSecondStageRefining(player, cauldronLoc, pillId, tierId);
+            return; // Đã xử lý đan dược nửa mùa
         }
-        
-        event.setCancelled(true); // Ngăn các hành động mặc định của item
-        
-        // Lấy session hiện tại hoặc tạo mới cho vạc này
-        CauldronSession session = craftingCauldrons.computeIfAbsent(cauldronLoc, k -> new CauldronSession());
-        session.ingredients.merge(herbId, 1, Integer::sum); // Thêm 1 đơn vị dược liệu vào session
-        
-        // Trừ 1 item trên tay người chơi
-        ingredient.setAmount(ingredient.getAmount() - 1);
-        
-        player.sendMessage(format("&aĐã thêm 1x " + meta.getDisplayName() + " &avào vạc."));
-        cauldronLoc.getWorld().playSound(cauldronLoc, Sound.ENTITY_GENERIC_SPLASH, 0.5f, 1.5f);
-        DebugLogger.log("CauldronAlchemy", "Added " + herbId + " to cauldron at " + cauldronLoc.toVector() + ". Current ingredients: " + session.ingredients);
-        
-        // Sau khi thêm, kiểm tra xem có khớp công thức nào không
-        checkForRecipe(player, cauldronLoc, session);
+        DebugLogger.log("CauldronAlchemy", "Item in hand is neither herb nor semi-finished pill.");
     }
     
     /**
@@ -237,7 +266,7 @@ public class CauldronAlchemyListener implements Listener {
                         Item droppedItem = cauldronLoc.getWorld().dropItem(cauldronLoc.clone().add(0.5, 1.2, 0.5), semiPill);
                         droppedItem.setVelocity(new Vector(0, 0.2, 0)); // Đẩy lên trên
                         
-                        player.sendMessage(format("&6&lLuyện đan thành công! &fBạn nhận được một viên đan dược cần được tinh luyện."));
+                        player.sendMessage(format("&6&lLuyện đan sơ thành! &fBạn nhận được một viên đan dược cần được tinh luyện."));
                         cauldronLoc.getWorld().playSound(cauldronLoc, Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 1.5f);
                         DebugLogger.log("CauldronAlchemy", "Dropped semi-finished pill: " + semiPill.getItemMeta().getDisplayName());
 
