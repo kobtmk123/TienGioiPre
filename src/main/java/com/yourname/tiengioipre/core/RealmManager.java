@@ -1,8 +1,8 @@
-package com.myname.tiengioipre.core; // <-- Đảm bảo package này đúng
+package com.yourname.tiengioipre.core; // <-- Đảm bảo package này đúng
 
-import com.myname.tiengioipre.TienGioiPre;
-import com.myname.tiengioipre.data.PlayerData;
-import com.myname.tiengioipre.utils.DebugLogger; // <-- IMPORT MỚI
+import com.yourname.tiengioipre.TienGioiPre;
+import com.yourname.tiengioipre.data.PlayerData;
+import com.yourname.tiengioipre.utils.DebugLogger; // <-- IMPORT MỚI
 import org.bukkit.ChatColor;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;

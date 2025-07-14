@@ -1,9 +1,9 @@
-package com.myname.tiengioipre.commands; // <-- Đảm bảo package này đúng
+package com.yourname.tiengioipre.commands; // <-- Đảm bảo package này đúng
 
-import com.myname.tiengioipre.TienGioiPre;
-import com.myname.tiengioipre.core.RealmManager;
-import com.myname.tiengioipre.data.PlayerData;
-import com.myname.tiengioipre.utils.DebugLogger; // <-- IMPORT MỚI
+import com.yourname.tiengioipre.TienGioiPre;
+import com.yourname.tiengioipre.core.RealmManager;
+import com.yourname.tiengioipre.data.PlayerData;
+import com.yourname.tiengioipre.utils.DebugLogger; // <-- IMPORT MỚI
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.NamespacedKey; // <-- IMPORT MỚI
