@@ -19,22 +19,7 @@ import org.bukkit.persistence.PersistentDataType;
 
 import java.util.Objects;
 
-/**
- * Lắng nghe các sự kiện tương tác của người chơi.
- * Bao gồm sử dụng cuộn linh khí và đặt đan dược nửa mùa vào lò.
- */
-public class PlayerInteractListener implements Listener {
 
-    private final TienGioiPre plugin;
-    private final NamespacedKey semiPillKey; // Key để nhận diện đan dược nửa mùa
-
-    public PlayerInteractListener(TienGioiPre plugin) {
-        this.plugin = plugin;
-        this.semiPillKey = new NamespacedKey(plugin, "semi_finished_pill");
-    }
-
-    @EventHandler
-    public void onPlayerInteract(PlayerInteractEvent event) {
         // Chỉ xử lý khi người chơi chuột phải bằng tay chính
         if (event.getHand() != EquipmentSlot.HAND) return;
         
@@ -71,7 +56,6 @@ public class PlayerInteractListener implements Listener {
                         event.setCancelled(true);
                         itemInHand.setAmount(itemInHand.getAmount() - 1);
                         DebugLogger.log("PlayerInteract", "Semi-pill successfully added to furnace tracking. Remaining in hand: " + itemInHand.getAmount());
-                    } else {
                         event.getPlayer().sendMessage(plugin.getTongMonManager().format("&cLò nung đang bận, vui lòng chờ lò trống."));
                         DebugLogger.log("PlayerInteract", "Furnace is busy. Not adding semi-pill to tracking.");
                     }

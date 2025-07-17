@@ -207,5 +207,4 @@ public class DotPhaCommand implements CommandExecutor {
         Bukkit.broadcastMessage(format(broadcastMsg));
         
         player.playSound(player.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, 1.0f, 1.2f);
-        DebugLogger.log("DotPhaCommand", player.getName() + " successfully breakthrough to " + realmName + " - " + tierName);
     }

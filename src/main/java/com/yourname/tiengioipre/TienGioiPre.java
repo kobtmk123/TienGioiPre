@@ -133,11 +133,6 @@ public final class TienGioiPre extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new OreSpawnListener(this), this);
         getServer().getPluginManager().registerEvents(new TongMonListener(this), this);
         
-
-    /**
-     * Thiết lập và kết nối với các plugin phụ thuộc.
-     */
-    private void setupIntegrations() {
         // Vault (Hệ thống kinh tế)
         if (getServer().getPluginManager().getPlugin("Vault") != null) {
             RegisteredServiceProvider<Economy> rsp = getServer().getServicesManager().getRegistration(Economy.class);
