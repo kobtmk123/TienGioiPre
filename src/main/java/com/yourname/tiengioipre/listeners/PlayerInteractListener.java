@@ -66,27 +66,6 @@ public class PlayerInteractListener implements Listener {
             }
         }
 
-        // 2. Xử lý khi người chơi đặt Đan Dược Nửa Mùa vào lò nung
-        if (event.getAction() == Action.RIGHT_CLICK_BLOCK && event.getClickedBlock() != null &&
-            (event.getClickedBlock().getType() == Material.FURNACE || event.getClickedBlock().getType() == Material.BLAST_FURNACE || event.getClickedBlock().getType() == Material.SMOKER)) {
-            
-            ItemStack itemInHand = event.getItem();
-            if (itemInHand == null || !itemInHand.hasItemMeta()) {
-                DebugLogger.log("PlayerInteract", "Item in hand is null or has no meta when right-clicking furnace.");
-                return;
-            }
-
-            // Kiểm tra xem item trên tay có phải là đan dược nửa mùa không
-            if (itemInHand.getItemMeta().getPersistentDataContainer().has(semiPillKey, PersistentDataType.STRING)) {
-                DebugLogger.log("PlayerInteract", "Detected semi-finished pill in hand.");
-                // Nếu block là một lò nung
-                if (event.getClickedBlock().getState() instanceof Furnace) {
-                    Furnace furnace = (Furnace) event.getClickedBlock().getState();
-                    // Nếu ô nung đang trống
-                    if (furnace.getInventory().getSmelting() == null || furnace.getInventory().getSmelting().getType() == Material.AIR) {
-                        DebugLogger.log("PlayerInteract", "Furnace is empty. Adding to tracking.");
-                        // Thêm lò nung vào danh sách theo dõi của AlchemyFurnaceTask
-                        plugin.getAlchemyFurnaceTask().addFurnaceToTrack(furnace.getLocation(), itemInHand);
                         
                         // Ngăn sự kiện mặc định và trừ item trên tay người chơi
                         event.setCancelled(true);

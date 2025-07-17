@@ -633,114 +633,6 @@ items:
       material: "RAW_IRON"
       enchanted: false
 
-  # --- Dược Liệu Dùng Cho Luyện Đan Sư ---
-  # ID của các dược liệu này phải khớp với ID trong mục alchemy.herbs và alchemy.recipes
-  linh_tam_thao:
-    default:
-      display-name: "&aLinh Tâm Thảo"
-      lore:
-        - "&7Dược liệu cơ bản, chứa đựng linh khí đất trời."
-      material: "WHEAT_SEEDS"
-      enchanted: true
-  huyet_tinh_hoa:
-    default:
-      display-name: "&cHuyết Tinh Hoa"
-      lore:
-        - "&7Mọc ở nơi có máu huyết yêu thú, dược tính mạnh mẽ."
-      material: "BEETROOT_SEEDS"
-      enchanted: true
-  bach_ngoc_sam:
-    default:
-      display-name: "&fBách Ngọc Sâm"
-      lore:
-        - "&7Nhân sâm trăm tuổi, ôn hòa và tinh khiết."
-      material: "POTATO"
-      enchanted: true
-  tu_van_hoa:
-    default:
-      display-name: "&dTử Vân Hoa"
-      lore:
-        - "&7Đóa hoa màu tím, tỏa ra làn sương mờ ảo."
-      material: "ALLIUM"
-      enchanted: true
-  dia_long_thao:
-    default:
-      display-name: "&6Địa Long Thảo"
-      lore:
-        - "&7Mọc sâu trong lòng đất, hấp thụ địa khí."
-      material: "CARROT"
-      enchanted: true
-  bang_hon_qua:
-    default:
-      display-name: "&bBăng Hồn Quả"
-      lore:
-        - "&7Trái cây sinh trưởng ở nơi cực hàn, mang hàn khí."
-      material: "SWEET_BERRIES"
-      enchanted: true
-  huyen_vuong_chi:
-    default:
-      display-name: "&8Huyền Vương Chi"
-      lore:
-        - "&7Linh chi ngàn năm, cực kỳ quý hiếm."
-      material: "CRIMSON_FUNGUS"
-      enchanted: true
-  ngan_la_co:
-    default:
-      display-name: "&7Ngân Diệp Thảo"
-      lore:
-        - "&7Lá cây lấp lánh như bạc, dùng để trung hòa dược tính."
-      material: "FERN"
-      enchanted: false
-  tinh_van_lo:
-    default:
-      display-name: "&eTinh Vẫn Lộ"
-      lore:
-        - "&7Giọt sương đọng lại dưới trời sao."
-      material: "GLOW_BERRIES"
-      enchanted: true
-  thien_luc_diep:
-    default:
-      display-name: "&2Thiên Lục Diệp"
-      lore:
-        - "&7Lá cây ẩn chứa sinh mệnh lực dồi dào."
-      material: "OAK_LEAVES"
-      enchanted: false
-  co_ba_la:
-    default:
-      display-name: "&dCỏ Ba Lá"
-      lore:
-        - "&7Mang lại một chút may mắn."
-      material: "GRASS"
-      enchanted: false
-  hoa_mat_troi:
-    default:
-      display-name: "&6Hướng Dương Thảo"
-      lore:
-        - "&7Luôn hướng về phía mặt trời, hấp thụ dương khí."
-      material: "SUNFLOWER"
-      enchanted: true
-  hoa_hong_gai:
-    default:
-      display-name: "&cHoa Hồng Gai"
-      lore:
-        - "&7Vẻ đẹp ẩn chứa nguy hiểm."
-      material: "ROSE_BUSH"
-      enchanted: true
-  nam_doc:
-    default:
-      display-name: "&5Nấm Độc"
-      lore:
-        - "&7Dùng để lấy độc trị độc."
-      material: "RED_MUSHROOM"
-      enchanted: false
-  re_cay_co_thu:
-    default:
-      display-name: "&6Rễ Cây Cổ Thụ"
-      lore:
-        - "&7Một phần của cây đại thụ ngàn năm."
-      material: "OAK_SAPLING"
-      enchanted: false
-
 # ============================================
 #              CỬA HÀNG TU TIÊN
 # ============================================
@@ -808,16 +700,6 @@ shop:
         - "&eGiá: &f%price% Xu"
         - "&aChuột trái để mua x1"
         - "&aChuột phải để mua x16"
-    linh_tam_thao_shop:
-      slot: 18
-      item-id: "linh_tam_thao"
-      item-tier: "default"
-      price: 100
-      extra-lore:
-        - ""
-        - "&eGiá: &f%price% Xu"
-        - "&aChuột trái để mua x1"
-        - "&aChuột phải để mua x64"
 
 # ============================================
 #            CON ĐƯỜNG TU LUYỆN
@@ -832,7 +714,6 @@ paths:
       - "&e- &c/matu &7- Dấn thân vào Ma Đạo, sức mạnh thuần túy."
       - "&e- &b/phattu &7- Theo gót Phật Tổ, thân thể vững vàng."
       - "&e- &d/luyenkhisu &7- Trở thành bậc thầy chế tác."
-      - "&e- &6/luyendansu &7- Trở thành Đại Sư Luyện Đan."
   kiemtu:
     display-name: "&aKiếm Tu"
     description: "&7Bậc thầy vũ khí, sát thương vô song."
@@ -855,10 +736,6 @@ paths:
   luyenkhisu:
     display-name: "&dLuyện Khí Sư"
     description: "&7Bậc thầy chế tác, tạo ra thần binh lợi khí."
-    stats: {}
-  luyendansu:
-    display-name: "&6Luyện Đan Sư"
-    description: "&7Bậc thầy điều chế linh dược, nghịch thiên cải mệnh."
     stats: {}
 
 # ============================================
@@ -932,108 +809,3 @@ refining:
       material: "IRON_ORE"
       particle: "FLAME"
       spawn-chance: 0.0002
-
-# ============================================
-#              HỆ THỐNG LUYỆN ĐAN
-# ============================================
-alchemy:
-  settings:
-    water-boil-time-seconds: 10
-    cauldron-craft-time-seconds: 10
-    refine-stage2-time-seconds: 5
-    furnace-smelt-time-seconds: 5 # Không dùng nhưng giữ lại để đồng bộ
-
-  # --- Dược liệu ---
-  herbs:
-    linh_tam_thao:
-      display-name: "&aLinh Tâm Thảo"
-      drop-chance-from-grass: 0.05
-    huyet_tinh_hoa:
-      display-name: "&cHuyết Tinh Hoa"
-      drop-chance-from-grass: 0.02
-    bach_ngoc_sam:
-      display-name: "&fBách Ngọc Sâm"
-      drop-chance-from-grass: 0.01
-    tu_van_hoa: {display-name: "&dTử Vân Hoa", drop-chance-from-grass: 0.008}
-    dia_long_thao: {display-name: "&6Địa Long Thảo", drop-chance-from-grass: 0.007}
-    bang_hon_qua: {display-name: "&bBăng Hồn Quả", drop-chance-from-grass: 0.005}
-    huyen_vuong_chi: {display-name: "&8Huyền Vương Chi", drop-chance-from-grass: 0.003}
-    ngan_la_co: {display-name: "&7Ngân Diệp Thảo", drop-chance-from-grass: 0.01}
-    tinh_van_lo: {display-name: "&eTinh Vẫn Lộ", drop-chance-from-grass: 0.006}
-    thien_luc_diep: {display-name: "&2Thiên Lục Diệp", drop-chance-from-grass: 0.009}
-    co_ba_la: {display-name: "&dCỏ Ba Lá", drop-chance-from-grass: 0.015}
-    hoa_mat_troi: {display-name: "&6Hướng Dương Thảo", drop-chance-from-grass: 0.004}
-    hoa_hong_gai: {display-name: "&cHoa Hồng Gai", drop-chance-from-grass: 0.007}
-    nam_doc: {display-name: "&5Nấm Độc", drop-chance-from-grass: 0.002}
-    re_cay_co_thu: {display-name: "&6Rễ Cây Cổ Thụ", drop-chance-from-grass: 0.001}
-
-  # --- Đan Dược ---
-  pills:
-    luyen_khi_dan:
-      tam_pham:
-        display-name: "&7Luyện Khí Đan [Tam Phẩm]"
-        lore:
-          - "&7Đan dược hỗ trợ đột phá Luyện Khí."
-          - "&fTăng &a%bonus%%&f tỷ lệ thành công."
-        success-chance-bonus: 5
-        refine-stage2: # Cấu hình giai đoạn 2
-          success-rate: 50
-          success-effects:
-            lightning-count: 2
-            particle-type: "EXPLOSION_LARGE"
-            particle-radius: 5
-            push-distance: 2
-          failure-effects:
-            explosion-type: "CREEPER" # Nổ creeper không phá hủy block mặc định
-            block-destruction-radius: 0 # Đặt là 0 để không phá hủy block
-            damage-amount: 8.0 # 4 trái tim
-            blindness-duration-seconds: 5
-            penalty-tier-decrease: 1 # Giảm 1 bậc tu vi (ví dụ: Trung Kỳ -> Sơ Kỳ)
-    truc_co_dan:
-      tam_pham:
-        display-name: "&7Trúc Cơ Đan [Tam Phẩm]"
-        lore:
-          - "&7Đan dược hỗ trợ đột phá Trúc Cơ."
-          - "&fTăng &a%bonus%%&f tỷ lệ thành công."
-        success-chance-bonus: 8
-        refine-stage2:
-          success-rate: 45
-          success-effects:
-            lightning-count: 3
-            particle-type: "FIREWORKS_SPARK"
-            particle-radius: 7
-            push-distance: 3
-          failure-effects:
-            explosion-type: "NORMAL"
-            block-destruction-radius: 0
-            damage-amount: 10.0
-            blindness-duration-seconds: 7
-            penalty-tier-decrease: 1
-    # ... Các loại đan khác ...
-
-  # --- Công Thức Luyện Đan ---
-  recipes:
-    luyen_khi_dan:
-      tier-chance:
-        tam_pham: 60
-        nhi_pham: 30
-        nhat_pham: 10
-      ingredients:
-        huyet_tinh_hoa: 2
-    truc_co_dan:
-      tier-chance:
-        tam_pham: 70
-        nhi_pham: 25
-        nhat_pham: 5
-      ingredients:
-        huyet_tinh_hoa: 5
-        bach_ngoc_sam: 1
-
-  # --- Đan Dược Hỏng ---
-  failed_pill:
-    display-name: "&4&lViên Đan Hỏng"
-    lore:
-      - "&7Thất bại của một Luyện Đan Sư."
-      - "&7Không có tác dụng."
-    material: "COAL"
-    enchanted: false

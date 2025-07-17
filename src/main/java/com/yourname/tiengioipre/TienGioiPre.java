@@ -69,12 +69,6 @@ public final class TienGioiPre extends JavaPlugin {
         this.cultivationTaskInstance = new CultivationTask(this); // Khởi tạo đối tượng Runnable
         this.cultivationBukkitTask = this.cultivationTaskInstance.runTaskTimer(this, 0L, 20L); // Chạy và gán vào BukkitTask
         getLogger().info("Da khoi dong Task Tu Luyen chinh.");
-
-        // Alchemy Furnace Task (Lò nung luyện đan)
-        this.alchemyFurnaceTaskInstance = new AlchemyFurnaceTask(this); // Khởi tạo đối tượng Runnable
-        this.alchemyFurnaceBukkitTask = this.alchemyFurnaceTaskInstance.runTaskTimer(this, 20L, 20L); // Chạy và gán vào BukkitTask
-        getLogger().info("Da khoi dong Task Luyen Dan trong lo.");
-
         getLogger().info("Plugin TienGioiPre da duoc bat thanh cong!");
     }
 
@@ -83,9 +77,6 @@ public final class TienGioiPre extends JavaPlugin {
         // Hủy các task khi plugin tắt để tránh lỗi và memory leak
         if (this.cultivationBukkitTask != null && !this.cultivationBukkitTask.isCancelled()) {
             this.cultivationBukkitTask.cancel();
-        }
-        if (this.alchemyFurnaceBukkitTask != null && !this.alchemyFurnaceBukkitTask.isCancelled()) {
-            this.alchemyFurnaceBukkitTask.cancel();
         }
         
         // Lưu dữ liệu tông môn (phải lưu trước PlayerData)
@@ -122,7 +113,6 @@ public final class TienGioiPre extends JavaPlugin {
         getCommand("matu").setExecutor(pathCommand);
         getCommand("phattu").setExecutor(pathCommand);
         getCommand("luyenkhisu").setExecutor(pathCommand);
-        getCommand("luyendansu").setExecutor(pathCommand);
         
         // Lệnh Tông Môn
         TongMonCommand tongMonCommand = new TongMonCommand(this);
@@ -143,12 +133,6 @@ public final class TienGioiPre extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new OreSpawnListener(this), this);
         getServer().getPluginManager().registerEvents(new TongMonListener(this), this);
         
-        // Đăng ký các listener cho hệ thống Luyện Đan
-        getServer().getPluginManager().registerEvents(new HerbDropListener(this), this);
-        getServer().getPluginManager().registerEvents(new CauldronAlchemyListener(this), this);
-        // FurnaceRefinePillListener không còn được đăng ký ở đây nữa vì logic đã chuyển sang AlchemyFurnaceTask
-        // getServer().getPluginManager().registerEvents(new FurnaceRefinePillListener(this), this); 
-    }
 
     /**
      * Thiết lập và kết nối với các plugin phụ thuộc.
@@ -208,14 +192,6 @@ public final class TienGioiPre extends JavaPlugin {
         return this.tongMonManager;
     }
 
-    /**
-     * Lấy instance của AlchemyFurnaceTask Runnable để truy cập các phương thức của nó.
-     * @return Đối tượng AlchemyFurnaceTask đang chạy.
-     */
-    public AlchemyFurnaceTask getAlchemyFurnaceTask() {
-        // Trả về instance Runnable đã được khởi tạo trong onEnable
-        return this.alchemyFurnaceTaskInstance;
-    }
 
     /**
      * Lấy instance của API để các plugin khác sử dụng.

@@ -44,7 +44,6 @@ public class PathCommand implements CommandExecutor, TabCompleter {
             case "matu":
             case "phattu":
             case "luyenkhisu":
-            case "luyendansu": // <-- ĐÃ THÊM LỆNH MỚI
                 handlePathSelection(sender, cmdName);
                 break;
         }

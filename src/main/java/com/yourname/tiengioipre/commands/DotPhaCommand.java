@@ -71,11 +71,6 @@ public class DotPhaCommand implements CommandExecutor {
             boolean chanceEnabled = plugin.getConfig().getBoolean("settings.breakthrough-chance.enabled", false);
             int successRate = plugin.getConfig().getInt("settings.breakthrough-chance.success-rate", 45);
             
-            // Lấy bonus từ đan dược và tự động sử dụng nó
-            int pillBonus = getPillBonusAndConsume(player, currentTier);
-            int finalSuccessRate = successRate + pillBonus;
-
-            DebugLogger.log("DotPhaCommand", player.getName() + " is attempting breakthrough. Base Success: " + successRate + "%, Pill Bonus: " + pillBonus + "%, Final Rate: " + finalSuccessRate + "%");
 
             // Nếu hệ thống tỷ lệ được bật VÀ random thất bại
             if (chanceEnabled && random.nextInt(100) >= finalSuccessRate) {
@@ -214,40 +209,3 @@ public class DotPhaCommand implements CommandExecutor {
         player.playSound(player.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, 1.0f, 1.2f);
         DebugLogger.log("DotPhaCommand", player.getName() + " successfully breakthrough to " + realmName + " - " + tierName);
     }
-    
-    /**
-     * Tìm và sử dụng đan dược trong túi đồ người chơi, trả về bonus tỷ lệ.
-     */
-    private int getPillBonusAndConsume(Player player, RealmManager.TierData currentTier) {
-        int totalBonus = 0;
-        // Duyệt qua inventory của người chơi để tìm đan dược
-        for (int i = 0; i < player.getInventory().getSize(); i++) {
-            ItemStack item = player.getInventory().getItem(i);
-            if (item == null || !item.hasItemMeta()) continue;
-
-            ItemMeta meta = item.getItemMeta();
-            PersistentDataContainer container = meta.getPersistentDataContainer();
-
-            // Kiểm tra NBT tag của đan dược
-            if (container.has(pillBonusKey, PersistentDataType.INTEGER)) {
-                int bonus = container.get(pillBonusKey, PersistentDataType.INTEGER);
-                String pillDisplayName = (meta.hasDisplayName() ? meta.getDisplayName() : item.getType().name());
-
-                player.sendMessage(format("&aĐã sử dụng " + pillDisplayName + " &ađể tăng &e" + bonus + "% &atỷ lệ đột phá!"));
-                totalBonus += bonus;
-                
-                // Trừ 1 viên đan dược
-                item.setAmount(item.getAmount() - 1);
-                player.getInventory().setItem(i, item);
-                DebugLogger.log("DotPhaCommand", player.getName() + " consumed pill " + pillDisplayName + " for +" + bonus + "% bonus.");
-                break; // Chỉ cho dùng 1 viên mỗi lần đột phá
-            }
-        }
-        return totalBonus;
-    }
-    
-    private String format(String message) {
-        // Hàm format từ TongMonManager (đã được cấu hình để hỗ trợ RGB)
-        return plugin.getTongMonManager().format(message);
-    }
-}

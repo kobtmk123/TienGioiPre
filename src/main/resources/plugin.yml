@@ -57,9 +57,6 @@ commands:
   luyenkhisu:
     description: Chọn con đường Luyện Khí Sư.
     permission: tiengioipre.user.path.select
-  luyendansu: # <-- LỆNH MỚI
-    description: Chọn con đường Luyện Đan Sư.
-    permission: tiengioipre.user.path.select
 
 # ============================================
 #              ĐỊNH NGHĨA QUYỀN
